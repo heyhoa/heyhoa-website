@@ -1,0 +1,39 @@
+html,
+body {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 18px;
+  color: #121212;
+}
+
+.container {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.logo {
+  line-height: 0;
+}
+.logo img {
+  width: 60px;
+  height: auto;
+}
+
+a {
+  color: #2468FF;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #2468FF;
+  text-decoration: underline;
+}
+
+a.nostyle {
+  color: #121212;
+  text-decoration: none;
+}
+a.nostyle:hover {
+  text-decoration: underline;
+}
