@@ -21,35 +21,6 @@ figure {
   padding: 0;
 }
 
-.container {
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.panel {
-  display: block;
-  background-color: #f0f0f0;
-  padding: 1rem;
-  border-radius: 10px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo {
-  line-height: 0;
-}
-.logo img {
-  width: 44px;
-  height: auto;
-  border-radius: 10px;
-}
-
 a {
   color: #2468FF;
   text-decoration: none;
@@ -64,4 +35,83 @@ a.nostyle {
 }
 a.nostyle:hover {
   text-decoration: underline;
+}
+
+.center {
+  text-align: center;
+}
+
+
+.container {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+
+.panel {
+  display: block;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.logo {
+  line-height: 0;
+}
+.logo img {
+  width: 52px;
+  height: auto;
+  border-radius: 10px;
+}
+
+
+.rfp-sticky {
+  position: sticky;
+  bottom: 0px;
+  padding: 1rem 0;
+  background-color: white;
+  border-top: 1px solid rgba(0, 0, 0, .1);
+}
+
+
+.reviews {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.review {
+  margin-bottom: 3rem;
+  margin-right: 1.5rem;
+  margin-left: 0;
+}
+.review:nth-child(even) {
+  margin-right: 0;
+  margin-left: 1.5rem;
+}
+.review blockquote {
+  margin: 0;
+}
+.review cite {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  text-align: left;
+  margin-top: 0.5rem;
+  margin-left: 0;
+  margin-right: 2rem;
+}
+.review:nth-child(even) cite {
+  text-align: right;
+  margin-left: 2rem;
+  margin-right: 0;
 }
