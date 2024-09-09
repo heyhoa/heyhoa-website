@@ -54,21 +54,92 @@
         
       <form>
         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" class="form-control" id="name" name="name">
+          <label for="form-text">Text</label>
+          <input type="text" class="form-control" id="form-text" placeholder="Anything text..." tabindex="0">
         </div>
 
         <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" class="form-control" id="email" name="email">
+          <label for="form-email">Email</label>
+          <input type="email" class="form-control" id="form-email" placeholder="Your email address..." tabindex="0">
         </div>
 
         <div class="form-group">
-          <label for="message">Message</label>
-          <textarea class="form-control" id="message" name="message" rows="4"></textarea>
+          <label for="form-pass">Password</label>
+          <input type="password" class="form-control" id="form-pass" placeholder="Type a password..." tabindex="0">
+          <span class="form-help-text">must be at least 6 characters</span>
         </div>
 
-        <input type="submit" value="Submit">
+        <div class="form-checkbox">
+          <div class="form-checkbox-group">
+            <input type="checkbox" class="" id="form-inline-checkbox" name="form-inline-checkbox" tabindex="0">
+            <label for="form-inline-checkbox">this is an inline checkbox label (accept terms)</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-select">Auto-repost to top (over 30 days)</label>
+          <select class="form-control" id="form-select">
+            <option selected="">No, thanks</option>
+            <option>Every 10 days; 3 times (+$2.00)</option>
+            <option>Every 5 days; 6 times (+3.50)</option>
+            <option>Every 3 days; (+$5.00)</option>
+            <option>Every day; 30 times (+$10.00)</option>
+          </select>
+        </div>
+
+        <div class="form-checkbox">
+          <label for="">Click some checkboxes</label>
+          <div class="form-checkbox-group">
+            <input type="checkbox" class="" id="form-checkbox-1" name="form-checkbox-1" tabindex="0">
+            <label for="form-checkbox-1">Select this first option</label>
+          </div>
+          <div class="form-checkbox-group">
+            <input type="checkbox" class="" id="form-checkbox-2" name="form-checkbox-2" tabindex="0">
+            <label for="form-checkbox-2">Here is a second option to select</label>
+          </div>
+          <div class="form-checkbox-group">
+            <input type="checkbox" class="" id="form-checkbox-3" name="form-checkbox-3" tabindex="0">
+            <label for="form-checkbox-3">One last option</label>
+          </div>
+        </div>
+
+        <div class="form-checkbox">
+          <label for="">Radio select</label>
+          <div class="form-checkbox-group">
+            <input type="radio" class="" id="form-radio-1" name="form-radio" tabindex="0">
+            <label for="form-radio-1">Select this first option</label>
+          </div>
+          <div class="form-checkbox-group">
+            <input type="radio" class="" id="form-radio-2" name="form-radio" tabindex="0">
+            <label for="form-radio-2">Here is a second option to select</label>
+          </div>
+          <div class="form-checkbox-group">
+            <input type="radio" class="" id="form-radio-3" name="form-radio" tabindex="0">
+            <label for="form-radio-3">One last option</label>
+          </div>
+          <div class="form-checkbox-group">
+            <input type="radio" class="" id="form-radio-4" name="form-radio" tabindex="0">
+            <label for="form-radio-4">A fourth for kicks</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-textarea">Textarea</label>
+          <textarea id="form-textarea" class="form-control" name="form-textarea" tabindex="0" rows="5"></textarea>
+          <span class="form-help-text">300 characters max</span>
+        </div>
+
+
+        <div class="form-group">
+          <label for="">Drag Drop Upload</label>
+          <div class="drag-drop-container" id="dragDropContainer">
+            <div class="text">Drag &amp; drop file here<br>or, click to browse (4 MB max)</div>
+            <input type="file" id="fileInput" accept=".csv">
+          </div>
+
+          <div class="drag-drop-files" id="fileInfo"></div>
+        </div>
+        
       </form>
 
       <br/>
@@ -80,6 +151,7 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="assets/js/dragdrop.js"></script>
 
 </body>
 </html>

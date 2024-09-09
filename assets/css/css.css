@@ -42,6 +42,14 @@ a.nostyle:hover {
 }
 
 
+.brandgreen {
+  color: #C6FF00;
+}
+.brandblue {
+  color: #2468FF;
+}
+
+
 .container {
   width: 100%;
   max-width: 560px;
@@ -65,13 +73,18 @@ a.nostyle:hover {
 }
 
 
-.logo {
+.logo,
+.logotype {
   line-height: 0;
 }
 .logo img {
   width: 52px;
   height: auto;
   border-radius: 10px;
+}
+.logotype img {
+  width: 38px;
+  height: auto;
 }
 
 
@@ -114,4 +127,164 @@ a.nostyle:hover {
   text-align: right;
   margin-left: 2rem;
   margin-right: 0;
+}
+
+
+.iconlist {
+  display: block;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+.iconlist li {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+.yeslist li::before {
+  content: "\2714";
+  display: inline-block;
+  background-color: #C6FF00;
+  color: black;
+  border-radius: 100%;
+  font-size: .75em;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  padding: 5px 6px 5px 5px;
+  text-align: center;
+  margin-right: 10px;
+}
+.nolist li::before {
+  content: "\2716"; /* X mark alt code */
+  display: inline-block;
+  background-color: #FF0049;
+  color: white;
+  border-radius: 100%;
+  font-size: .75em;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  padding: 5px;
+  text-align: center;
+  margin-right: 10px;
+}
+
+
+/* forms */
+form {
+  font-size: 16px;
+  font-family: 'Space Grotesk', monospace;
+}
+.form-group,
+.form-group label,
+.form-control {
+  display: block;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: 'Space Grotesk', monospace;
+}
+.form-group {
+  margin-bottom: 10px;
+}
+.form-group label,
+.form-checkbox > label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* form control styles */
+/* TODO STYLE FORM INPUTS SO CONSISTENT ACROSS BROWSERS
+// CURRENTLY VARIABLE ACROSS BROWSERS  */
+
+.form-control {
+  padding: 5px 8px;
+}
+button.form-control {
+  padding: 5px 10px;
+}
+
+@media (max-width: 575px) {
+  .form-control {
+    width: 100%;
+  }
+}
+/* styles for checkbox and radio form elements */
+.form-checkbox {
+  margin-bottom: 10px;
+}
+.form-checkbox > label {
+  display: block;
+  width: 100%;
+}
+.form-checkbox .form-checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.form-checkbox .form-checkbox-group:first-of-type {
+  margin-top: 10px;
+}
+.form-checkbox .form-checkbox-group:last-of-type {
+  margin-bottom: 15px;
+}
+.form-checkbox .form-checkbox-group label {
+  margin-left: 5px;
+}
+.form-checkbox input[type="radio"],
+.form-checkbox input[type="checkbox"] {
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+.form-checkbox .form-checkbox-group input {
+  margin-right: 5px;
+}
+.form-checkbox-group+.form-checkbox-group {
+  margin-top: 10px;
+}
+/* form help text */
+.form-help-text {
+  display: block;
+  margin-top: 2.5px;
+  color: #999;
+  font-size: .9rem;
+}
+/* drag and drop container */
+.drag-drop-container {
+  border: 2px dashed rgba(0,0,0,.1);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 30px 20px;
+  text-align: center;
+  background-color: rgba(0,0,0,.05);
+  position: relative;
+  width: 100%;
+}
+.drag-drop-container:hover {
+  border-color: rgba(0,0,0,.25);
+}
+.drag-drop-container.dragover {
+  border-color: #6c63ff;
+  background-color: #f0f0ff;
+}
+.drag-drop-container input[type="file"] {
+  display: none;
+}
+.drag-drop-container .text {
+  margin: 10px 0;
+}
+
+.drag-drop-files {
+  margin: 20px 0;
+  font-style: italic;
+}
+.drag-drop-files a.remove-file {
+  display: block;
+  margin-top: 3px;
+  color: red;
+  cursor: pointer;
+  text-decoration: none;
 }
