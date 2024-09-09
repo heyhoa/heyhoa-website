@@ -148,6 +148,7 @@ a.nostyle:hover {
   color: black;
   border-radius: 100%;
   font-size: .75em;
+  font-weight: bold;
   width: 14px;
   height: 14px;
   line-height: 14px;
@@ -162,6 +163,7 @@ a.nostyle:hover {
   color: white;
   border-radius: 100%;
   font-size: .75em;
+  font-weight: bold;
   width: 14px;
   height: 14px;
   line-height: 14px;
