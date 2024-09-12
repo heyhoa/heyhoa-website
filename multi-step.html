@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <title>heyhoa - hoa accounting for small hoas and condos</title>
+  
+  <link rel="canonical" href="{{ canonicalUrl }}" />
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, shrink-to-fit=no, maximum-scale=1">
+  <meta name="robots" content="index, follow">
+
+  <meta name="title" content="{{ metaTitle }}">
+  <meta name="description" content="{{ metaDescription }}">
+  <meta name="keywords" content="hoa accounting services, hoa management companies, hoa accounting, self managed hoa accounting services, hoa accounting and financial services">
+  
+  <meta property="og:url" content="{{ canonicalUrl }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ metaTitle }}">
+  <meta property="og:description" content="{{ metaDescription }}">
+  <meta property="og:image" content="{{ metaOgImage }}">
+
+  <!-- vendor css -->
+  <link href="https://fonts.cdnfonts.com/css/space-grotesk" rel="stylesheet">
+
+  <!-- site css -->
+  <link href="assets/css/css.css" rel="stylesheet">
+
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="header">
+        <a href="index.html" class="logotype"><img src="assets/img/logotype.png" alt="heyhoa hoa accounting services"></a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <a href="javscript:void(0);" onclick="window.history.back(); return false;">← go back</a>
+
+      <br/>
+
+      <h2>maintenance request</h2>
+
+      <form class="multistep" id="dynamicForm">
+        <fieldset>
+          <h3>Your Information</h3>
+
+          <progress id="file" value="33" max="100" style="width:100%;position: relative;display: block;">33%</progress>
+          <span>(Step 1 of 3)</span>
+
+          <div class="form-group">
+            <label for="multi-name">Your Name</label>
+            <input type="text" class="form-control" id="multi-name" name="multi-name" placeholder="Your full name..." required="">
+          </div>
+
+          <div class="form-group">
+            <label for="multi-email">Email Address</label>
+            <input type="email" class="form-control" id="multi-email" name="multi-email" placeholder="Your email address..." required="">
+            <span class="form-help-text">We'll use this to contact you about your request.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="multi-phone">Phone Number</label>
+            <input type="text" class="form-control" id="multi-phone" name="multi-phone" placeholder="Best daytime number..." required="">
+          </div>
+          
+          <a href="#" class="next">Next</a>
+        </fieldset>
+
+        <fieldset style="display: none;">
+          <h3>Your Message</h3>
+
+          <progress id="file" value="66" max="100" style="width:100%;position: relative;display: block;">66%</progress>
+          <span>(Step 2 of 3)</span>
+
+          <div class="form-group">
+            <label for="multi-message">Any comments?</label>
+            <textarea class="form-control" id="multi-message" name="multi-message" rows="4" placeholder="Anything we need to know?"></textarea>
+          </div>
+          
+          <a href="javascript:void(0);" class="previous">Go back</a>
+          <button type="submit" value="Send message">Send message</button>
+        </fieldset>
+      </form>    
+      
+      <br/>
+      <br/>
+      <br/>
+
+    </div>
+  </main>
+
+
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+  <script src="assets/js/dragdrop.js"></script>
+  <script src="assets/js/multistep.js"></script>
+  <script src="assets/js/partialentry.js"></script>
+
+</body>
+</html>

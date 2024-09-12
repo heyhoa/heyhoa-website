@@ -140,7 +140,7 @@ a.nostyle:hover {
 .picklist a {
   display: flex;
   position: relative;
-  background-color: #f0f0f0;
+  background-color: rgba(0,0,0,.025);
   padding: .75rem 1rem;
   margin: 0 0 10px;
   border-radius: 5px;
@@ -154,7 +154,7 @@ a.nostyle:hover {
   margin-left: auto;
 }
 .picklist a:hover {
-  background-color: #e5e5e5;
+  background-color: rgba(0,0,0,.05);
 }
 
 
@@ -203,8 +203,20 @@ a.nostyle:hover {
 
 /* forms */
 form {
-  font-size: 16px;
+  font-size: 1rem;
   font-family: 'Space Grotesk', monospace;
+}
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+legend {
+  display: block;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  line-height: inherit;
 }
 .form-group,
 .form-group label,
@@ -213,7 +225,7 @@ form {
   width: 100%;
   position: relative;
   box-sizing: border-box;
-  font-size: 16px;
+  font-size: 1rem;
   font-family: 'Space Grotesk', monospace;
 }
 .form-group {
