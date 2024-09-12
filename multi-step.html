@@ -49,7 +49,7 @@
         <fieldset>
           <h3>Your Information</h3>
 
-          <progress id="file" value="33" max="100" style="width:100%;position: relative;display: block;">33%</progress>
+          <progress id="file" value="0" max="100" style="width:100%;position: relative;display: block;">0%</progress>
           <span>(Step 1 of 3)</span>
 
           <div class="form-group">
@@ -68,18 +68,38 @@
             <input type="text" class="form-control" id="multi-phone" name="multi-phone" placeholder="Best daytime number..." required="">
           </div>
           
-          <a href="#" class="next">Next</a>
+          <a href="javascript:void(0);" class="next">Next</a>
         </fieldset>
 
         <fieldset style="display: none;">
           <h3>Your Message</h3>
 
-          <progress id="file" value="66" max="100" style="width:100%;position: relative;display: block;">66%</progress>
+          <progress id="file" value="33" max="100" style="width:100%;position: relative;display: block;">33%</progress>
           <span>(Step 2 of 3)</span>
 
           <div class="form-group">
             <label for="multi-message">Any comments?</label>
             <textarea class="form-control" id="multi-message" name="multi-message" rows="4" placeholder="Anything we need to know?"></textarea>
+          </div>
+          
+          <a href="javascript:void(0);" class="previous">Go back</a>
+          <a href="javascript:void(0);" class="next">Next</a>
+        </fieldset>
+
+        <fieldset style="display: none;">
+          <h3>Upload docs</h3>
+
+          <progress id="file" value="66" max="100" style="width:100%;position: relative;display: block;">66%</progress>
+          <span>(Step 3 of 3)</span>
+
+          <div class="form-group">
+            <label for="">Drag Drop Upload</label>
+            <div class="drag-drop-container" id="dragDropContainer">
+              <div class="text">Drag &amp; drop file here<br>or, click to browse (4 MB max)</div>
+              <input type="file" id="fileInput" accept=".csv">
+            </div>
+  
+            <div class="drag-drop-files" id="fileInfo"></div>
           </div>
           
           <a href="javascript:void(0);" class="previous">Go back</a>
