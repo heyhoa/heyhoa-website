@@ -43,21 +43,31 @@
 
       <br/>
 
-      <h2>homeowners</h2>
+      <h2>ARC modification request</h2>
 
-      <p>what can we help you with?</p>
+      <p>Before you make any exterior or visible modifications to your home, your association may require that you submit an architectural request application for approval.</p>
 
-      <br/>
+      <p>Each association has their own unique applications, so fill out the form below and we'll send you the correct application.</p>
 
-      <ul class="picklist">
-        <a href="#"><li>make a payment</li></a>
-        <a href="multi-step.html"><li>maintenance request</li></a>
-        <a href="#"><li>find my community website</li></a>
-        <a href="#"><li>update my contact info</li></a>
-        <a href="#"><li>contact the board</li></a>
-        <a href="#"><li>request account statement</li></a>
-        <a href="arc-request.html"><li>submit arc request</li></a>
-      </ul>      
+      <form class="multistep" id="dynamicForm">
+        <div class="form-group">
+          <label for="multi-name">Your Name</label>
+          <input type="text" class="form-control" id="multi-name" name="multi-name" placeholder="Your full name..." required="">
+        </div>
+
+        <div class="form-group">
+          <label for="multi-email">Email Address</label>
+          <input type="email" class="form-control" id="multi-email" name="multi-email" placeholder="Your email address..." required="">
+          <span class="form-help-text">We'll use this to contact you about your request.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="multi-phone">Phone Number</label>
+          <input type="text" class="form-control" id="multi-phone" name="multi-phone" placeholder="Best daytime number..." required="">
+        </div>
+        
+        <a href="#" class="next">Next</a>
+      </form>    
       
       <br/>
       <br/>
@@ -69,6 +79,8 @@
 
   <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
   <script src="assets/js/dragdrop.js"></script>
+  <script src="assets/js/multistep.js"></script>
+  <script src="assets/js/partialentry.js"></script>
 
 </body>
 </html>

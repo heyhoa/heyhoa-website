@@ -145,7 +145,9 @@ a.nostyle:hover {
   margin: 0 0 10px;
   border-radius: 5px;
 }
-.picklist a li {}
+.picklist a li {
+  margin-right: 1.75rem;
+}
 .picklist a:after {
   position: absolute;
   right: 1rem;
