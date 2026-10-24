@@ -14,7 +14,7 @@
       <h3>Minutes</h3>
       <textarea class="form-control" name="minutes" rows="10" placeholder="Called to order 7:02 pm. Present: … Motion to approve … Vote 3-0. Action items: …">{{ m.minutes or '' }}</textarea>
       <div class="form-row" style="margin-top:.5rem"><div class="form-group"><select class="form-control" name="status"><option value="scheduled" {% if m.status == 'scheduled' %}selected{% endif %}>Scheduled</option><option value="held" {% if m.status == 'held' %}selected{% endif %}>Held (minutes final)</option></select></div><div class="form-group"><button class="btn btn-primary btn-sm">Save minutes</button></div></div>
-      <p class="small muted">Owners see final minutes in the portal. Decisions voted here are also recorded on the Decisions page so the vote and the execution are in one place.</p>
+
     </form>
   </div>
   <div class="card">
@@ -27,7 +27,7 @@
       <button class="btn btn-primary btn-sm">{{ 'Send again' if m.notice_sent_at else 'Send notice' }}</button>
     </form>
     <h4 style="margin-top:1rem">The notice says</h4>
-    <p class="small muted">A {{ kinds[m.kind]|lower }} on {{ m.date|datefmt('%A, %B %d, %Y') }} at {{ m.time }}, {{ m.where }}, with the agenda above, given {{ m.notice_days }} days in advance per the bylaws and state statute.</p>
+
   </div>
 </div>
 {% endblock %}

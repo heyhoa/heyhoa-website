@@ -5,7 +5,6 @@
 {% block content %}
 <div class="row" style="grid-template-columns:3fr 2fr">
   <div>
-    <div class="toolbar"><span>{{ due_count }} due now · the next twelve months. hey emails the owner when an item enters its lead window.</span><span class="small muted">{{ items|length }} recurring items</span></div>
     {% for month, list in by_month.items() %}
     <h3 style="margin:.9rem 0 .3rem;font-size:.95rem">{{ month }}</h3>
     <div class="table-wrap"><table class="data">
@@ -32,7 +31,6 @@
           <td style="text-align:right"><form method="post" onsubmit="return confirm('Remove {{ m.name|e }} from the roster?')"><input type="hidden" name="intent" value="member_remove"><input type="hidden" name="id" value="{{ m.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
         </tr>{% else %}<tr><td colspan="4" class="muted">No roster yet. Add the board, with seats and term dates; hey tracks the terms and the election.</td></tr>{% endfor %}</tbody>
       </table></div>
-      <p class="help">Adding a member with an email sends them a login setup link (password, then a code by email on each new device). Signers can approve money. Term end = start + term length unless you set it. Officers change at the first meeting after the election; update the seats here and the bank signers at {{ config.BANK_NAME }}.</p>
     </div>
     <div class="card" style="margin-top:.8rem">
       <h3>All recurring items</h3>

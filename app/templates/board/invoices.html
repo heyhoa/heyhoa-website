@@ -12,6 +12,6 @@
     <span class="ir-meta">{% if i.status == 'pending_board' %}{{ i.approvals }}/{{ i.approvals_required }} · due {{ i.due_date|datefmt('%b %d') }}{% elif i.status == 'paid' %}paid {{ i.paid_on|datefmt('%b %d') }}{% else %}due {{ i.due_date|datefmt('%b %d') }}{% endif %}</span>
   </li>{% else %}<li class="inbox-row" style="cursor:default"><span class="ir-main muted">Nothing here.</span></li>{% endfor %}
 </ul>
-<p class="small muted" style="margin-top:.8rem">{{ invoices|length }} bills · {{ total|money }}. Two approvals release a payment; the accountant then pays it.</p>
+<p class="small muted" style="margin-top:.8rem">{{ invoices|length }} bills · {{ total|money }}</p>
 {% for i in invoices %}{{ invoice_drawer(i, flags.get(i.id), signers, me, initials) }}{% endfor %}
 {% endblock %}

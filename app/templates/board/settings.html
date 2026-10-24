@@ -7,7 +7,6 @@
   <form class="card" method="post">
     <h3>Board rules <span class="small muted">(approvals needed)</span></h3>
     <div class="table-wrap"><table><tbody>{% for key, label in rule_labels %}<tr><td>{{ label }}</td><td class="num"><input class="form-control" name="rule_{{ key }}" type="number" min="1" max="7" value="{{ rules[key] }}" style="width:4.5rem;display:inline-block;text-align:center"></td></tr>{% endfor %}</tbody></table></div>
-    <p class="help">Never below 1. Money moves only after the rule is met, by a person.</p>
     <button class="btn btn-primary btn-sm">Save rules</button>
   </form>
   <div class="card">

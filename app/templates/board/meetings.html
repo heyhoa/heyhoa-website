@@ -25,7 +25,7 @@
     <div class="form-group"><label>Agenda <span class="small muted">(one item per line; hey filled it from what is pending)</span></label><textarea class="form-control" name="agenda" rows="11">{{ draft_agenda|join('\n') }}</textarea></div>
     <input type="hidden" name="notice_days" value="{{ notice_days[kind] }}">
     <button class="btn btn-primary btn-sm" type="submit">Schedule</button>
-    <p class="small muted" style="margin-top:.5rem">Next: open the meeting, fix the agenda, send the notice (email, portal, and letters to owners without email). After the meeting, paste or dictate the minutes.</p>
+
   </form>
 </div>
 {% endblock %}

@@ -30,7 +30,6 @@
       <tr class="tot"><td><strong>Year end balance</strong></td>{% for m in grid.money %}<td class="num {{ 'neg' if m.end < 0 }}"><strong>{{ m.end|money0 }}</strong></td>{% endfor %}</tr>
     </tbody>
   </table></div>
-  <p class="help">{{ grid.years[0] }} starts at today's reserve cash ({{ snap.reserve_cash|money0 }}); each year starts where the last ended. Red means more contribution, a special assessment, or a later year.{% if grid.unscheduled %} Beyond {{ grid.years[-1] }}: {% for p in grid.unscheduled %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}.{% endif %}</p>
 </div>
 
 <div class="row" style="margin-top:.8rem">
@@ -65,6 +64,6 @@
     <tbody>{% for c in comps %}<tr><td>{{ c.name }} <span class="small muted">{{ c.quantity or '' }}</span></td><td class="num">{{ c.useful_life or '—' }}</td><td class="num">{{ c.remaining_life if c.remaining_life is not none else '—' }}</td><td class="num">{{ c.replacement_cost|money0 }}</td><td class="num">{{ c.next_year or '—' }}</td>
       <td class="small"><form method="post" style="display:inline"><input type="hidden" name="intent" value="from_study"><input type="hidden" name="component_id" value="{{ c.id }}"><button class="btn btn-ghost btn-sm">Add to plan</button></form> <form method="post" action="{{ url_for('board.reserve_delete', comp_id=c.id) }}" style="display:inline"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="small muted" style="margin-top:.5rem">Source: {% for s in studies %}{{ s.title }}{% if not loop.last %}, {% endif %}{% else %}no study on file{% endfor %}. When you upload a study, hey reads the components into this list for you to pull into the plan.</p>
+
 </div>{% endif %}
 {% endblock %}

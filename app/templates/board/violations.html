@@ -7,5 +7,5 @@
   <thead><tr><th>Unit</th><th>Category</th><th>Opened</th><th>Stage</th><th>Status</th></tr></thead>
   <tbody>{% for v in violations %}<tr><td>{{ v.unit_label }}</td><td>{{ v.category }}</td><td>{{ v.opened|datefmt }}</td><td class="small">{{ v.stage|replace('_',' ') }}</td><td><span class="pill {% if v.status == 'closed' %}green{% else %}amber{% endif %}">{{ v.status }}</span></td></tr>{% endfor %}</tbody>
 </table></div>
-<p class="small muted" style="margin-top:1rem">Board+ plan. hey drafts courtesy and formal notices from the rule cited; fines post to the owner ledger only after the hearing step your state requires.</p>
+
 {% endblock %}

@@ -7,5 +7,5 @@
   <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead>
   <tbody>{% for l in log %}<tr><td class="small">{{ l.created_at|datefmt('%b %d, %H:%M') }}</td><td>{{ l.actor }}</td><td class="mono small">{{ l.action }}</td><td class="small">{{ l.target }}</td><td class="small muted">{{ l.detail }}</td></tr>{% else %}<tr><td colspan="5" class="muted">No activity yet. Approve an invoice and it shows up here.</td></tr>{% endfor %}</tbody>
 </table></div>
-<p class="small muted" style="margin-top:1rem">Every automated action by hey is logged here too, with the input it saw and the rule it applied.</p>
+
 {% endblock %}

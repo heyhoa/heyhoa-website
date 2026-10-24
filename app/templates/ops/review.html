@@ -1,23 +1,18 @@
 {% extends "ops/base.html" %}
 {% from "ops/_macros.html" import state_pill %}
 {% block title %}Review — hey ops{% endblock %}
-{% block page_title %}Review queue{% endblock %}
-{% block page_actions %}<span class="small muted">{{ items|length }} waiting</span>{% endblock %}
+{% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
+{% block page_actions %}<form method="post" action="{{ url_for('ops.run_daily') }}"><button class="btn btn-ghost btn-sm">Run daily agents</button></form>{% endblock %}
 {% block content %}
-<div class="toolbar"><span>Each row is something hey proposes to do. Open it, read what would go out, edit if needed, approve or reject. Reads never wait here; money always does.</span><span><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve · <kbd>r</kbd> reject</span></div>
-<div class="table-wrap"><table class="data">
-  <thead><tr><th>Item</th><th>Lane</th><th>Community</th><th>Proposes</th><th>Confidence</th><th>Due</th><th></th></tr></thead>
-  <tbody>{% for w in items %}{% set pr = w.proposal or {} %}
-    <tr data-drawer="wi-{{ w.id }}" {% if w.priority == 'high' %}style="box-shadow:inset 3px 0 0 var(--red)"{% endif %}>
-      <td><span class="primary">{{ w.subject }}</span><span class="sub">#{{ w.id }} · {{ w.kind }}{% if w.counterpart_name or w.counterpart_email %} · {{ w.counterpart_name or w.counterpart_email }}{% endif %}</span></td>
-      <td class="small">{{ w.lane }}</td>
-      <td class="small">{{ communities[w.community_id].name if w.community_id in communities else '—' }}</td>
-      <td><span class="check-mark {{ 'bad' if pr.get('action') in ('post_fine','send_notice','create_payment_plan') else 'warn' if pr.get('action') in ('send_email','send_sms') else 'ok' }}">{{ (pr.get('action') or '—')|replace('_',' ') }}</span><span class="sub">{{ (pr.get('reason') or '')[:70] }}</span></td>
-      <td><span class="progress">{% for n in range(5) %}<i class="{% if n < ((pr.get('confidence', 0) * 5)|round|int) %}on{% endif %}"></i>{% endfor %}</span> <span class="small muted">{{ (pr.get('confidence', 0) * 100)|round|int }}%</span></td>
-      <td class="small {% if w.sla_due and w.sla_due < now %}due late{% endif %}">{{ w.sla_due|datefmt('%b %d %H:%M') if w.sla_due else '—' }}</td>
-      <td>{{ state_pill(w.state) }}</td>
-    </tr>{% else %}<tr><td colspan="7" class="muted" style="padding:1.5rem;text-align:center">Nothing to review. Run the daily agents to see work appear.</td></tr>{% endfor %}</tbody>
-</table></div>
+<p class="small muted" style="margin:-.4rem 0 .8rem">{{ stats.waiting }} waiting · {{ stats.overdue }} past due · {{ stats.done_today }} done today · {{ stats.auto_rate }}% closed by hey alone{% if shadow %} · shadow mode{% endif %}</p>
+<ul class="inbox">
+  {% for w in items %}{% set pr = w.proposal or {} %}
+  <li class="inbox-row" data-drawer="wi-{{ w.id }}">
+    <span class="ir-tag"><span class="pill {{ 'red' if w.priority == 'high' else 'amber' if w.state == 'proposed' else 'blue' }}">{{ w.lane }}</span></span>
+    <span class="ir-main"><span class="ir-title">{{ w.subject }}</span><span class="ir-sub">{{ (pr.get('action') or '—')|replace('_',' ') }} · {{ (pr.get('confidence', 0) * 100)|round|int }}% · {{ communities[w.community_id].name if w.community_id in communities else '—' }}{% if w.counterpart_name or w.counterpart_email %} · {{ w.counterpart_name or w.counterpart_email }}{% endif %}</span></span>
+    <span class="ir-meta {% if w.sla_due and w.sla_due < now %}due late{% endif %}">{{ w.sla_due|datefmt('%b %d %H:%M') if w.sla_due else '' }}</span>
+  </li>{% else %}<li class="inbox-row" style="cursor:default"><span class="ir-main muted">Nothing to review.</span></li>{% endfor %}
+</ul>
 
 {% for w in items %}{% set pr = w.proposal or {} %}{% set payload = pr.get('payload', {}) or {} %}
 <aside class="drawer" id="wi-{{ w.id }}">
@@ -37,7 +32,6 @@
     <h4>What goes out{% if payload.get('to') %} · to {{ payload.get('to') }}{% endif %}</h4>
     {% if payload.get('subject') %}<p class="small" style="margin:0 0 .3rem"><strong>{{ payload.get('subject') }}</strong></p>{% endif %}
     <textarea class="form-control" name="body" rows="12" form="approve-{{ w.id }}">{{ payload.get('body') }}</textarea>
-    <p class="help">Edit before approving; what you approve is what goes out.{% if payload.get('fee') %} A ${{ payload.get('fee') }} fee posts to the ledger.{% endif %}</p>
     {% else %}<h4>Preview</h4><p style="white-space:pre-wrap;margin:0">{{ pr.get('preview','') }}</p>{% endif %}
     {% if w.evidence %}<h4>Evidence</h4><ul class="chain">{% for e in w.evidence %}<li><span class="who"><strong>{{ e.label }}</strong> {{ e.text }}</span>{% if e.ref %}<span class="when">{{ e.ref }}</span>{% endif %}</li>{% endfor %}</ul>{% endif %}
     <h4>Item</h4>

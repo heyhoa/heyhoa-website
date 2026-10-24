@@ -28,7 +28,7 @@
       <div class="form-group"><input class="form-control" name="final_subject" value="{{ preview.subject }}"></div>
       <textarea class="form-control" name="final_body" rows="14">{{ preview.body }}</textarea>
       <button class="btn btn-primary btn-sm" style="margin-top:.5rem">Send {{ preview.count }} letter(s)</button>
-      <p class="small muted" style="margin-top:.5rem">{% if mail_on %}Printed and mailed first class by our mail service, usually delivered in 4–6 business days.{% else %}hey prints and mails these today; tracking appears below.{% endif %} Every letter is logged with the recipient and address.</p>
+
     </form>{% endif %}
     <div class="card" {% if preview %}style="margin-top:.8rem"{% endif %}>
       <h3>Sent</h3>

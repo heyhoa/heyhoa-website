@@ -7,5 +7,5 @@
   <thead><tr><th>Opened</th><th>Where</th><th>Category</th><th>Summary</th><th>Vendor</th><th>Status</th></tr></thead>
   <tbody>{% for r in requests %}<tr><td>{{ r.created|datefmt }}</td><td>{{ r.unit_label }}</td><td>{{ r.category }}</td><td>{{ r.summary }}</td><td class="muted">{{ r.assigned_vendor or '— pick vendor' }}</td><td><span class="pill {% if r.status == 'closed' %}green{% elif r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span>{% if r.status in ('open','awaiting_bid') %}<form method="post" action="{{ url_for('board.request_work_order', sr_id=r.id) }}" class="actions" style="margin-top:.4rem"><input class="form-control" name="vendor" placeholder="Vendor" style="width:130px" value="{{ r.assigned_vendor or '' }}"><input class="form-control" name="nte" placeholder="NTE $" type="number" style="width:90px"><button class="btn btn-ghost btn-sm">Open work order →</button></form>{% endif %}</td></tr>{% endfor %}</tbody>
 </table></div>
-<p class="small muted" style="margin-top:1rem">hey logs the request, classifies it and checks responsibility under the CC&amp;Rs. The board picks the vendor and approves the bid; hey chases the vendor and closes the loop with the owner.</p>
+
 {% endblock %}

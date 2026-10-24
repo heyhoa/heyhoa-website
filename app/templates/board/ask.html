@@ -8,7 +8,6 @@
       <div class="bubble them"><span class="who">hey</span>Hi {{ me.name.split(' ')[0] }}. I have the GL, every invoice, the owner ledgers and the governing documents for {{ community.name }}. Ask me for a number, a draft or a reason.</div>
     </div>
     <form action="{{ url_for('api.ask') }}" method="post" style="display:flex;gap:.5rem"><input class="form-control" name="q" placeholder="How much did we spend on landscaping vs last year?" autocomplete="off"><button class="btn btn-primary" type="submit">Ask</button></form>
-    <span class="form-help-text">Numbers come straight from the ledger with the GL lines cited. Drafts are drafts until a board member sends them.</span>
   </div>
   <div class="card"><h4>Try</h4><ul class="small muted" style="padding-left:1.2rem"><li>Landscaping spend this year vs last</li><li>Which vendors are missing a W-9?</li><li>Draft a notice about the pool closing</li><li>Are we on track for the reserve contribution?</li><li>What does the declaration say about rentals?</li></ul></div>
 </div>

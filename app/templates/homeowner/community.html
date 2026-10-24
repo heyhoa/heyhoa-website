@@ -14,7 +14,7 @@
         <td><span class="pill {% if p.status == 'completed' %}green{% elif p.status == 'in_progress' %}amber{% endif %}">{{ statuses[p.status] }}</span></td>
       </tr>{% else %}<tr><td colspan="4" class="muted">The board has not published a project list yet.</td></tr>{% endfor %}</tbody>
     </table></div>
-    <p class="small muted" style="margin-top:.5rem">Kept by the board. Reserve-funded projects are paid from the reserve account your dues contribute to each month.</p>
+
   </div>
   <div class="card">
     <h3>Who fixes what</h3>
@@ -22,7 +22,7 @@
       <thead><tr><th>Item</th><th style="text-align:center">You</th><th style="text-align:center">Association</th><th>Note</th></tr></thead>
       <tbody>{% for r in items %}<tr><td class="lead">{{ r.item }}</td><td style="text-align:center" data-label="You:">{% if r.party in ('owner','shared') %}<strong>X</strong>{% endif %}</td><td style="text-align:center" data-label="Association:">{% if r.party in ('association','shared') %}<strong>X</strong>{% endif %}</td><td class="small muted">{{ r.note or '' }}</td></tr>{% else %}<tr><td colspan="4" class="muted">The board has not published this chart yet. <a href="{{ url_for('homeowner.ask') }}">Ask hey</a> and it will check the governing documents.</td></tr>{% endfor %}</tbody>
     </table></div>
-    <p class="small muted" style="margin-top:.5rem">Not sure about something that is not listed? <a href="{{ url_for('homeowner.ask') }}">Ask hey</a>, or <a href="{{ url_for('homeowner.request_new') }}">report it</a> and the board decides.</p>
+
   </div>
 </div>
 {% endblock %}

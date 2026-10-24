@@ -13,7 +13,7 @@
     <thead><tr><th>Days past due</th><th>Step</th><th class="num">Fee to owner</th></tr></thead>
     <tbody>{% for key, days, label, fee in collection_stages %}<tr><td>{{ days if days > 1 else 'past due' }}{% if key == 'attorney' %}+ (board vote){% endif %}</td><td>{{ label }}</td><td class="num">{{ fee|money0 if fee else '—' }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="small muted" style="margin-top:.75rem">No lien and no attorney until the balance is at least {{ lien_threshold.balance|money0 }} or the account is {{ lien_threshold.days }} days past due. hey drafts every notice; a person reviews before it is sent. Fees post to the owner ledger.</p>
+
 </div>
 {% if draft %}
 <div class="card" style="margin-top:1.25rem">

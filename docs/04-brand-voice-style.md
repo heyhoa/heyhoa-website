@@ -35,6 +35,12 @@ Everything is light by default: white page, ink type, soft grey (`#F6F5F8`) card
 - **Mono (labels, numbers, eyebrows):** Space Grotesk, uppercase eyebrows at 0.78rem with 0.08em tracking.
 - Numbers in tables use tabular figures, right-aligned.
 
+## No taglines in the product
+
+Marketing pages sell; portal pages work. Inside the portals there are no taglines, no helper text, no
+secondary labels. If a screen needs a sentence to make sense, the layout is wrong: fix the layout.
+The one exception is a note from hey about a specific item, which is content, not help.
+
 ## Simple as a spreadsheet
 
 The bar for every screen is the sheet a treasurer already keeps: a project list with a cost and a

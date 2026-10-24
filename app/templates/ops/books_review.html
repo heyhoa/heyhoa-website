@@ -22,12 +22,12 @@
   <p class="small">{% for k, label, _ in checklist %}<label style="margin-right:1rem"><input type="checkbox" name="clean_{{ k }}" {% if k in review.clean %}checked{% endif %}> {{ label }}</label>{% endfor %}</p>
   <label class="small">Summary for the memo (three sentences: what we found, what it costs, what changes with hey)<textarea class="form-control" name="summary" rows="4">{{ review.summary }}</textarea></label>
   <div style="display:flex;gap:.5rem;margin-top:.75rem"><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-ghost" type="submit" name="deliver" value="1">Save and mark delivered</button></div>
-  <p class="small muted" style="margin-top:.5rem">Delivery: print the memo to PDF, email it from the founder's address with the proposal link, log the send on the lead's thread. Two business days from receipt.</p>
+
 </form>
 <div class="card">
   <h4>What we look for</h4>
   {% for k, label, items in checklist %}<p class="small"><strong>{{ label }}</strong></p><ul class="small" style="margin:0 0 .5rem 1rem;padding:0">{% for it in items %}<li>{{ it }}</li>{% endfor %}</ul>{% endfor %}
-  <p class="small muted">Rules: say what we saw, not what we suspect. Every finding has a number or a date. Never name a vendor as dishonest; name the control that was missing. One page. If the books are clean, the memo says so and the proposal still goes.</p>
+
 </div>
 </div>
 {% endblock %}

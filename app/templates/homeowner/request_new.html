@@ -6,7 +6,7 @@
   <form class="card multistep" method="post" id="req-form" data-remember>
     <fieldset>
       <progress value="0" max="100"></progress><span class="step-label">Step 1 of 2</span>
-      <div class="form-group"><label for="summary">What is going on?</label><textarea class="form-control" id="summary" name="summary" rows="4" required placeholder="Sprinkler head at the corner of my driveway is spraying the sidewalk"></textarea><span class="form-help-text">Write it the way you would text a neighbor. hey picks the category and the vendor.</span></div>
+      <div class="form-group"><label for="summary">What is going on?</label><textarea class="form-control" id="summary" name="summary" rows="4" required placeholder="Sprinkler head at the corner of my driveway is spraying the sidewalk"></textarea></div>
       <div class="form-group"><label for="category">Category (optional)</label><select class="form-control" id="category" name="category"><option value="">Let hey decide</option>{% for c in ['Irrigation','Lighting','Landscaping','Fence','Roof','Plumbing','Pool','Gate / access','Pest','Other'] %}<option>{{ c }}</option>{% endfor %}</select></div>
       <div class="step-nav"><span></span><a href="#" class="btn btn-primary next">Next</a></div>
     </fieldset>

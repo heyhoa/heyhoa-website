@@ -7,5 +7,5 @@
   <thead><tr><th>Submitted</th><th>Request</th><th>Approvals</th><th>Status</th><th>Notes</th></tr></thead>
   <tbody>{% for a in arcs %}<tr><td>{{ a.submitted|datefmt }}</td><td>{{ a.request_type }}</td><td>{{ a.approvals }}/{{ a.approvals_required }}</td><td><span class="pill {% if a.status == 'approved' %}green{% elif a.status == 'denied' %}red{% elif a.status == 'more_info' %}amber{% else %}blue{% endif %}">{{ a.status|replace('_',' ') }}</span></td><td class="muted small">{{ a.notes }}</td></tr>{% else %}<tr><td colspan="5" class="muted">No applications yet.</td></tr>{% endfor %}</tbody>
 </table></div>
-<p class="small muted" style="margin-top:1rem">Your CC&amp;Rs give the committee 30 days. If you have not heard back by day 25, hey nudges them automatically.</p>
+
 {% endblock %}

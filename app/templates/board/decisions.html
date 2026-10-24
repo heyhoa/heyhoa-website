@@ -31,7 +31,7 @@
     <div class="form-group"><label for="damount">Amount (if money)</label><input class="form-control" id="damount" name="amount" type="number" step="0.01"></div>
     <div class="form-group"><label for="dbody">Details</label><textarea class="form-control" id="dbody" name="body" rows="6" placeholder="Why, what it costs, what hey found. Attach files under Records."></textarea></div>
     <button class="btn btn-primary btn-sm">Add to the list</button>
-    <details style="margin-top:1rem"><summary class="small muted">Approvals needed, by type</summary><ul class="checks" style="margin-top:.4rem">{% for k, t in types.items() %}<li><span>{{ t.label }}</span><span class="muted small">{{ t.approvals }}</span></li>{% endfor %}</ul><p class="help">Change them in Settings.</p></details>
+    <details style="margin-top:1rem"><summary class="small muted">Approvals needed, by type</summary><ul class="checks" style="margin-top:.4rem">{% for k, t in types.items() %}<li><span>{{ t.label }}</span><span class="muted small">{{ t.approvals }}</span></li>{% endfor %}</ul></details>
   </form>
 </aside>
 {% endblock %}

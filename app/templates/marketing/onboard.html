@@ -46,7 +46,6 @@
   <div class="form-row"><div class="form-group"><input class="form-control" type="file" name="files" multiple required></div><div class="form-group"><select class="form-control" name="category"><option value="governing">governing</option><option value="financial">bank statements / financial</option><option value="contract">contracts</option><option value="insurance">insurance</option><option value="reserve_study">reserve study</option><option value="meetings">minutes</option><option value="other">other</option></select></div></div>
   <button class="btn btn-primary btn-sm" type="submit">Upload</button>
   {% if documents %}<p class="small muted" style="margin-top:.5rem">{{ documents|length }} on file: {% for d in documents[:6] %}{{ d.title }}{% if not loop.last %}, {% endif %}{% endfor %}{% if documents|length > 6 %}…{% endif %}</p>{% endif %}
-  <p class="help">hey emails you what is still missing and why it matters.</p>
 </form>
 
 <form method="post" class="card" style="margin-top:1rem"><input type="hidden" name="intent" value="rules">

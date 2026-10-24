@@ -21,7 +21,7 @@
           {% for n, a, b in snap.expense_lines %}<tr><td>{{ n }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num" style="color:{{ 'var(--green)' if a <= b else 'var(--red)' }}">{{ (a - b)|money }}</td></tr>{% endfor %}
         </tbody>
       </table></div>
-      <p class="small muted" style="margin-top:.75rem">Click any line in the PDF packet to open the GL detail and source documents behind it.</p>
+
     </div>
   </div>
   <div>
@@ -32,7 +32,7 @@
     <div class="card" style="margin-top:1.25rem">
       <h3>Financial packages</h3>
       <ul class="checks">{% for m in ['September 2026','August 2026','July 2026','June 2026'] %}<li><span>{{ m }} <span class="small muted">delivered on the {{ ['5th','4th','5th','3rd'][loop.index0] }}</span></span><span class="small"><a href="{{ url_for('static', filename='docs/hey-sample-financial-packet.pdf') }}">board</a> · <a href="{{ url_for('static', filename='docs/hey-sample-homeowner-package.pdf') }}">owners</a></span></li>{% endfor %}</ul>
-      <p class="small muted" style="margin-top:.5rem">Board package: cover, monthly update, budget comparison, balance sheet, aged owner balances, collection report, prepaid report, check register, bank reconciliations, bank statements. Owners get the first four.</p>
+
     </div>
     <div class="card" style="margin-top:1.25rem">
       <h3>Bank · {{ config.BANK_NAME }}</h3>

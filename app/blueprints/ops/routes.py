@@ -24,16 +24,7 @@ def _communities():
 @bp.route("/dashboard")
 @role_required("ops")
 def dashboard():
-    now = dt.datetime.now(dt.timezone.utc)
-    open_q = WorkItem.query.filter(WorkItem.state.in_(["new", "working", "proposed", "approved", "escalated"]))
-    by_lane = dict(db.session.query(WorkItem.lane, func.count()).filter(WorkItem.state.in_(["proposed", "escalated"])).group_by(WorkItem.lane).all())
-    by_state = dict(db.session.query(WorkItem.state, func.count()).group_by(WorkItem.state).all())
-    breached = [w for w in open_q.all() if w.sla_due and w.sla_due.replace(tzinfo=dt.timezone.utc) < now]
-    done_today = WorkItem.query.filter(WorkItem.state == "done", WorkItem.updated_at >= now.replace(hour=0, minute=0, second=0, microsecond=0)).count()
-    auto = WorkItem.query.filter(WorkItem.state == "done", WorkItem.reviewer.is_(None)).count()
-    total_done = max(WorkItem.query.filter(WorkItem.state == "done").count(), 1)
-    review = WorkItem.query.filter(WorkItem.state.in_(["proposed", "escalated"])).order_by(WorkItem.priority.desc(), WorkItem.sla_due).limit(8).all()
-    return render_template("ops/dashboard.html", by_lane=by_lane, by_state=by_state, breached=breached, done_today=done_today, auto_rate=round(auto / total_done * 100), review=review, agents=AGENTS, communities=_communities(), shadow=current_app.config.get("SHADOW_MODE", True))
+    return review()
 
 
 @bp.route("/queue")
@@ -56,8 +47,15 @@ def queue():
 @bp.route("/review")
 @role_required("ops")
 def review():
+    """Home. Everything hey proposes, waiting on a person, with the four numbers that matter."""
+    now = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
     items = WorkItem.query.filter(WorkItem.state.in_(["proposed", "escalated"])).order_by(WorkItem.priority.desc(), WorkItem.sla_due).all()
-    return render_template("ops/review.html", items=items, communities=_communities(), now=dt.datetime.now(dt.timezone.utc).replace(tzinfo=None))
+    open_q = WorkItem.query.filter(WorkItem.state.in_(["new", "working", "proposed", "approved", "escalated"])).all()
+    done = WorkItem.query.filter(WorkItem.state == "done")
+    total_done = done.count()
+    stats = {"waiting": len(items), "overdue": sum(1 for w in open_q if w.sla_due and w.sla_due < now), "done_today": done.filter(WorkItem.updated_at >= now.replace(hour=0, minute=0, second=0, microsecond=0)).count(),
+             "auto_rate": round(done.filter(WorkItem.reviewer.is_(None)).count() / max(total_done, 1) * 100)}
+    return render_template("ops/review.html", items=items, communities=_communities(), now=now, stats=stats, shadow=current_app.config.get("SHADOW_MODE", True))
 
 
 @bp.route("/item/<int:item_id>")
