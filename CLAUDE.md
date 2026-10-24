@@ -21,8 +21,7 @@ Agents run in lanes (`app/agents`), propose one action, and wait for a person in
 
 ## Code rules
 - Portal component classes are prefixed (`ir-`, `inbox`, `drawer`, `firstmonth`) and scoped under `.shell`; grep `app/static/css/hey.css` before adding a class name. The marketing site owns the bare names.
-- Portal shell (`portal/base.html`): a top bar with the mark, the community, the tabs and a More menu, over one centered column (`col-s` 640 for owners, `col-m` 960 for boards, `col-l` 1200 for ops). No sidebar. Modeled on Link's logged-in app.
-- Portal pages extend `board/base.html`, `homeowner/base.html` or `ops/base.html`; drawers are macros in `board/_*_drawer.html`; lists are `.inbox` rows (work) or `.lrows` rows (activity, settings-style links).
+- Portal pages extend `board/base.html`, `homeowner/base.html` or `ops/base.html`; drawers are macros in `board/_*_drawer.html`.
 - Services hold logic (`app/services`), routes stay thin, templates stay dumb. Agents get data through tools in `app/agents/tools.py`.
 - Every feature ships with a test in `tests/`. Run `rm -f instance/heyhoa.db; python3 -m pytest -q` before every commit; the mock invoice state is shared across tests, so do not assert on a specific vendor still being pending.
 - Screenshots: start the app on a side port with `python3 -c "from app import create_app; create_app().run(port=NNNN)"` and stop it with `kill $(pgrep -f "port=NNNN")`. Never `pkill -f python3`.

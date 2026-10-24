@@ -1,37 +1,42 @@
 {% extends "homeowner/base.html" %}
 {% block title %}Home — {{ brand.name }}{% endblock %}
-{% block page_title %}{% endblock %}
+{% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('homeowner.pay') }}">Pay dues</a><a class="btn btn-ghost btn-sm" href="{{ url_for('homeowner.request_new') }}">Report an issue</a>{% endblock %}
 {% block content %}
-<section class="hero-balance">
-  <div class="hb-label">{% if ua.balance > 0 %}You owe{% else %}Balance{% endif %}</div>
-  <div class="hb-amount">{{ ua.balance|money }}</div>
-  <div class="hb-sub">{% if ua.balance > 0 %}due now{% else %}next {{ ua.next_due_amount|money0 }} on {{ ua.next_due_date|datefmt('%b %d') }}{% if ua.autopay %} · autopay on{% endif %}{% endif %}</div>
-  <a class="btn btn-primary" href="{{ url_for('homeowner.pay') }}">{% if ua.balance > 0 %}Pay {{ ua.balance|money }}{% elif ua.autopay %}Manage autopay{% else %}Set up autopay{% endif %}</a>
-</section>
-
-<h3>Activity</h3>
-<ul class="lrows">
-  {% for l in ledger %}<li class="lrow"><span class="lr-main">{{ l.description }}<span class="lr-sub">{{ l.date|datefmt }}</span></span><span class="lr-amt {% if l.payment %}neg{% endif %}">{% if l.payment %}−{{ l.payment|money }}{% else %}{{ l.charge|money }}{% endif %}</span></li>{% endfor %}
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.ledger') }}">All activity and statements</a></li>
-</ul>
-
-{% if requests or arcs %}<h3>Requests</h3>
-<ul class="lrows">
-  {% for r in requests %}<li class="lrow"><span class="lr-main">{{ r.category }}<span class="lr-sub">{{ r.summary[:70] }}</span></span><span class="pill {% if r.status == 'closed' %}green{% elif r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span></li>{% endfor %}
-  {% for a in arcs %}<li class="lrow"><span class="lr-main">Architectural<span class="lr-sub">{{ a.request_type }}</span></span><span class="pill {% if a.status == 'approved' %}green{% elif a.status == 'denied' %}red{% else %}blue{% endif %}">{{ a.status|replace('_',' ') }} {{ a.approvals }}/{{ a.approvals_required }}</span></li>{% endfor %}
-</ul>{% endif %}
-
-{% if announcements %}<h3>From the board</h3>
-<ul class="lrows">{% for a in announcements %}<li class="lrow"><span class="lr-main">{{ a.title }}<span class="lr-sub">{{ a.body }}</span></span></li>{% endfor %}</ul>{% endif %}
-
-<h3>More</h3>
-<ul class="lrows">
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.request_new') }}">Report an issue</a></li>
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.ask') }}">Ask hey</a></li>
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.documents') }}">Documents</a></li>
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.spending') }}">Community spending</a></li>
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.community_page') }}">Projects &amp; who fixes what</a></li>
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.directory') }}">Board &amp; contacts</a></li>
-  <li class="lrow"><a class="lr-link" href="{{ url_for('homeowner.profile') }}">My profile</a></li>
-</ul>
+<div class="grid grid-3">
+  <div class="card stat"><div class="label">Balance</div><div class="value">{{ ua.balance|money }}</div><div class="delta">{% if ua.balance > 0 %}Due now{% else %}Paid up. Nice.{% endif %}</div></div>
+  <div class="card stat"><div class="label">Next assessment</div><div class="value">{{ ua.next_due_amount|money0 }}</div><div class="delta">Due {{ ua.next_due_date|datefmt }} · {% if ua.autopay %}autopay on{% else %}<a href="{{ url_for('homeowner.pay') }}">set up autopay</a>{% endif %}</div></div>
+  <div class="card stat"><div class="label">Open items</div><div class="value">{{ requests|selectattr('status','ne','closed')|list|length + (arcs|selectattr('status','in',['submitted','under_review','more_info'])|list|length) }}</div><div class="delta">requests and ARC applications</div></div>
+</div>
+<div class="row" style="margin-top:1.25rem">
+  <div>
+    <div class="card">
+      <h3>Recent activity</h3>
+      <ul class="timeline">
+        {% for l in ledger %}<li><span>{{ l.date|datefmt }}</span><span>{{ l.description }} <span class="muted">{% if l.payment %}−{{ l.payment|money }}{% else %}{{ l.charge|money }}{% endif %}</span></span></li>{% endfor %}
+      </ul>
+      <p style="margin-top:1rem"><a href="{{ url_for('homeowner.ledger') }}">Full ledger →</a></p>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3>Your requests</h3>
+      {% for r in requests %}
+      <div style="display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-top:1px solid var(--line)"><span>{{ r.category }} · {{ r.summary[:60] }}{% if r.summary|length > 60 %}…{% endif %}</span><span class="pill {% if r.status == 'closed' %}green{% elif r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span></div>
+      {% else %}<p class="muted">Nothing open.</p>{% endfor %}
+      {% for a in arcs %}
+      <div style="display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-top:1px solid var(--line)"><span>ARC · {{ a.request_type }}</span><span class="pill {% if a.status == 'approved' %}green{% elif a.status in ('denied',) %}red{% else %}blue{% endif %}">{{ a.status|replace('_',' ') }} {{ a.approvals }}/{{ a.approvals_required }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <h3>From the board</h3>
+      {% for a in announcements %}<p><strong>{{ a.title }}</strong><br><span class="muted small">{{ a.body }}</span></p>{% else %}<p class="muted">No announcements.</p>{% endfor %}
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <p class="eyebrow">Ask hey</p>
+      <p class="small">“Can I park a trailer overnight?” “When is the pool heated?” “What did I pay in 2025?”</p>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('homeowner.ask') }}">Ask a question</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,6 +1,5 @@
 {% extends "portal/base.html" %}
-{% block shell_class %}col-m{% endblock %}
-{% block home_url %}{{ url_for('board.dashboard') }}{% endblock %}
+{% block portal_name %}board{% endblock %}
 {% block sidenav %}
 {% set p = request.path %}
 <ul>
