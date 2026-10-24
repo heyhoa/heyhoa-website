@@ -12,7 +12,7 @@ Goal: one accountant and one coordinator run 80–120 communities, because hey d
 ## 2. Channels
 
 ### Email (`help@heyhoa.com` plus one alias per community)
-- Shared inbox (Front, Help Scout or Missive) with an API. Each community gets `willowcreek@heyhoa.com`; owners can also email the board alias we host, which routes to the same queue with the board on copy.
+- **Help Scout** is the shared inbox and the ticket system. Two mailboxes: Support (owners, boards, vendors) and Sales (quote requests, website messages, closing-doc orders). Each community gets an alias (`willowcreek@heyhoa.com`) that forwards into Support; the alias identifies the community. Owners can also email the board alias we host, which routes to the same queue with the board on copy.
 - hey reads every inbound: identifies the community and the owner (from the roster), classifies, drafts, and either sends (sourced, low-risk categories) or queues for a person.
 - Categories hey sends on its own after a confidence check: balance and payment questions, document requests, "what does the rule say", autopay setup, contact changes it already made, status of a request. Everything with money adjustments, disputes, legal threats, emotion or a board decision goes to a person with a draft attached.
 - Reply time targets: hey under 2 minutes; person under 4 business hours; board decision items surfaced same day.
@@ -37,7 +37,8 @@ Goal: one accountant and one coordinator run 80–120 communities, because hey d
 - Outbound letters (collection notices that policy or statute require by mail, annual meeting notices, ballots) go through a print-and-mail API (Lob or PostGrid) with proof of delivery stored on the ticket. Inbound mail goes to a scanning service; checks go to the lockbox, never to us.
 
 ## 3. The ticket system
-- One queue, one tool with an API (HubSpot Service Hub free, Linear, or Zendesk; pick the one the coordinator likes). Our app mirrors tickets into `PortalRequest` so the portals show status without exposing the tool.
+- One queue: Help Scout conversations. Our app mirrors each into `PortalRequest` (`remote_id` = `hs:<conversation id>`) so the portals show status without exposing the tool. Routing and hey's actions use tags (`cat:*`, `route:*`, `hey:replied|drafted`) and assignment, so the coordinator can filter by route in Help Scout's own views.
+- Mechanics (built, `app/services/triage.py`): Help Scout webhook (`convo.created`, `convo.customer.reply.created`) → `/api/webhooks/helpscout` (HMAC verified) → community from the alias, owner from the roster → hey classifies and drafts → auto-reply for sourced balance/payment/autopay/document/rule/status questions from a known owner, otherwise an internal note with the draft, tags and assignment to the coordinator, accountant or board contact. Quote requests and website messages are created as Sales conversations (`app/services/notify.py`), with a Slack ping for leads.
 - Ticket fields: community · unit/owner · channel · category (balance, payment, autopay, document, rule question, maintenance, ARC, violation, resale, vendor, invoice, adjustment, dispute, board, onboarding, other) · owner: hey / coordinator / accountant / board · SLA · AI confidence · outcome.
 - Routing rules:
   - hey auto-resolves: sourced answers, status lookups, self-service tasks it can do via API (contact change, autopay, plan within policy, maintenance intake, ARC intake).
@@ -138,7 +139,7 @@ Order form (site) → fee collected → hey assembles the package from `resale` 
 | Founder / ops lead | Sales, onboarding kickoff, escalations, eval reviews, FrontSteps relationship | — |
 | hey | First pass on everything; all API writes in the surface; drafts; monitoring | all |
 
-Tooling: Caliber (desktop seats for accountants) · First Citizens via the Caliber bank integration and lockbox (no direct bank API in year one) · shared inbox with API · Twilio (SMS, voice) · print-and-mail API · e-signature · ticketing with API · our Flask app (portals, hey, snapshots, budgets, community brain, audit log) · Claude via the Anthropic API · an eval harness with real tickets.
+Tooling: Caliber (desktop seats for accountants) · First Citizens via the Caliber bank integration and lockbox (no direct bank API in year one) · Help Scout (shared inbox and tickets, Support and Sales mailboxes, per-community aliases) · Twilio (SMS, voice) · print-and-mail API · e-signature · our Flask app (portals, hey, snapshots, budgets, community brain, audit log) · Claude via the Anthropic API · Slack for internal pings · an eval harness with real tickets.
 
 ## 7. What stays human, on purpose
 Releasing money · waiving or adjusting a charge · any legal-adjacent letter (lien, attorney, violation hearing) · talking to an owner in distress · board politics · vendor selection · anything hey cannot cite. These are listed in each community's escalation list and in hey's system prompt.

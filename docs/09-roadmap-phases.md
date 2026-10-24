@@ -5,9 +5,9 @@ How to use this: each phase is a checklist. Work the unchecked boxes top to bott
 Status legend: `[x]` done · `[ ]` open · `[~]` in progress.
 
 ## Now (next three boxes, in order)
-1. Phase 1 · Lead notification: email + Slack on new `Lead`
-2. Phase 1 · Form the hey hoa entity, decide the term question (doc 11 decisions 1 and 3), send the adapted PSA to counsel
-3. Phase 1 · Contact form email delivery (Postmark/SES), shares the mailer with lead notifications
+1. Phase 1 · Form the hey hoa entity, decide the term question (doc 11 decisions 1 and 3), send the adapted PSA to counsel
+2. Phase 1 · Help Scout account: Support + Sales mailboxes, OAuth app, webhook to `/api/webhooks/helpscout`, per-community aliases, assignee ids in env
+3. Phase 1 · Deploy (Render/Fly + Postgres + cron for `snapshot-coa`), custom domain, CI
 
 Keep this list to three. When one is done, tick its box below and promote the next.
 
@@ -29,9 +29,10 @@ Goal: plan, brand, mock-ups, scaffold. Everything renders with demo data.
 Goal: public site that converts; first customer signed by hand.
 - [ ] Replace placeholder reviews with real quotes or remove the page until there are three
 - [x] Sample financial packet PDF (annotated) downloadable from `/pricing`, `/how-it-works` and the home page (`/sample-packet` is the HTML source; `node scripts/build_sample_packet.js` regenerates the PDF)
-- [ ] Lead notification: email + Slack on new `Lead`, with score and suggested tier
+- [x] Lead notification: Help Scout Sales conversation + Slack ping on new `Lead`, with score, plan and attribution (`services/notify.py`)
+- [ ] Help Scout account: Support + Sales mailboxes, OAuth app, webhook to `/api/webhooks/helpscout`, per-community aliases, assignee ids in env
 - [ ] Quote form: plan preselect from `?plan=`, UTM capture, honeypot, rate limit
-- [ ] Contact form: email delivery (Postmark/SES)
+- [x] Contact form: delivered as a Help Scout conversation (Support or Sales by topic)
 - [ ] Blog: move posts to markdown files, add RSS, add 9 more posts from the content calendar
 - [ ] SEO: sitemap.xml, robots.txt, OG image per page, schema.org Organization + FAQ
 - [ ] Analytics: privacy-friendly (Plausible) with quote-funnel events
@@ -59,8 +60,9 @@ Goal: first community live on FrontSteps data; owners and board use the portals 
 - [ ] Maintenance + ARC: write-through to `servicerequest` / `architectural/savenew` and document upload
 - [ ] Documents: proxy `client/{id}/documents` with visibility flags
 - [ ] Announcements: email (Postmark) + SMS (Twilio) delivery with opt-in tracking
-- [ ] Shared inbox with API (Front/Help Scout/Missive) + per-community aliases; inbound email → ticket → hey triage (doc 13 §2–3)
-- [ ] Ticketing tool chosen and mirrored into `PortalRequest`; routing rules hey/coordinator/accountant/board
+- [x] Help Scout chosen as inbox + tickets; webhook → hey triage → auto-reply or note+tags+assign; mirrored into `PortalRequest` (`services/triage.py`)
+- [ ] Triage in production: 2 weeks of shadow mode (hey drafts only, never auto-sends) on the Heywood community, then enable auto-send for the sourced categories
+- [ ] Portal: owners see their Help Scout tickets (`PortalRequest.kind == 'ticket'`) under Requests
 - [ ] Onboarding interview script + community-brain schema in the DB; first interview run with the Heywood community
 - [ ] Audit log: every provider mutation and every AI action logged with inputs
 - [ ] Onboarding runbook executed on customer #1 (doc 05 checklist)

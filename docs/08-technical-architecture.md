@@ -59,6 +59,9 @@ Template → route → `get_provider()` → provider method → dataclasses → 
 | Auth | `GET login` (Basic), `POST requestnewuseraccount`, `POST resetpassword`, `GET contact/multipass` |
 | Health | `GET ping`, `GET time`, `GET mgmtco` |
 
+## Inbox and tickets
+Help Scout is the shared inbox and ticket system. `app/integrations/helpscout.py` wraps the Mailbox API 2.0 (OAuth2 client credentials, conversations, replies, notes, tags, assignment) and verifies webhook signatures. `app/services/triage.py` turns a conversation into a community + owner + category + route and acts (reply or note+assign), mirroring to `PortalRequest`. `app/services/notify.py` creates Sales conversations for leads and website messages and pings Slack. All of it degrades to no-ops when the env vars are unset.
+
 ## Financials pipeline
 `flask snapshot-coa` runs nightly (cron) and copies every community's chart of accounts into `coa_snapshots`. `services/financials.py` derives the balance sheet (lifetime `Balance`), the YTD income statement (`FYBalance`), monthly activity (Δ `FYBalance` between snapshots) and budget vs actual (`budget_lines`). Bank reconciliation lives in Caliber with the First Citizens integration; we verify cash GL vs statement and show the status. See doc 12 for the full capability map and doc 13 for the close runbook.
 

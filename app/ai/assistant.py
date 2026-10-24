@@ -119,6 +119,48 @@ def classify_request(text: str) -> dict:
     return {"category": cat, "responsibility": "association" if cat in ("Irrigation", "Lighting", "Pool", "Gate / access", "Landscaping") else "unclear", "urgency": "urgent" if urgent else "normal", "summary": text[:60]}
 
 
+TRIAGE_SYSTEM = """Triage an inbound message to an HOA back office. Return JSON only: {"category": one of balance|payment|autopay|document|rule_question|status|maintenance|arc|violation|resale|vendor|invoice|adjustment|dispute|board|onboarding|other, "route": one of hey|coordinator|accountant|board, "unsourced": bool, "summary": <= 15 words}.
+Rules: adjustment, dispute, waiver, legal threat, insurance claim -> accountant or coordinator, never hey. Emotional or threatening tone -> coordinator. Anything asking for a board decision -> board. If the message cannot be answered from governing documents, a ledger or a policy, set unsourced true."""
+
+
+def triage_message(text: str, known_owner: bool = True) -> dict:
+    live = _complete(TRIAGE_SYSTEM, text, max_tokens=300)
+    if live:
+        try:
+            m = re.search(r"\{.*\}", live, re.S)
+            if m:
+                return json.loads(m.group(0))
+        except ValueError:
+            pass
+    t = text.lower()
+    rules = [
+        ("dispute", "accountant", ("dispute", "incorrect", "wrong charge", "lawyer", "attorney", "sue")),
+        ("adjustment", "accountant", ("waive", "waiver", "refund", "credit", "reverse")),
+        ("board", "board", ("board vote", "the board decide", "approve the", "variance")),
+        ("resale", "accountant", ("resale", "estoppel", "closing", "escrow", "refinanc", "lender")),
+        ("invoice", "accountant", ("invoice", "bill from", "w-9", "w9", "vendor payment")),
+        ("maintenance", "hey", ("broken", "leak", "sprinkler", "light out", "repair", "not working")),
+        ("arc", "hey", ("paint", "fence", "solar", "pergola", "arc ", "architectural", "modification")),
+        ("violation", "coordinator", ("violation", "fine", "notice i received", "complain about my neighbor")),
+        ("autopay", "hey", ("autopay", "auto pay", "ach", "automatic payment")),
+        ("payment", "hey", ("pay ", "payment", "paid")),
+        ("balance", "hey", ("balance", "owe", "statement", "late fee", "how much")),
+        ("document", "hey", ("bylaws", "cc&r", "ccr", "rules", "declaration", "documents", "minutes", "budget")),
+        ("rule_question", "hey", ("can i", "allowed", "permitted", "is it ok", "rule")),
+        ("status", "hey", ("status", "update on", "any news", "when will")),
+    ]
+    cat, route = "other", "coordinator"
+    for c, r, kws in rules:
+        if any(k in t for k in kws):
+            cat, route = c, r
+            break
+    if any(k in t for k in ("furious", "unacceptable", "ridiculous", "harass", "discriminat")):
+        route = "coordinator"
+    if not known_owner and route == "hey":
+        route = "coordinator"
+    return {"category": cat, "route": route, "unsourced": cat == "other", "summary": text.strip().split("\n")[0][:80]}
+
+
 def draft_delinquency_notice(d, community) -> str:
     stage_text = {
         "late_notice": "late notice", "rebill": "rebill notice", "demand": "pre-legal demand notice", "intent_to_lien": "notice of intent to lien",

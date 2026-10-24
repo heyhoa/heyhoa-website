@@ -34,6 +34,26 @@ def ask():
     return jsonify(answer=answer)
 
 
+@bp.post("/webhooks/helpscout")
+def helpscout_webhook():
+    """Help Scout → hey triage. Verifies the HMAC signature, then triages
+    convo.created and convo.customer.reply.created; everything else is 204."""
+    from ...integrations import helpscout as hs
+    from ...services.triage import triage_conversation
+
+    secret = current_app.config.get("HELPSCOUT_WEBHOOK_SECRET", "")
+    if not hs.verify_signature(request.get_data(), request.headers.get("X-HelpScout-Signature"), secret):
+        return jsonify(error="bad signature"), 401
+    event = request.headers.get("X-HelpScout-Event", "")
+    if event not in ("convo.created", "convo.customer.reply.created"):
+        return "", 204
+    payload = request.get_json(silent=True) or {}
+    client = None
+    if current_app.config.get("HELPSCOUT_APP_ID") and current_app.config.get("HELPSCOUT_APP_SECRET"):
+        client = hs.HelpScoutClient(current_app.config["HELPSCOUT_APP_ID"], current_app.config["HELPSCOUT_APP_SECRET"])
+    return jsonify(triage_conversation(payload, client))
+
+
 @bp.post("/leads")
 def leads():
     data = request.get_json(silent=True) or request.form

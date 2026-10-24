@@ -61,6 +61,12 @@ def create_lead(data: dict, source: str | None = None) -> Lead:
     db.session.add(lead)
     db.session.commit()
     log.info("new lead %s score=%s", lead.id, lead.score)
+    try:
+        from .notify import notify_new_lead
+
+        notify_new_lead(lead)
+    except Exception as e:  # noqa: BLE001 - never block the quote flow
+        log.warning("lead notification failed: %s", e)
     return lead
 
 

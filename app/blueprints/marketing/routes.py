@@ -152,8 +152,15 @@ def contact():
         if _rate_limited(request.remote_addr or "?"):
             flash("Too many messages from this network. Email us instead: " + current_app.config["LEAD_NOTIFY_EMAIL"], "error")
             return redirect(url_for("marketing.contact"))
-        db.session.add(ContactMessage(name=request.form.get("name"), email=request.form.get("email"), topic=request.form.get("topic"), message=request.form.get("message")))
+        msg = ContactMessage(name=request.form.get("name"), email=request.form.get("email"), topic=request.form.get("topic"), message=request.form.get("message"))
+        db.session.add(msg)
         db.session.commit()
+        try:
+            from ...services.notify import deliver_contact_message
+
+            deliver_contact_message(msg)
+        except Exception as e:  # noqa: BLE001
+            current_app.logger.warning("contact delivery failed: %s", e)
         flash("Got it. A person will reply within one business day.")
         return redirect(url_for("marketing.contact"))
     return render_template("marketing/contact.html")
