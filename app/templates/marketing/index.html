@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <p class="ticker"><span class="dot"></span> Now onboarding communities for a January 1 fiscal-year start</p>
+    <h1>You run the community.<br>{% include 'partials/hey-mark.html' %} runs the books.</h1>
+    <p class="lede">AI-first accounting and back office for self-managed HOAs and condos. Flat monthly price. No contracts. Financials by the 5th, every month.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('marketing.quote') }}">Get a quote</a>
+      <a class="btn btn-ghost" href="{{ url_for('auth.login_role', role='board', demo=1) }}">See the board portal</a>
+    </div>
+    <p class="small muted" style="margin-top:1.25rem">From $199/month for communities up to 30 doors. <a href="{{ url_for('marketing.pricing_page') }}">Full pricing</a>.</p>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="img-3pack">
+      <img src="{{ url_for('static', filename='img/stock-7.jpeg') }}" alt="Townhome community">
+      <img src="{{ url_for('static', filename='img/stock-8.jpeg') }}" alt="Neighborhood street">
+      <img src="{{ url_for('static', filename='img/stock-11.jpg') }}" alt="Condo building">
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">The deal</p>
+    <div class="split">
+      <div>
+        <h2>Most of full-service management. A third of the price. None of the waiting.</h2>
+      </div>
+      <div>
+        <p class="lede">A management company charges you for a person who shows up once a month and a back office you never see. Your board already does the showing up. We do the back office, and we do it faster because {% include 'partials/hey-mark.html' %} reads every invoice, bank line and owner message the moment it lands.</p>
+      </div>
+    </div>
+    <div class="grid grid-3" style="margin-top:2.5rem">
+      <div class="card">
+        <p class="eyebrow">Books</p>
+        <h3>Financials by the 5th</h3>
+        <p class="muted">Balance sheet, income vs budget, bank rec, AR and AP aging. Every number links to its source document. Late packet, free month.</p>
+        <a href="{{ url_for('marketing.service_detail', slug='accounting') }}">Accounting →</a>
+      </div>
+      <div class="card">
+        <p class="eyebrow">Back office</p>
+        <h3>Owners get answers in minutes</h3>
+        <p class="muted">Phone, email and text, answered from your own documents and ledger. Anything {% include 'partials/hey-mark.html' %} cannot source goes to a person, not voicemail.</p>
+        <a href="{{ url_for('marketing.service_detail', slug='back-office') }}">Back office →</a>
+      </div>
+      <div class="card">
+        <p class="eyebrow">Collections</p>
+        <h3>Firm, fair, documented</h3>
+        <p class="muted">Reminders the day after the due date. Notices on your policy's schedule. Payment plans owners set up themselves.</p>
+        <a href="{{ url_for('marketing.service_detail', slug='collections') }}">Collections →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="split">
+      <div>
+        <p class="eyebrow">What it feels like</p>
+        <h2>Ask a question. Get an answer with a source.</h2>
+        <p class="muted">Owners and board members talk to {% include 'partials/hey-mark.html' %} the way they would text a neighbor who happens to have read the bylaws and the ledger.</p>
+      </div>
+      <div class="chat" aria-label="Example conversation">
+        <div class="bubble us"><span class="who">owner · unit 12</span>Can I paint my front door black?</div>
+        <div class="bubble them"><span class="who">hey</span>Yes, with an ARC application. Black (Sherwin "Tricorn Black") is on your approved palette B. The committee has 30 days under CC&amp;Rs §7.2; most decisions land in under 10. Want me to start the application with your unit details filled in?</div>
+        <div class="bubble us"><span class="who">treasurer</span>Why is the pool invoice higher this month?</div>
+        <div class="bubble them"><span class="who">hey</span>Austin Pool Service #AP-889 is $640, 28% above the 12-month average of $498. The difference is a $142 chlorine shock treatment line item. It is in the AP queue with the invoice attached, one approval needed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">You get</p>
+    <div class="grid grid-2">
+      <ul class="iconlist">
+        <li>Public, flat pricing by door count</li>
+        <li>Financials by the 5th or that month is free</li>
+        <li>Homeowner and board portals with online payments</li>
+        <li>Month to month, 30 days' notice, your data exports any time</li>
+        <li>Three-week onboarding; we rebuild your books in parallel</li>
+      </ul>
+      <ul class="iconlist nolist">
+        <li>No long-term contracts</li>
+        <li>No late financial packets</li>
+        <li>No "call us for a quote"</li>
+        <li>No per-call, per-letter, per-statement surprise fees</li>
+        <li>No management company that owns your data</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Boards say</p>
+    <div class="grid grid-3">
+      {% for text, who in reviews %}
+      <blockquote class="quote card" style="margin:0">{{ text }}<cite>{{ who }}</cite></blockquote>
+      {% endfor %}
+    </div>
+    <p style="margin-top:1.5rem"><a href="{{ url_for('marketing.reviews') }}">More reviews →</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container narrow">
+    <p class="eyebrow">Questions</p>
+    {% for q, a in faqs %}
+    <details><summary>{{ q }}</summary><p>{{ a }}</p></details>
+    {% endfor %}
+    <p style="margin-top:1.5rem"><a href="{{ url_for('marketing.faq') }}">All questions →</a></p>
+  </div>
+</section>
+
+{% include 'partials/cta.html' %}
+{% endblock %}

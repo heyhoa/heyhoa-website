@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ svc.title }} — {{ brand.name }}{% endblock %}
+{% block description %}{{ svc.lede }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">{{ svc.eyebrow }}</p>
+    <h1>{{ svc.title }}</h1>
+    <p class="lede">{{ svc.lede }}</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="split">
+      <div>
+        <h3>What is included</h3>
+        <ul class="iconlist">{% for b in svc.bullets %}<li>{{ b }}</li>{% endfor %}</ul>
+      </div>
+      <div class="card">
+        <p class="eyebrow">Where {% include 'partials/hey-mark.html' %} comes in</p>
+        <p>{{ svc.ai }}</p>
+        <p class="small muted">Every automated action is logged, sourced and reviewable by the board. A person signs off on anything that leaves the building.</p>
+      </div>
+    </div>
+    <p style="margin-top:2rem" class="small muted">Other services:
+      {% for s2, v in services.items() if s2 != slug %}<a href="{{ url_for('marketing.service_detail', slug=s2) }}">{{ v.title }}</a>{% if not loop.last %} · {% endif %}{% endfor %}
+    </p>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

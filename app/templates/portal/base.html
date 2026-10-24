@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body_class %}theme-light{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block body %}
+{% if provider_name == 'mock' %}<div class="demo-banner">Demo data · signed in as {{ me.name }} ({{ role }}) · <a href="{{ url_for('auth.logout') }}">sign out</a></div>{% endif %}
+<div class="shell">
+  <aside class="sidebar">
+    <a class="logo" href="{{ url_for('marketing.index') }}">{% include 'partials/hey-mark.html' %}<span>{% block portal_name %}portal{% endblock %}</span></a>
+    <div class="community"><strong>{{ community.name }}</strong><span>{{ community.units }} {{ 'units' if community.kind == 'condo' else 'doors' }} · {{ community.city }}, {{ community.state }}</span></div>
+    <nav aria-label="Portal">{% block sidenav %}{% endblock %}</nav>
+    <div class="me">{{ me.name }}{% if me.title %} · {{ me.title }}{% endif %}<br><a href="{{ url_for('auth.logout') }}">Sign out</a></div>
+  </aside>
+  <main class="main">
+    <div class="inner">
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, m in messages %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}{% endwith %}
+      <div class="topbar">
+        <div><div class="crumbs">{% block crumbs %}{{ community.name }}{% endblock %}</div><h1>{% block page_title %}{% endblock %}</h1></div>
+        <div class="actions">{% block page_actions %}{% endblock %}</div>
+      </div>
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

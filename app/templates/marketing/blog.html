@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Blog — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container"><p class="eyebrow">Blog</p><h1>Notes for treasurers and board presidents.</h1></div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    {% for slug, p in posts %}
+    <article style="padding:1.5rem 0;border-top:1px solid var(--line)">
+      <p class="small muted">{{ p.date|datefmt }}</p>
+      <h3><a class="nostyle" href="{{ url_for('marketing.post', slug=slug) }}">{{ p.title }}</a></h3>
+      <p class="muted">{{ p.summary }}</p>
+      <a href="{{ url_for('marketing.post', slug=slug) }}">Read →</a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

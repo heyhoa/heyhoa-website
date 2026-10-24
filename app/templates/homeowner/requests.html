@@ -1,0 +1,11 @@
+{% extends "homeowner/base.html" %}
+{% block title %}Requests — {{ brand.name }}{% endblock %}
+{% block page_title %}Maintenance requests{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('homeowner.request_new') }}">New request</a>{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Opened</th><th>Category</th><th>Summary</th><th>Vendor</th><th>Status</th></tr></thead>
+  <tbody>{% for r in requests %}<tr><td>{{ r.created|datefmt }}</td><td>{{ r.category }}</td><td>{{ r.summary }}</td><td class="muted">{{ r.assigned_vendor or '—' }}</td><td><span class="pill {% if r.status == 'closed' %}green{% elif r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span></td></tr>{% else %}<tr><td colspan="5" class="muted">No requests yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small muted" style="margin-top:1rem">Common-area issues go to the board's vendor. Issues inside your unit are yours unless the CC&amp;Rs say otherwise; hey will tell you which when you file.</p>
+{% endblock %}

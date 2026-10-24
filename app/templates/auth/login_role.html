@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Log in — {{ brand.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem">
+  <div class="container narrow"><p class="eyebrow">{{ role }} login</p><h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">We'll email you a link.</h1><p class="lede">No passwords to forget. Enter the email your association has on file and tap the link we send.</p></div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <form class="card" method="post">
+      <div class="form-group"><label for="l-email">Email</label><input class="form-control" id="l-email" type="email" value="{{ persona.email }}"></div>
+      <button class="btn btn-primary" type="submit">Continue as demo {{ role }} ({{ persona.name }})</button>
+      <span class="form-help-text">Demo mode signs you in immediately as {{ persona.name }}. Production sends a one-time link.</span>
+    </form>
+    <p class="small" style="margin-top:1rem"><a href="{{ url_for('auth.login') }}">← Different role</a></p>
+  </div>
+</section>
+{% endblock %}

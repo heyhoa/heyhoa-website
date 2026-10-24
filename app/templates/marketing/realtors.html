@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Resale, estoppel and lender documents — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container narrow">
+    <p class="eyebrow">Realtors · title · lenders</p>
+    <h1>Order closing documents in two minutes.</h1>
+    <p class="lede">Resale certificates, estoppel letters, lender questionnaires and payoff demands for communities served by {% include 'partials/hey-mark.html' %}. Delivered in three business days, rush in one.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <form class="card" method="post" action="{{ url_for('marketing.contact') }}" data-remember id="docs-order">
+      <input type="hidden" name="topic" value="closing-docs">
+      <div class="form-row">
+        <div class="form-group"><label for="d-name">Your name</label><input class="form-control" id="d-name" name="name" required></div>
+        <div class="form-group"><label for="d-email">Email</label><input class="form-control" id="d-email" name="email" type="email" required></div>
+      </div>
+      <div class="form-group"><label for="d-type">Document</label>
+        <select class="form-control" id="d-type" name="doctype">
+          <option>Resale certificate / disclosure package ($275)</option>
+          <option>Estoppel / status letter ($150)</option>
+          <option>Lender questionnaire ($125)</option>
+          <option>Payoff / demand statement ($75)</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="d-msg">Community, property address, closing date</label><textarea class="form-control" id="d-msg" name="message" rows="3" required></textarea></div>
+      <button class="btn btn-primary" type="submit">Order</button>
+      <span class="form-help-text">Fees are paid by the requesting party at delivery. Rush (1 business day) adds $100.</span>
+    </form>
+  </div>
+</section>
+{% endblock %}

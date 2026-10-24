@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Log in — {{ brand.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem">
+  <div class="container narrow"><p class="eyebrow">Log in</p><h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Who are you today?</h1><p class="lede">One account can hold more than one role. Pick the one you need right now.</p></div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <ul class="picklist">
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>I'm a homeowner</li></a>
+      <a href="{{ url_for('auth.login_role', role='board') }}"><li>I'm a board member</li></a>
+      <a href="{{ url_for('marketing.realtors') }}"><li>I'm a realtor, lender or title company</li></a>
+      <a href="{{ url_for('marketing.contact') }}"><li>I'm a vendor</li></a>
+    </ul>
+    <p class="small muted" style="margin-top:1.5rem">Demo mode: no password needed. Production uses emailed magic links.</p>
+  </div>
+</section>
+{% endblock %}

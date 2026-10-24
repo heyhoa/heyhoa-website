@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Pricing — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">Pricing</p>
+    <h1>Public. Flat. By the door.</h1>
+    <p class="lede">Every tier includes both portals, online payments and a human on the phone. Pick the one that matches how much your board wants to keep doing.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-3">
+      {% for tier in pricing %}
+      <div class="card {% if tier.featured %}featured{% endif %}">
+        {% if tier.featured %}<span class="pill lime">Most boards pick this</span>{% endif %}
+        <h3 style="margin-top:1rem">{{ tier.name }}</h3>
+        <p class="price">${{ tier.price }}<small>/mo</small></p>
+        <p class="small muted">{{ tier.unit_cap }}, {{ tier.per_door }}</p>
+        <p>{{ tier.tagline }}</p>
+        <ul class="iconlist">
+          {% for f in tier.features %}<li>{{ f }}</li>{% endfor %}
+        </ul>
+        <a class="btn {% if tier.featured %}btn-primary{% else %}btn-ghost{% endif %} btn-block" href="{{ url_for('marketing.quote', plan=tier.slug) }}">Get a {{ tier.name }} quote</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="grid grid-2" style="margin-top:3rem">
+      <div class="card">
+        <h3>Worked examples</h3>
+        <div class="table-wrap" style="margin-top:1rem">
+          <table>
+            <thead><tr><th>Community</th><th>Plan</th><th class="num">Monthly</th><th class="num">Per door</th></tr></thead>
+            <tbody>
+              <tr><td>24-unit condo</td><td>Books</td><td class="num">$199</td><td class="num">$8.29</td></tr>
+              <tr><td>48-unit townhomes</td><td>Back Office</td><td class="num">$511</td><td class="num">$10.65</td></tr>
+              <tr><td>96-lot HOA</td><td>Back Office</td><td class="num">$943</td><td class="num">$9.82</td></tr>
+              <tr><td>150-lot HOA</td><td>Board+</td><td class="num">$1,989</td><td class="num">$13.26</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted" style="margin-top:1rem">A full-service manager for the 48-unit example typically quotes $1,200 to $1,900 a month plus fees.</p>
+      </div>
+      <div class="card">
+        <h3>Pass-through and add-ons</h3>
+        <ul class="checks" style="margin-top:1rem">
+          {% for name, price in add_ons %}<li><span>{{ name }}</span><span class="muted">{{ price }}</span></li>{% endfor %}
+        </ul>
+        <p class="small muted" style="margin-top:1rem">Card processing is charged to the payer at cost (2.9% + 30¢). ACH is free to owners.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container narrow">
+    <h2>Pricing questions</h2>
+    {% for q, a in faqs %}<details><summary>{{ q }}</summary><p>{{ a }}</p></details>{% endfor %}
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

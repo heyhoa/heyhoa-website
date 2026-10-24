@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Contact — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem">
+  <div class="container narrow"><p class="eyebrow">Contact</p><h1>Talk to a person.</h1><p class="lede">{{ brand.phone }} · {{ brand.email }}. Or use the form; we reply within one business day.</p></div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <form class="card" method="post" data-remember id="contact-form">
+      <div class="form-row">
+        <div class="form-group"><label for="c-name">Name</label><input class="form-control" id="c-name" name="name" required></div>
+        <div class="form-group"><label for="c-email">Email</label><input class="form-control" id="c-email" name="email" type="email" required></div>
+      </div>
+      <div class="form-group"><label for="c-topic">Topic</label>
+        <select class="form-control" id="c-topic" name="topic"><option value="sales">I am on a board and want a quote</option><option value="owner">I am a homeowner with a question</option><option value="closing-docs">Closing documents</option><option value="vendor">I am a vendor</option><option value="other">Other</option></select></div>
+      <div class="form-group"><label for="c-msg">Message</label><textarea class="form-control" id="c-msg" name="message" rows="5" required></textarea></div>
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

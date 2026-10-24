@@ -1,0 +1,7 @@
+Flask>=3.1
+Flask-SQLAlchemy>=3.1
+python-dotenv>=1.0
+requests>=2.32
+gunicorn>=23
+anthropic>=0.40
+pytest>=8

@@ -1,0 +1,22 @@
+{% extends "homeowner/base.html" %}
+{% block title %}Pay — {{ brand.name }}{% endblock %}
+{% block page_title %}Pay dues{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card">
+    <form method="post">
+      <div class="grid grid-2">
+        <div class="form-group"><label for="amount">Amount</label><input class="form-control" id="amount" name="amount" type="number" step="0.01" min="1" value="{{ (ua.balance if ua.balance > 0 else ua.next_due_amount)|round(2) }}" required><span class="form-help-text">Balance {{ ua.balance|money }} · next assessment {{ ua.next_due_amount|money }} on {{ ua.next_due_date|datefmt }}</span></div>
+        <div class="form-group"><label for="method">Pay with</label><select class="form-control" id="method" name="method"><option value="ach">Bank account (ACH, free)</option><option value="card">Card (2.9% + 30¢)</option></select></div>
+      </div>
+      <div class="form-checkbox-group"><input type="checkbox" id="autopay" name="autopay" {% if ua.autopay %}checked{% endif %}><label for="autopay">Keep autopay on for the {{ community.dues_frequency }} assessment</label></div>
+      <button class="btn btn-primary" type="submit" style="margin-top:1rem">Pay {{ (ua.balance if ua.balance > 0 else ua.next_due_amount)|money }}</button>
+      <span class="form-help-text">Demo: this posts to the mock ledger. Production redirects to the payment processor's hosted page; card data never touches our servers.</span>
+    </form>
+  </div>
+  <div>
+    <div class="card"><h4>Payment plan</h4><p class="small muted">Behind by more than one assessment? Split it over up to six months, no board vote required under the current policy.</p><a class="btn btn-ghost btn-sm" href="{{ url_for('homeowner.ask') }}?q=payment%20plan">Set up a plan</a></div>
+    <div class="card" style="margin-top:1.25rem"><h4>Other ways to pay</h4><p class="small muted">Bill pay from your bank to the association lockbox, or mail a check with your account number <span class="mono">{{ ua.id }}</span>. Both post within 2 business days.</p></div>
+  </div>
+</div>
+{% endblock %}

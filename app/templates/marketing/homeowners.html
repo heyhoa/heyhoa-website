@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Homeowner help — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container narrow">
+    <p class="eyebrow">Homeowners</p>
+    <h1>Hey. What do you need?</h1>
+    <p class="lede">If your community uses {% include 'partials/hey-mark.html' %}, everything below is a tap away. If you are not sure, text us the name of your community and we will point you.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <ul class="picklist">
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>Make a payment or set up autopay</li></a>
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>See my balance and statements</li></a>
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>Report a maintenance issue</li></a>
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>Submit an architectural (ARC) request</li></a>
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>Find governing documents</li></a>
+      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>Update my contact info</li></a>
+      <a href="{{ url_for('realtors') if false else url_for('marketing.realtors') }}"><li>I am selling or refinancing; I need documents</li></a>
+      <a href="{{ url_for('marketing.contact') }}"><li>Something else</li></a>
+    </ul>
+    <div class="card" style="margin-top:2rem">
+      <p class="eyebrow">Or just ask</p>
+      <p>Text <strong class="mono">{{ brand.phone }}</strong> or email <strong class="mono">{{ brand.email }}</strong>. {% include 'partials/hey-mark.html' %} answers in about a minute, a person follows up on anything it cannot source.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

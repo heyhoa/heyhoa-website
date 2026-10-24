@@ -1,0 +1,33 @@
+{% extends "board/base.html" %}
+{% block title %}Settings — {{ brand.name }}{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Approvals</h3>
+    <div class="form-group"><label>Invoice approvals required</label><select class="form-control"><option>1 under $500, 2 above</option><option selected>2 for everything</option><option>1 for everything</option></select></div>
+    <div class="form-group"><label>ARC approvals required</label><select class="form-control"><option>2 of 3 committee</option><option selected>3 of 3 committee</option></select></div>
+    <div class="form-group"><label>Auto-approve recurring contract invoices that match the contract exactly</label><select class="form-control"><option>Off</option><option selected>On, board notified</option></select></div>
+  </div>
+  <div class="card">
+    <h3>Integrations</h3>
+    <ul class="checks">
+      <li><span>Accounting platform<br><span class="small muted">FrontSteps / Caliber API (CAPI2)</span></span><span class="pill {% if provider_name == 'frontsteps' %}green{% else %}amber{% endif %}">{{ 'connected' if provider_name == 'frontsteps' else 'demo data' }}</span></li>
+      <li><span>Bank feed<br><span class="small muted">Frost Bank · read-only</span></span><span class="pill green">daily</span></li>
+      <li><span>Payments<br><span class="small muted">ACH + cards via processor</span></span><span class="pill green">live</span></li>
+      <li><span>Lockbox / mail scanning</span><span class="pill green">live</span></li>
+      <li><span>Email &amp; SMS</span><span class="pill green">live</span></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Board members</h3>
+    <ul class="checks"><li><span>Luis Castillo · President</span><span class="muted small">signer</span></li><li><span>Dana Whitfield · Treasurer</span><span class="muted small">signer</span></li><li><span>Grace Thompson · Secretary</span><span class="muted small">—</span></li></ul>
+    <a class="btn btn-ghost btn-sm" href="#" style="margin-top:1rem">Invite a board member</a>
+  </div>
+  <div class="card">
+    <h3>Plan</h3>
+    <p><strong>Back Office</strong> · 48 doors · <span class="mono">$511/mo</span><br><span class="small muted">Month to month. Next invoice Nov 1. Financials-by-the-5th promise: 9 of 9 months met.</span></p>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('marketing.pricing_page') }}">Change plan</a>
+  </div>
+</div>
+{% endblock %}

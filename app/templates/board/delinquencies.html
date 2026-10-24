@@ -1,0 +1,18 @@
+{% extends "board/base.html" %}
+{% block title %}Delinquencies — {{ brand.name }}{% endblock %}
+{% block page_title %}Delinquencies{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents') }}">Collections policy</a>{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Unit</th><th>Owner</th><th class="num">Balance</th><th class="num">Days</th><th>Stage</th><th>Last action</th><th>Next</th><th></th></tr></thead>
+  <tbody>{% for d in rows %}<tr><td>{{ d.unit_label }}</td><td>{{ d.owner_name }}</td><td class="num">{{ d.balance|money }}</td><td class="num">{{ d.days_late }}</td><td><span class="pill {% if d.stage in ('demand','lien_warning','attorney') %}red{% elif d.stage == 'late_notice' %}amber{% else %}blue{% endif %}">{{ d.stage|replace('_',' ') }}</span></td><td class="small muted">{{ d.last_action }}</td><td class="small">{{ d.next_action }}</td><td><a class="small" href="{{ url_for('board.delinquencies', draft=d.unit_account_id) }}">Draft notice</a></td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small muted" style="margin-top:1rem">Stages follow the collections policy adopted 2025-05-10: reminder at 1 day, late notice at 30, demand at 60, lien warning at 120, attorney referral by board vote. hey drafts every letter; a person reviews before it is sent.</p>
+{% if draft %}
+<div class="card" style="margin-top:1.25rem">
+  <h3>Draft notice</h3>
+  <pre style="white-space:pre-wrap;font-family:var(--font-body);font-size:.95rem;background:var(--bg-2);padding:1rem;border-radius:8px">{{ draft }}</pre>
+  <div class="actions"><a class="btn btn-primary btn-sm" href="#">Send for human review</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.delinquencies') }}">Discard</a></div>
+</div>
+{% endif %}
+{% endblock %}

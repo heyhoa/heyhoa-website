@@ -1,0 +1,15 @@
+{% extends "homeowner/base.html" %}
+{% block title %}Ask hey — {{ brand.name }}{% endblock %}
+{% block page_title %}Ask {% include 'partials/hey-mark.html' %}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card" data-ask-hey="homeowner:{{ community.id }}:{{ ua.id }}">
+    <div class="chat" style="min-height:240px;max-height:50vh;overflow:auto;margin-bottom:1rem">
+      <div class="bubble them"><span class="who">hey</span>Hi {{ me.name.split(' ')[0] }}. I have your ledger, the governing documents and the board's recent decisions. Ask me anything about {{ community.name }}.</div>
+    </div>
+    <form action="{{ url_for('api.ask') }}" method="post" style="display:flex;gap:.5rem"><input class="form-control" name="q" placeholder="Can I rent my unit short-term?" autocomplete="off" value="{{ request.args.get('q','') }}"><button class="btn btn-primary" type="submit">Ask</button></form>
+    <span class="form-help-text">Answers cite the document or ledger line they come from. Anything hey is not sure about goes to a person and you get a reply by email.</span>
+  </div>
+  <div class="card"><h4>Try</h4><ul class="small muted" style="padding-left:1.2rem"><li>What did I pay in assessments in 2025?</li><li>When does the pool open?</li><li>Can I put up a privacy fence?</li><li>Who do I call about the gate?</li><li>Set up a payment plan for my balance</li></ul></div>
+</div>
+{% endblock %}

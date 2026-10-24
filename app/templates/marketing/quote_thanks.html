@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Thanks — {{ brand.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container narrow">
+    <p class="eyebrow">Got it</p>
+    <h1>Your proposal is on its way.</h1>
+    <p class="lede">Check your inbox within a few hours (business days). It will have the exact monthly number, the onboarding calendar and a sample financial packet.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('auth.login_role', role='board', demo=1) }}">Explore the board portal meanwhile</a>
+      <a class="btn btn-ghost" href="{{ url_for('marketing.how_it_works') }}">How onboarding works</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

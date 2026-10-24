@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Get a quote — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem">
+  <div class="container narrow">
+    <p class="eyebrow">Quote</p>
+    <h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Three minutes. A real number the same day.</h1>
+    <p class="lede">No sales call required. We email a written proposal with the exact monthly price for your door count.</p>
+    <p class="small muted">Current owner or board member? <a href="{{ url_for('auth.login') }}">Log in</a> instead.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <form class="multistep" id="quote-form" method="post" data-remember>
+      <fieldset>
+        <progress value="0" max="100"></progress><span class="step-label">Step 1 of 3</span>
+        <h3>Your community</h3>
+        <div class="form-group"><label for="q-community">Community name</label><input class="form-control" id="q-community" name="community_name" required placeholder="Willow Creek Townhomes"></div>
+        <div class="form-row">
+          <div class="form-group"><label for="q-type">Type</label>
+            <select class="form-control" id="q-type" name="community_type"><option value="hoa">Single-family HOA</option><option value="townhome">Townhomes</option><option value="condo">Condominium</option><option value="mixed">Mixed</option></select></div>
+          <div class="form-group"><label for="q-units">Doors / units</label><input class="form-control" id="q-units" name="units" type="number" min="4" max="2000" required placeholder="48"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="q-city">City</label><input class="form-control" id="q-city" name="city" placeholder="Round Rock"></div>
+          <div class="form-group"><label for="q-state">State</label><input class="form-control" id="q-state" name="state" maxlength="2" placeholder="TX" required></div>
+        </div>
+        <div class="step-nav"><span></span><a href="#" class="btn btn-primary next">Next</a></div>
+      </fieldset>
+      <fieldset>
+        <progress value="33" max="100"></progress><span class="step-label">Step 2 of 3</span>
+        <h3>How it runs today</h3>
+        <div class="form-group"><label for="q-setup">Who does the books now?</label>
+          <select class="form-control" id="q-setup" name="current_setup"><option value="self">A board volunteer</option><option value="accountant">An outside bookkeeper / CPA</option><option value="management_co">A management company</option><option value="none">Honestly, nobody</option></select></div>
+        <div class="form-group"><label>What hurts? (pick any)</label>
+          {% for v, l in [('late financials','Late or missing financials'),('reconciliation','Bank never reconciles'),('collections','Collections are awkward'),('volunteer burnout','Volunteer burnout'),('owner questions','Owner questions eat the board'),('vendor payments','Vendor payments are a mess'),('quickbooks','QuickBooks lives on one laptop')] %}
+          <div class="form-checkbox-group"><input type="checkbox" id="pp-{{ loop.index }}" name="pain_points" value="{{ v }}"><label for="pp-{{ loop.index }}">{{ l }}</label></div>
+          {% endfor %}
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="q-sys">Accounting software (if any)</label><input class="form-control" id="q-sys" name="accounting_system" placeholder="QuickBooks, Excel, none"></div>
+          <div class="form-group"><label for="q-fye">Fiscal year end</label><input class="form-control" id="q-fye" name="fiscal_year_end" placeholder="12/31"></div>
+        </div>
+        <div class="step-nav"><a href="#" class="btn btn-ghost previous">Back</a><a href="#" class="btn btn-primary next">Next</a></div>
+      </fieldset>
+      <fieldset>
+        <progress value="66" max="100"></progress><span class="step-label">Step 3 of 3</span>
+        <h3>Where to send the proposal</h3>
+        <div class="form-row">
+          <div class="form-group"><label for="q-name">Your name</label><input class="form-control" id="q-name" name="contact_name" required></div>
+          <div class="form-group"><label for="q-role">Role</label>
+            <select class="form-control" id="q-role" name="contact_role"><option value="treasurer">Treasurer</option><option value="president">President</option><option value="secretary">Secretary</option><option value="member">Board member</option><option value="owner">Owner / committee</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="q-email">Email</label><input class="form-control" id="q-email" name="email" type="email" required></div>
+          <div class="form-group"><label for="q-phone">Phone (optional)</label><input class="form-control" id="q-phone" name="phone"></div>
+        </div>
+        <div class="form-group"><label for="q-notes">Anything else</label><textarea class="form-control" id="q-notes" name="notes" rows="3" placeholder="Contract end date, meeting date, special situations"></textarea></div>
+        <div class="step-nav"><a href="#" class="btn btn-ghost previous">Back</a><button class="btn btn-primary" type="submit">Send me the proposal</button></div>
+        <span class="form-help-text">We never share your information and we do not cold-call. One email with the number, one follow-up, that is it.</span>
+      </fieldset>
+    </form>
+  </div>
+</section>
+{% endblock %}

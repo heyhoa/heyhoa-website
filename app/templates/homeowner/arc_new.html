@@ -1,0 +1,28 @@
+{% extends "homeowner/base.html" %}
+{% block title %}New ARC application — {{ brand.name }}{% endblock %}
+{% block page_title %}ARC application{% endblock %}
+{% block content %}
+<div class="row">
+  <form class="card multistep" method="post" id="arc-form" data-remember>
+    <fieldset>
+      <progress value="0" max="100"></progress><span class="step-label">Step 1 of 3</span>
+      <div class="form-group"><label for="request_type">What are you changing?</label><select class="form-control" id="request_type" name="request_type">{% for t in ['Exterior paint','Roof','Fence','Solar panels','Windows / doors','Landscaping / hardscape','Patio / pergola / deck','Shed / outbuilding','Other'] %}<option>{{ t }}</option>{% endfor %}</select></div>
+      <div class="form-group"><label for="notes">Describe it</label><textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Paint body in Sandstone (palette B), trim in white. Contractor: ..."></textarea><span class="form-help-text">hey checks your description against the approved palette and the rules before you submit.</span></div>
+      <div class="step-nav"><span></span><a href="#" class="btn btn-primary next">Next</a></div>
+    </fieldset>
+    <fieldset>
+      <progress value="33" max="100"></progress><span class="step-label">Step 2 of 3</span>
+      <div class="form-group"><label>Plans, color samples, contractor quote</label><div class="drag-drop-container"><div class="text">Drag files here or tap to choose (PDF, JPG, PNG)</div><input type="file" name="files" multiple></div><div class="drag-drop-files"></div></div>
+      <div class="form-group"><label for="start">Planned start date</label><input class="form-control" id="start" name="start" type="date"></div>
+      <div class="step-nav"><a href="#" class="btn btn-ghost previous">Back</a><a href="#" class="btn btn-primary next">Next</a></div>
+    </fieldset>
+    <fieldset>
+      <progress value="66" max="100"></progress><span class="step-label">Step 3 of 3</span>
+      <div class="form-checkbox-group"><input type="checkbox" id="ack1" required><label for="ack1">I will not start work until written approval is issued</label></div>
+      <div class="form-checkbox-group"><input type="checkbox" id="ack2" required><label for="ack2">I have read Rules &amp; Regulations §4 (exterior modifications)</label></div>
+      <div class="step-nav"><a href="#" class="btn btn-ghost previous">Back</a><button class="btn btn-primary" type="submit">Submit application</button></div>
+    </fieldset>
+  </form>
+  <div class="card"><h4>Before you file</h4><ul class="small muted" style="padding-left:1.2rem"><li>Approved paint palette: <a href="{{ url_for('homeowner.documents') }}">Documents → ARC</a></li><li>Solar: Texas Property Code §202.010 limits what can be denied; placement review only.</li><li>Fences: max 6 ft, cedar or approved composite.</li></ul></div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "board/base.html" %}
+{% block title %}Board dashboard — {{ brand.name }}{% endblock %}
+{% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('board.invoices') }}">Approve {{ pending|length }} payments</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.financials') }}">October packet</a>{% endblock %}
+{% block content %}
+<div class="grid grid-4">
+  <div class="card stat"><div class="label">Operating cash</div><div class="value">{{ snap.operating_cash|money0 }}</div><div class="delta">Reconciled through Sept 30</div></div>
+  <div class="card stat"><div class="label">Reserves</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">{{ ((snap.reserve_cash / 198000) * 100)|round|int }}% funded vs study</div></div>
+  <div class="card stat"><div class="label">Receivable</div><div class="value">{{ snap.ar_total|money0 }}</div><div class="delta">{{ snap.ar_over_60|money0 }} over 60 days</div></div>
+  <div class="card stat"><div class="label">Awaiting your approval</div><div class="value">{{ snap.ap_pending|money0 }}</div><div class="delta">{{ pending|length }} invoices</div></div>
+</div>
+<div class="row" style="margin-top:1.25rem">
+  <div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Needs a decision</h3><span class="pill lime">{{ pending|length + arcs|length }} items</span></div>
+      <ul class="checks" style="margin-top:1rem">
+        {% for i in pending %}<li><span><strong>{{ i.vendor }}</strong> {{ i.number }} · {{ i.amount|money }}<br><span class="small muted">{{ i.ai_note }}</span></span><a href="{{ url_for('board.invoices') }}">Review</a></li>{% endfor %}
+        {% for a in arcs %}<li><span><strong>ARC</strong> {{ a.unit_label }} · {{ a.request_type }}<br><span class="small muted">{{ a.approvals }}/{{ a.approvals_required }} approvals · {{ a.notes }}</span></span><a href="{{ url_for('board.arc') }}">Review</a></li>{% endfor %}
+      </ul>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3>Cash, last six months</h3>
+      {% set mx = 170000 %}
+      <div class="bars">{% for m, op, res in snap.monthly_cash %}<div class="bar res" style="height:{{ (res / mx * 100)|round }}%" title="{{ m }} reserves {{ res|money0 }}"></div><div class="bar op" style="height:{{ (op / mx * 100)|round }}%" title="{{ m }} operating {{ op|money0 }}"></div>{% endfor %}</div>
+      <div class="bars-labels">{% for m, op, res in snap.monthly_cash %}<span style="flex:2">{{ m }}</span>{% endfor %}</div>
+      <p class="small muted" style="margin-top:.75rem"><span class="pill lime">reserves</span> <span class="pill" style="background:var(--ink);color:#fff">operating</span></p>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <h3>Delinquencies</h3>
+      <ul class="checks">{% for d in delinquencies %}<li><span>{{ d.unit_label }} <span class="muted small">{{ d.days_late }}d · {{ d.stage|replace('_',' ') }}</span></span><span class="num">{{ d.balance|money0 }}</span></li>{% endfor %}</ul>
+      <p style="margin-top:1rem"><a href="{{ url_for('board.delinquencies') }}">Work the list →</a></p>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3>Open maintenance</h3>
+      <ul class="checks">{% for r in requests if r.status != 'closed' %}<li><span>{{ r.unit_label }} · {{ r.category }}</span><span class="pill {% if r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span></li>{% endfor %}</ul>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <p class="eyebrow">hey says</p>
+      <p class="small">October packet will close on time. Two items to watch: pool invoice is 28% over trend, and Unit 3 reaches the lien-warning stage on {{ delinquencies[0].next_action.split(' ')[-1]|datefmt }} unless a plan is set up.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

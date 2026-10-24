@@ -1,0 +1,10 @@
+{% extends "board/base.html" %}
+{% block title %}Maintenance — {{ brand.name }}{% endblock %}
+{% block page_title %}Maintenance{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Opened</th><th>Where</th><th>Category</th><th>Summary</th><th>Vendor</th><th>Status</th></tr></thead>
+  <tbody>{% for r in requests %}<tr><td>{{ r.created|datefmt }}</td><td>{{ r.unit_label }}</td><td>{{ r.category }}</td><td>{{ r.summary }}</td><td class="muted">{{ r.assigned_vendor or '— pick vendor' }}</td><td><span class="pill {% if r.status == 'closed' %}green{% elif r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span></td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small muted" style="margin-top:1rem">hey logs the request, classifies it and checks responsibility under the CC&amp;Rs. The board picks the vendor and approves the bid; hey chases the vendor and closes the loop with the owner.</p>
+{% endblock %}

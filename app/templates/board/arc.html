@@ -1,0 +1,22 @@
+{% extends "board/base.html" %}
+{% block title %}ARC review — {{ brand.name }}{% endblock %}
+{% block page_title %}ARC review{% endblock %}
+{% block content %}
+{% for a in arcs %}
+<div class="card" style="margin-bottom:1rem">
+  <div class="decision">
+    <div class="body"><h4 style="margin:0">{{ a.unit_label }} · {{ a.request_type }}</h4><p class="small muted" style="margin:.25rem 0">{{ a.owner_name }} · submitted {{ a.submitted|datefmt }} · {{ a.notes }}</p></div>
+    <span class="pill {% if a.status == 'approved' %}green{% elif a.status == 'denied' %}red{% elif a.status == 'more_info' %}amber{% else %}blue{% endif %}">{{ a.status|replace('_',' ') }} · {{ a.approvals }}/{{ a.approvals_required }}</span>
+  </div>
+  {% if a.status in ('submitted','under_review','more_info') %}
+  <div class="actions" style="margin-top:1rem">
+    <form method="post" action="{{ url_for('board.arc_action', arc_id=a.id, action='approve') }}"><button class="btn btn-primary btn-sm">Approve</button></form>
+    <form method="post" action="{{ url_for('board.arc_action', arc_id=a.id, action='more_info') }}" style="display:flex;gap:.5rem"><input class="form-control" name="note" placeholder="What do you need?" style="width:220px;padding:.45rem .7rem"><button class="btn btn-ghost btn-sm">Request info</button></form>
+    <form method="post" action="{{ url_for('board.arc_action', arc_id=a.id, action='deny') }}" style="display:flex;gap:.5rem"><input class="form-control" name="note" placeholder="Cite the rule" style="width:200px;padding:.45rem .7rem"><button class="btn btn-ghost btn-sm" style="color:var(--red)">Deny</button></form>
+    <a class="small" href="#">Attachments</a>
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+<p class="small muted">Decision letters are drafted by hey from the committee's vote and the cited rule, and sent after a committee member signs off. Day-25 reminders go out automatically.</p>
+{% endblock %}

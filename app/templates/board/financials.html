@@ -1,0 +1,38 @@
+{% extends "board/base.html" %}
+{% block title %}Financials — {{ brand.name }}{% endblock %}
+{% block page_title %}Financials{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="#">Download September packet (PDF)</a><a class="btn btn-ghost btn-sm" href="#">GL detail (CSV)</a>{% endblock %}
+{% block content %}
+<div class="grid grid-3">
+  <div class="card stat"><div class="label">YTD income vs budget</div><div class="value">{{ snap.ytd_income|money0 }}</div><div class="delta">budget {{ snap.ytd_budget_income|money0 }} · <span style="color:var(--green)">+{{ (snap.ytd_income - snap.ytd_budget_income)|money0 }}</span></div></div>
+  <div class="card stat"><div class="label">YTD expense vs budget</div><div class="value">{{ snap.ytd_expense|money0 }}</div><div class="delta">budget {{ snap.ytd_budget_expense|money0 }} · <span style="color:var(--green)">{{ (snap.ytd_expense - snap.ytd_budget_expense)|money0 }} under</span></div></div>
+  <div class="card stat"><div class="label">Bank reconciliation</div><div class="value" style="font-size:1.2rem">{{ snap.recon_status.split('·')[0] }}</div><div class="delta">{{ snap.recon_status.split('·')[1] if '·' in snap.recon_status else '' }}</div></div>
+</div>
+<div class="row" style="margin-top:1.25rem">
+  <div>
+    <div class="card">
+      <h3>Income &amp; expense vs budget (YTD)</h3>
+      <div class="table-wrap" style="margin-top:1rem"><table>
+        <thead><tr><th>Line</th><th class="num">Actual</th><th class="num">Budget</th><th class="num">Variance</th></tr></thead>
+        <tbody>
+          <tr><td colspan="4"><strong>Income</strong></td></tr>
+          {% for n, a, b in snap.income_lines %}<tr><td>{{ n }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num" style="color:{{ 'var(--green)' if a >= b else 'var(--red)' }}">{{ (a - b)|money }}</td></tr>{% endfor %}
+          <tr><td colspan="4"><strong>Expense</strong></td></tr>
+          {% for n, a, b in snap.expense_lines %}<tr><td>{{ n }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num" style="color:{{ 'var(--green)' if a <= b else 'var(--red)' }}">{{ (a - b)|money }}</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
+      <p class="small muted" style="margin-top:.75rem">Click any line in the PDF packet to open the GL detail and source documents behind it.</p>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <h3>Balance sheet (summary)</h3>
+      <ul class="checks">{% for a in coa if a.type in ('Asset','Liability') %}<li><span>{{ a.number }} {{ a.name }}</span><span class="num">{{ a.balance|money }}</span></li>{% endfor %}</ul>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3>Packets</h3>
+      <ul class="checks">{% for m in ['September 2026','August 2026','July 2026','June 2026'] %}<li><span>{{ m }} <span class="small muted">delivered on the {{ ['5th','4th','5th','3rd'][loop.index0] }}</span></span><a href="#">PDF</a></li>{% endfor %}</ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}FAQ — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container"><p class="eyebrow">FAQ</p><h1>Questions boards ask.</h1></div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    {% for q, a in faqs %}<details {% if loop.first %}open{% endif %}><summary>{{ q }}</summary><p>{{ a }}</p></details>{% endfor %}
+    <p style="margin-top:2rem">Something else? <a href="{{ url_for('marketing.contact') }}">Ask a person</a>.</p>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

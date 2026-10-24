@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}For self-managed HOAs and condos — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">Self-managed communities</p>
+    <h1>Self-managed is the right call. The treasurer still needs a night off.</h1>
+    <p class="lede">You chose to self-manage because you know the property better than any manager ever will and you did not want to pay for a drive-by. Keep that. Outsource only the part that burns volunteers out.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Keep</h3>
+        <ul class="iconlist">
+          <li>Picking vendors and walking the property</li>
+          <li>Deciding what to fix and when</li>
+          <li>Running meetings and setting policy</li>
+          <li>Signing checks and approving payments</li>
+          <li>Knowing your neighbors</li>
+        </ul>
+      </div>
+      <div class="card accent">
+        <h3>Hand to {% include 'partials/hey-mark.html' %}</h3>
+        <ul class="iconlist">
+          <li>Monthly books, reconciliations and packets</li>
+          <li>Dues billing, payments and collections letters</li>
+          <li>Invoice intake, coding and approval routing</li>
+          <li>Owner questions, forms and document requests</li>
+          <li>Resale certificates, 1099s, year-end</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container narrow">
+    <h2>Signs it is time</h2>
+    <ul class="iconlist nolist">
+      <li>The treasurer position has been open, or the same person has held it for six years</li>
+      <li>Financials arrive the night before the meeting, or after it</li>
+      <li>A vendor has been paid twice and nobody is sure when</li>
+      <li>Collections are awkward because the late owner is a neighbor</li>
+      <li>A closing was delayed because nobody could produce a resale certificate</li>
+      <li>The QuickBooks file lives on one person's laptop</li>
+    </ul>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "homeowner/base.html" %}
+{% block title %}New request — {{ brand.name }}{% endblock %}
+{% block page_title %}Report an issue{% endblock %}
+{% block content %}
+<div class="row">
+  <form class="card multistep" method="post" id="req-form" data-remember>
+    <fieldset>
+      <progress value="0" max="100"></progress><span class="step-label">Step 1 of 2</span>
+      <div class="form-group"><label for="summary">What is going on?</label><textarea class="form-control" id="summary" name="summary" rows="4" required placeholder="Sprinkler head at the corner of my driveway is spraying the sidewalk"></textarea><span class="form-help-text">Write it the way you would text a neighbor. hey picks the category and the vendor.</span></div>
+      <div class="form-group"><label for="category">Category (optional)</label><select class="form-control" id="category" name="category"><option value="">Let hey decide</option>{% for c in ['Irrigation','Lighting','Landscaping','Fence','Roof','Plumbing','Pool','Gate / access','Pest','Other'] %}<option>{{ c }}</option>{% endfor %}</select></div>
+      <div class="step-nav"><span></span><a href="#" class="btn btn-primary next">Next</a></div>
+    </fieldset>
+    <fieldset>
+      <progress value="50" max="100"></progress><span class="step-label">Step 2 of 2</span>
+      <div class="form-group"><label>Photos (optional)</label><div class="drag-drop-container"><div class="text">Drag photos here or tap to choose</div><input type="file" name="photos" multiple accept="image/*"></div><div class="drag-drop-files"></div></div>
+      <div class="form-checkbox-group"><input type="checkbox" id="urgent" name="urgent"><label for="urgent">Safety issue or active leak (we page the on-call vendor)</label></div>
+      <div class="step-nav"><a href="#" class="btn btn-ghost previous">Back</a><button class="btn btn-primary" type="submit">Submit</button></div>
+    </fieldset>
+  </form>
+  <div class="card"><h4>What happens next</h4><ol class="small muted" style="padding-left:1.2rem"><li>You get a text with the request number in about a minute.</li><li>hey checks whether it is a common-area or unit responsibility under your CC&amp;Rs and tells you.</li><li>Common-area items go to the board's vendor; you can watch status here.</li></ol></div>
+</div>
+{% endblock %}

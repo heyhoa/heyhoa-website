@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Compare — {{ brand.name }} vs management companies, remote accounting firms and DIY{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">Compare</p>
+    <h1>Four ways to run an HOA back office.</h1>
+    <p class="lede">Prices are typical quotes for a 48-door community. Yours will differ. The pattern will not.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="table-wrap compare">
+      <table>
+        <thead><tr><th></th><th>DIY (QuickBooks + a volunteer)</th><th>Full-service manager</th><th>Remote accounting firm</th><th>{% include 'partials/hey-mark.html' %}</th></tr></thead>
+        <tbody>
+          <tr><td>Typical monthly cost</td><td>$40 software + nights and weekends</td><td>$1,200–$1,900 + fees</td><td>$500–$900, quoted privately</td><td class="mono">$511, public</td></tr>
+          <tr><td>Financials delivered</td><td>When the treasurer has time</td><td>15th–25th</td><td>10th–20th</td><td>By the 5th or the month is free</td></tr>
+          <tr><td>Invoice review</td><td>Treasurer eyeballs it</td><td>Central AP clerk</td><td>Bookkeeper</td><td>{% include 'partials/hey-mark.html' %} reads and checks every line against the contract; board sees exceptions</td></tr>
+          <tr><td>Owner questions answered</td><td>Board group chat</td><td>Shared inbox, 1–3 days</td><td>Email, 1–2 days</td><td>Minutes, with a source link; person for the rest</td></tr>
+          <tr><td>Contract</td><td>None</td><td>12–36 months, auto-renew</td><td>12 months typical</td><td>Month to month</td></tr>
+          <tr><td>Who owns the data</td><td>You (on one laptop)</td><td>The manager's software</td><td>The firm's software</td><td>You; export any time</td></tr>
+          <tr><td>On-site presence</td><td>You</td><td>Monthly drive-through</td><td>None</td><td>None, by design</td></tr>
+          <tr><td>Collections</td><td>Awkward</td><td>Software schedule, extra fees</td><td>Letters, extra fees</td><td>Included; policy-driven; human sign-off</td></tr>
+          <tr><td>Resale certificates</td><td>Scramble</td><td>5–10 days, $300+</td><td>5 days, $200+</td><td>3 days, paid by requester</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted" style="margin-top:1rem">Competitor ranges are from public rate cards and quotes shared with us by boards. If yours is different, <a href="{{ url_for('marketing.contact') }}">tell us</a> and we will update it.</p>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

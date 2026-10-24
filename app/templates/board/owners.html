@@ -1,0 +1,11 @@
+{% extends "board/base.html" %}
+{% block title %}Owners — {{ brand.name }}{% endblock %}
+{% block page_title %}Owners &amp; units{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="#">Export roster</a>{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Unit</th><th>Owner</th><th>Contact</th><th class="num">Balance</th><th>Autopay</th><th>Status</th></tr></thead>
+  <tbody>{% for u in owners %}<tr><td>{{ u.unit_label }}<br><span class="small muted">{{ u.address }}</span></td><td>{{ u.owner_name }}</td><td class="small">{{ u.email }}<br>{{ u.phone }}</td><td class="num">{{ u.balance|money }}</td><td>{% if u.autopay %}<span class="pill green">on</span>{% else %}<span class="pill">off</span>{% endif %}</td><td><span class="pill {% if u.status == 'current' %}green{% elif u.status == 'late' %}amber{% else %}red{% endif %}">{{ u.status }}</span></td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small muted" style="margin-top:1rem">Showing {{ owners|length }} of {{ community.units }} units in the demo roster. Ownership changes come from closings via the resale workflow; the board never edits the roster by hand.</p>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "board/base.html" %}
+{% block title %}Budget — {{ brand.name }}{% endblock %}
+{% block page_title %}Budget &amp; reserves{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="#">Start 2027 budget</a>{% endblock %}
+{% block content %}
+<div class="grid grid-3">
+  <div class="card stat"><div class="label">2026 dues</div><div class="value">$310<small style="font-size:.9rem;font-weight:400;color:var(--fg-2)">/mo</small></div><div class="delta">48 doors · $178,560 annual</div></div>
+  <div class="card stat"><div class="label">Reserve balance</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">82% funded vs 2026 study · $3,000/mo contribution</div></div>
+  <div class="card stat"><div class="label">hey's 2027 draft</div><div class="value">$320<small style="font-size:.9rem;font-weight:400;color:var(--fg-2)">/mo</small></div><div class="delta">+3.2% · covers insurance +9% and study's $3,250 contribution</div></div>
+</div>
+<div class="card" style="margin-top:1.25rem">
+  <h3>Reserve components (from the 2026 Level II study)</h3>
+  <div class="table-wrap" style="margin-top:1rem"><table>
+    <thead><tr><th>Component</th><th>Useful life</th><th>Remaining</th><th class="num">Replacement cost</th><th>Next</th></tr></thead>
+    <tbody>
+      <tr><td>Roofs (12 buildings)</td><td>25</td><td>9</td><td class="num">$412,000</td><td>2035</td></tr>
+      <tr><td>Asphalt seal &amp; stripe</td><td>5</td><td>1</td><td class="num">$18,500</td><td>2027</td></tr>
+      <tr><td>Pool resurface</td><td>12</td><td>4</td><td class="num">$46,000</td><td>2030</td></tr>
+      <tr><td>Perimeter fence</td><td>20</td><td>7</td><td class="num">$61,000</td><td>2033</td></tr>
+      <tr><td>Entry monument &amp; lighting</td><td>15</td><td>2</td><td class="num">$14,000</td><td>2028</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small muted" style="margin-top:.75rem">Asphalt is due next year. hey flagged it and will request three bids in March so the board can vote in April.</p>
+</div>
+{% endblock %}

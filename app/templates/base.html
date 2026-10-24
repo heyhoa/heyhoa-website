@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ brand.name }} — HOA accounting and back office for self-managed communities{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ brand.one_liner }}{% endblock %}">
+  <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+  <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.description() }}">
+  <meta property="og:image" content="{{ url_for('static', filename='brand/hey-tile-lime.svg', _external=True) }}">
+  <link rel="icon" href="{{ url_for('static', filename='brand/hey-tile-lime-rounded.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/hey.css') }}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}theme-dark{% endblock %}">
+  {% block body %}
+  <header>
+    <div class="container">
+      <nav class="nav" aria-label="Primary">
+        <a href="{{ url_for('marketing.index') }}" class="logo" aria-label="hey hoa home">{% include 'partials/hey-mark.html' %}</a>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">menu</button>
+        <ul id="primary-nav">
+          <li><a href="{{ url_for('marketing.services') }}" {% if request.path.startswith('/services') %}aria-current="page"{% endif %}>services</a></li>
+          <li><a href="{{ url_for('marketing.pricing_page') }}" {% if request.path == '/pricing' %}aria-current="page"{% endif %}>pricing</a></li>
+          <li><a href="{{ url_for('marketing.how_it_works') }}" {% if request.path == '/how-it-works' %}aria-current="page"{% endif %}>how it works</a></li>
+          <li><a href="{{ url_for('marketing.compare') }}" {% if request.path == '/compare' %}aria-current="page"{% endif %}>compare</a></li>
+          <li><a href="{{ url_for('marketing.homeowners') }}" {% if request.path == '/homeowners' %}aria-current="page"{% endif %}>homeowners</a></li>
+          <li><a href="{{ url_for('auth.login') }}">log in</a></li>
+          <li><a class="btn btn-primary btn-sm" href="{{ url_for('marketing.quote') }}">get a quote</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container" style="padding-top:1rem">
+          {% for cat, m in messages %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="cols">
+        <div>
+          <a href="{{ url_for('marketing.index') }}" class="logo" aria-label="hey hoa">{% include 'partials/hey-mark.html' %}</a>
+          <p style="margin-top:1rem;max-width:34ch">{{ brand.tagline }}</p>
+          <p class="small">{{ brand.email }} · {{ brand.phone }}</p>
+        </div>
+        <div>
+          <strong>Company</strong>
+          <ul style="margin-top:.5rem">
+            <li><a href="{{ url_for('marketing.about') }}">About</a></li>
+            <li><a href="{{ url_for('marketing.reviews') }}">Reviews</a></li>
+            <li><a href="{{ url_for('marketing.blog') }}">Blog</a></li>
+            <li><a href="{{ url_for('marketing.contact') }}">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <strong>Services</strong>
+          <ul style="margin-top:.5rem">
+            <li><a href="{{ url_for('marketing.service_detail', slug='accounting') }}">Accounting</a></li>
+            <li><a href="{{ url_for('marketing.service_detail', slug='back-office') }}">Back office</a></li>
+            <li><a href="{{ url_for('marketing.service_detail', slug='collections') }}">Collections</a></li>
+            <li><a href="{{ url_for('marketing.realtors') }}">Resale &amp; lender docs</a></li>
+            <li><a href="{{ url_for('marketing.self_managed') }}">Self-managed HOAs</a></li>
+          </ul>
+        </div>
+        <div>
+          <strong>Owners &amp; boards</strong>
+          <ul style="margin-top:.5rem">
+            <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
+            <li><a href="{{ url_for('marketing.homeowners') }}">Homeowner help</a></li>
+            <li><a href="{{ url_for('marketing.faq') }}">FAQ</a></li>
+            <li><a href="{{ url_for('marketing.privacy') }}">Privacy</a></li>
+            <li><a href="{{ url_for('marketing.terms') }}">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="small" style="margin-top:2.5rem">© {{ current_year }} {{ brand.name }}. Not a law firm, not a CPA firm, not a property manager. We do the books and the back office.</p>
+    </div>
+  </footer>
+  {% endblock %}
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

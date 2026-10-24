@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}About — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">About</p>
+    <h1>We started {% include 'partials/hey-mark.html' %} because the treasurer quit.</h1>
+    <p class="lede">A 48-unit townhome community in Texas. Self-managed for twelve years. The treasurer moved away and nobody would take the job because the job was a second job.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    <p>The quotes from management companies were four figures a month for a person who would visit once and a back office nobody would ever meet. The quotes from remote accounting firms were private, took a week, and still did not answer the phone when an owner called.</p>
+    <p>So we built the back office we wanted: public pricing, financials on a date you can plan around, and an assistant that has actually read the CC&amp;Rs. {% include 'partials/hey-mark.html' %} does the reading, the coding and the first draft of everything. People do the judgment and the signatures.</p>
+    <p>We are a small team of HOA accountants, community managers who got tired of the model, and engineers. We work remotely across the US. We are not a law firm, a CPA firm or a property manager, and we are careful to say so.</p>
+    <h3 style="margin-top:2.5rem">What we believe</h3>
+    <ul class="iconlist">
+      <li>Boards should see every number and the document behind it</li>
+      <li>Pricing you have to ask for is pricing that depends on who is asking</li>
+      <li>A promise is only a promise if missing it costs us something</li>
+      <li>Owners deserve an answer in minutes, not a ticket number</li>
+      <li>Automation should make the audit trail better, not thinner</li>
+    </ul>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

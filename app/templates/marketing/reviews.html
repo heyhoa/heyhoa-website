@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Reviews — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">Reviews</p>
+    <h1>What boards say after the first packet.</h1>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-2">
+      {% for text, who in reviews %}
+      <blockquote class="quote card" style="margin:0">{{ text }}<cite>{{ who }}</cite></blockquote>
+      {% endfor %}
+    </div>
+    <p class="small muted" style="margin-top:1.5rem">Quotes are lightly edited for length. Names shortened at the reviewers' request. Reference calls available on request for communities over 40 doors.</p>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

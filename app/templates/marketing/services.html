@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Services — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container">
+    <p class="eyebrow">Services</p>
+    <h1>The back office, without the management company.</h1>
+    <p class="lede">Three services. Pick the mix. Everything runs through the same portals, the same ledger and the same promise about the 5th.</p>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-3">
+      {% for slug, s in services.items() %}
+      <div class="card">
+        <p class="eyebrow">{{ s.eyebrow }}</p>
+        <h3>{{ s.title }}</h3>
+        <p class="muted">{{ s.lede }}</p>
+        <a href="{{ url_for('marketing.service_detail', slug=slug) }}">Details →</a>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <p class="eyebrow">Also</p>
+      <h3>Resale, estoppel and lender documents</h3>
+      <p class="muted">Ordered online by title companies, realtors and lenders. Paid by the requester, delivered in three business days, never a bottleneck for a closing. <a href="{{ url_for('marketing.realtors') }}">Order page →</a></p>
+    </div>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

@@ -1,0 +1,72 @@
+"""Every route renders. Run: pytest -q"""
+import pytest
+
+from app import create_app
+from app.config import TestConfig
+
+MARKETING = [
+    "/", "/pricing", "/services", "/services/accounting", "/services/back-office", "/services/collections",
+    "/how-it-works", "/self-managed", "/compare", "/reviews", "/about", "/faq", "/blog",
+    "/blog/myth-of-full-service-management", "/homeowners", "/realtors", "/quote", "/contact", "/privacy", "/terms", "/brand", "/login",
+    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping",
+]
+HOMEOWNER = ["/me/dashboard", "/me/pay", "/me/ledger", "/me/requests", "/me/requests/new", "/me/arc", "/me/arc/new", "/me/documents", "/me/directory", "/me/profile", "/me/ask"]
+BOARD = ["/board/dashboard", "/board/financials", "/board/invoices", "/board/invoices?status=pending_board", "/board/delinquencies", "/board/delinquencies?draft=ua-1003",
+         "/board/owners", "/board/requests", "/board/arc", "/board/violations", "/board/documents", "/board/vendors", "/board/announcements", "/board/meetings", "/board/budget", "/board/settings", "/board/ask", "/board/activity"]
+
+
+@pytest.fixture
+def client():
+    app = create_app(TestConfig)
+    with app.test_client() as c:
+        yield c
+
+
+@pytest.mark.parametrize("path", MARKETING)
+def test_marketing_pages(client, path):
+    assert client.get(path).status_code == 200
+
+
+def test_portals_require_login(client):
+    assert client.get("/me/dashboard").status_code == 302
+    assert client.get("/board/dashboard").status_code == 302
+
+
+@pytest.mark.parametrize("path", HOMEOWNER)
+def test_homeowner_pages(client, path):
+    client.post("/login/homeowner")
+    assert client.get(path).status_code == 200
+
+
+@pytest.mark.parametrize("path", BOARD)
+def test_board_pages(client, path):
+    client.post("/login/board")
+    assert client.get(path).status_code == 200
+
+
+def test_role_isolation(client):
+    client.post("/login/homeowner")
+    assert client.get("/board/dashboard").status_code == 403
+
+
+def test_quote_creates_lead(client):
+    r = client.post("/quote", data={"community_name": "Test HOA", "community_type": "hoa", "units": "48", "state": "tx", "current_setup": "self",
+                                    "pain_points": ["late financials"], "contact_name": "A", "contact_role": "treasurer", "email": "a@b.co"})
+    assert r.status_code == 302
+    from app.models import Lead
+    lead = Lead.query.filter_by(community_name="Test HOA").first()
+    assert lead and lead.score >= 70
+
+
+def test_invoice_approval_flow(client):
+    client.post("/login/board")
+    r = client.post("/board/invoices/inv-5102/approve", follow_redirects=True)
+    assert b"1/2 approvals" in r.data
+    r = client.post("/board/invoices/inv-5102/approve", follow_redirects=True)
+    assert b"2/2 approvals" in r.data
+
+
+def test_ask_demo_mode(client):
+    client.post("/login/homeowner")
+    r = client.post("/api/ask", json={"q": "can I build a fence?"})
+    assert r.status_code == 200 and "ARC" in r.get_json()["answer"]

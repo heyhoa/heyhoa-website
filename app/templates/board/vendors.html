@@ -1,0 +1,11 @@
+{% extends "board/base.html" %}
+{% block title %}Vendors — {{ brand.name }}{% endblock %}
+{% block page_title %}Vendors{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="#">Add vendor</a>{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Vendor</th><th>Category</th><th>Contact</th><th>COI expires</th><th>W-9</th><th class="num">YTD paid</th></tr></thead>
+  <tbody>{% for v in vendors %}<tr><td>{{ v.name }}</td><td>{{ v.category }}</td><td class="small">{{ v.phone }}<br>{{ v.email }}</td><td>{% if v.coi_expires < '2026-12-01' %}<span class="pill amber">{{ v.coi_expires|datefmt }}</span>{% else %}{{ v.coi_expires|datefmt }}{% endif %}</td><td>{% if v.w9_on_file %}<span class="pill green">on file</span>{% else %}<span class="pill red">missing</span>{% endif %}</td><td class="num">{{ v.ytd_paid|money }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small muted" style="margin-top:1rem">hey will not release a payment to a vendor without a W-9 and will warn 30 days before a certificate of insurance lapses. 1099s are filed in January from this list.</p>
+{% endblock %}

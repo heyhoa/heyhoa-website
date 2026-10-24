@@ -1,0 +1,28 @@
+{% extends "board/base.html" %}
+{% block title %}Meetings — {{ brand.name }}{% endblock %}
+{% block page_title %}Meetings{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="#">Schedule a meeting</a>{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card">
+    <h3>Next: Board meeting · Nov 12, 7:00 pm · Clubhouse + Zoom</h3>
+    <p class="small muted">Notice sent Oct 28 (14 days, per Bylaws §3.4). 11 owners RSVP'd.</p>
+    <h4>Agenda (hey drafted from this month's activity)</h4>
+    <ol class="small">
+      <li>Call to order, quorum</li>
+      <li>September financials (delivered Oct 5): $48,210 operating, reserves 82% funded</li>
+      <li>Pool service contract: Oct invoice 28% over trend; renew, rebid or renegotiate</li>
+      <li>Delinquency: Unit 3 attorney referral vote (demand sent Oct 10)</li>
+      <li>ARC: Unit 22 solar placement</li>
+      <li>2027 budget: first draft (dues +3.1% to fund reserve study recommendation)</li>
+      <li>Owner forum</li>
+    </ol>
+    <div class="actions"><a class="btn btn-ghost btn-sm" href="#">Edit agenda</a><a class="btn btn-ghost btn-sm" href="#">Download packet</a></div>
+  </div>
+  <div class="card">
+    <h3>Past</h3>
+    <ul class="checks"><li><span>Oct 8 · Board meeting</span><a href="#">Minutes</a></li><li><span>Sep 10 · Board meeting</span><a href="#">Minutes</a></li><li><span>Feb 18 · Annual meeting</span><a href="#">Minutes</a></li></ul>
+    <p class="small muted" style="margin-top:1rem">Record the Zoom and hey drafts minutes with motions, votes and action items for the secretary to edit.</p>
+  </div>
+</div>
+{% endblock %}

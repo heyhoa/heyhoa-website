@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — {{ brand.name }}{% endblock %}
+{% block description %}{{ post.summary }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:2rem">
+  <div class="container narrow"><p class="small muted">{{ post.date|datefmt }}</p><h1 style="font-size:clamp(2rem,5vw,3.6rem)">{{ post.title }}</h1><p class="lede">{{ post.summary }}</p></div>
+</section>
+<section class="section tight">
+  <div class="container narrow">
+    {% for para in post.body %}<p>{{ para }}</p>{% endfor %}
+    <p style="margin-top:2rem"><a href="{{ url_for('marketing.blog') }}">← All posts</a></p>
+  </div>
+</section>
+{% include 'partials/cta.html' %}
+{% endblock %}

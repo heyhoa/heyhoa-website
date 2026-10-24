@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Brand — {{ brand.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem">
+  <div class="container"><p class="eyebrow">Internal · brand sheet</p><h1>Say {% include 'partials/hey-mark.html' %}.</h1><p class="lede">The script mark sits inside sans-serif headlines the way a name does in a sentence. Lowercase everywhere. Lime for emphasis, never for body text.</p></div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-4">
+      <div class="card" style="background:#fff;color:#121212;display:grid;place-items:center;min-height:180px"><img src="{{ url_for('static', filename='brand/hey-mark.svg') }}" alt="hey mark on white" style="width:60%"></div>
+      <div class="card" style="background:#080909;display:grid;place-items:center;min-height:180px"><img src="{{ url_for('static', filename='brand/hey-mark-white.svg') }}" alt="hey mark on ink" style="width:60%"></div>
+      <div class="card" style="padding:0;overflow:hidden"><img src="{{ url_for('static', filename='brand/hey-tile-lime-rounded.svg') }}" alt="lime tile"></div>
+      <div class="card" style="padding:0;overflow:hidden"><img src="{{ url_for('static', filename='brand/hey-tile-dark.svg') }}" alt="dark tile"></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:2rem">
+      <div class="card">
+        <h3>Inline usage</h3>
+        <h2>You learned to pay dues by mail.<br>{% include 'partials/hey-mark.html' %} didn't.</h2>
+        <h3>Financials by the 5th. {% include 'partials/hey-mark.html' %} promise.</h3>
+        <p>Body copy references the company as {% include 'partials/hey-mark.html' %} too, at text size.</p>
+      </div>
+      <div class="card">
+        <h3>Tokens</h3>
+        <div class="grid grid-3" style="gap:.5rem">
+          {% for name, hex in brand.colors.items() %}
+          <div><div style="height:48px;border-radius:8px;background:{{ hex }};border:1px solid var(--line)"></div><p class="small mono" style="margin:.4rem 0 0">{{ name }} {{ hex }}</p></div>
+          {% endfor %}
+        </div>
+        <p class="small muted" style="margin-top:1rem">Display: Inter Tight 600, -0.04em. Body: Inter 400. Mono: Space Grotesk. Full guide in <span class="mono">docs/04-brand-voice-style.md</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
