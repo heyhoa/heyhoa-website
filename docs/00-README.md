@@ -1,6 +1,6 @@
 # hey hoa — planning docs
 
-Everything needed to start the company and the product, in reading order.
+Everything needed to start the company and the product, in reading order. Priority order from the founders (Oct 24): 1 sales and marketing for the first customer, 2 board onboarding, 3 board portal, 4 ops portal, 5 homeowner portal. The roadmap (09) is ordered that way.
 
 | # | Doc | What it answers |
 |---|-----|-----------------|

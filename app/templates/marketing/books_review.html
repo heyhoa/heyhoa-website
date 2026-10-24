@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Free books review — {{ brand.name }}{% endblock %}
+{% block description %}Send three bank statements and your last financial packet. In two business days you get a one-page memo: duplicates, miscodes, late fees never posted, what reconciles and what does not.{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem">
+  <div class="container narrow"><p class="eyebrow">Free books review</p><h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Three statements in. One page out. Two business days.</h1><p class="lede">We read your last three bank statements and your last packet and tell you what we find: duplicate payments, miscoded expenses, late fees never posted, what reconciles and what does not. No charge, no obligation, and the memo is yours either way.</p></div>
+</section>
+<section class="section tight"><div class="container narrow">
+  <form class="card" method="post" enctype="multipart/form-data" data-remember id="review-form">
+    <div style="position:absolute;left:-9999px" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <div class="form-row"><div class="form-group"><label for="b-community">Community</label><input class="form-control" id="b-community" name="community_name" required></div><div class="form-group"><label for="b-units">Doors / units</label><input class="form-control" id="b-units" name="units" type="number" min="4" required></div></div>
+    <div class="form-row"><div class="form-group"><label for="b-state">State</label><input class="form-control" id="b-state" name="state" maxlength="2" required placeholder="AZ"></div><div class="form-group"><label for="b-setup">Who does the books now?</label><select class="form-control" id="b-setup" name="current_setup"><option value="self">A board volunteer</option><option value="accountant">An outside bookkeeper / CPA</option><option value="management_co">A management company</option><option value="none">Nobody, really</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label for="b-name">Your name</label><input class="form-control" id="b-name" name="contact_name" required></div><div class="form-group"><label for="b-role">Role</label><select class="form-control" id="b-role" name="contact_role"><option value="treasurer">Treasurer</option><option value="president">President</option><option value="secretary">Secretary</option><option value="member">Board member</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label for="b-email">Email</label><input class="form-control" id="b-email" name="email" type="email" required></div><div class="form-group"><label for="b-phone">Phone (optional)</label><input class="form-control" id="b-phone" name="phone"></div></div>
+    <div class="form-group"><label>Statements and last packet (PDF, up to 10 MB each)</label><div class="drag-drop-container"><div class="text">Drag files here or tap to choose. Three bank statements and the last financial report your board received.</div><input type="file" name="files" multiple accept=".pdf,.csv,.xlsx,.png,.jpg"></div><div class="drag-drop-files"></div><span class="form-help-text">Prefer to email them? Submit the form and reply to our confirmation with the files attached.</span></div>
+    <div class="form-group"><label for="b-notes">Anything we should know</label><textarea class="form-control" id="b-notes" name="notes" rows="3" placeholder="We think the landscaper was paid twice in June."></textarea></div>
+    <button class="btn btn-primary" type="submit">Send for review</button>
+    <span class="form-help-text">Files are stored encrypted, read by an accountant and by hey, and deleted on request. We never share them.</span>
+  </form>
+</div></section>
+{% endblock %}

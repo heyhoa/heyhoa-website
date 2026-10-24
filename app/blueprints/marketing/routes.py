@@ -7,7 +7,7 @@ from ...extensions import db
 from ...models import ContactMessage
 from ...services.leads import create_lead
 from . import bp
-from .content import FAQS, POSTS, REVIEWS, SERVICES
+from .content import FAQS, POSTS, REVIEWS, SERVICES, TRUST
 
 _RATE: dict[str, deque] = defaultdict(deque)
 RATE_LIMIT = (5, 3600)  # 5 submissions per IP per hour
@@ -45,7 +45,7 @@ def remember_utm():
 
 @bp.route("/")
 def index():
-    return render_template("marketing/index.html", reviews=REVIEWS[:3], faqs=FAQS[:4])
+    return render_template("marketing/index.html", reviews=REVIEWS[:3], trust=TRUST, faqs=FAQS[:4])
 
 
 @bp.route("/pricing")
@@ -83,7 +83,54 @@ def compare():
 
 @bp.route("/reviews")
 def reviews():
-    return render_template("marketing/reviews.html", reviews=REVIEWS)
+    return render_template("marketing/reviews.html", reviews=REVIEWS, trust=TRUST)
+
+
+@bp.route("/proposal/<token>", methods=["GET", "POST"])
+def proposal(token):
+    from ...agents import runtime
+    from ...models import Lead
+    from ...services import sales
+
+    lead_id = sales.lead_id_from_token(token)
+    lead = db.session.get(Lead, lead_id) if lead_id else None
+    if not lead:
+        abort(404)
+    q = sales.quote(lead)
+    if request.method == "POST":
+        lead.status = "accepted"
+        db.session.commit()
+        runtime.inbound_portal(community_id=None, unit_account_id=None, kind="lead_accepted", subject=f"Proposal accepted: {lead.community_name}", body=f"{lead.contact_name} accepted {q['tier']['name']} at ${q['monthly']:,}/mo. Send the agreement and the onboarding document list.", email=lead.email, name=lead.contact_name, lane="sales")
+        flash("Thank you. We will send the agreement and the onboarding checklist within one business day.")
+        return redirect(url_for("marketing.proposal", token=token))
+    return render_template("marketing/proposal.html", lead=lead, q=q, calendar=sales.onboarding_calendar(), token=token)
+
+
+@bp.route("/books-review", methods=["GET", "POST"])
+def books_review():
+    """Free books review: three statements in, a one-page findings memo out within two business days."""
+    if request.method == "POST":
+        if _is_bot(request.form) or _rate_limited(request.remote_addr or "?"):
+            return redirect(url_for("marketing.books_review"))
+        import os
+
+        from ...agents import runtime
+
+        data = request.form.to_dict()
+        data["pain_points"] = "books review"
+        data["current_setup"] = data.get("current_setup") or "self"
+        lead = create_lead(data, source="books-review")
+        names = []
+        updir = os.path.join(current_app.instance_path, "uploads", f"lead-{lead.id}")
+        os.makedirs(updir, exist_ok=True)
+        for f in request.files.getlist("files"):
+            if f and f.filename:
+                safe = "".join(ch for ch in f.filename if ch.isalnum() or ch in "._- ")[:120]
+                f.save(os.path.join(updir, safe))
+                names.append(safe)
+        runtime.inbound_portal(community_id=None, unit_account_id=None, kind="books_review", subject=f"Free books review: {lead.community_name} · {lead.units} doors", body=f"Files: {', '.join(names) or 'none uploaded (will email)'}\nNotes: {data.get('notes') or '-'}", email=lead.email, name=lead.contact_name, lane="sales")
+        return redirect(url_for("marketing.quote_thanks", review=1))
+    return render_template("marketing/books_review.html")
 
 
 @bp.route("/about")
@@ -249,7 +296,7 @@ PUBLIC_ENDPOINTS = [
     ("marketing.service_detail", {"slug": "collections"}, "monthly", "0.8"), ("marketing.how_it_works", {}, "monthly", "0.8"),
     ("marketing.self_managed", {}, "monthly", "0.8"), ("marketing.compare", {}, "monthly", "0.8"), ("marketing.reviews", {}, "monthly", "0.5"),
     ("marketing.about", {}, "monthly", "0.5"), ("marketing.faq", {}, "monthly", "0.6"), ("marketing.blog", {}, "weekly", "0.6"),
-    ("marketing.homeowners", {}, "monthly", "0.6"), ("marketing.realtors", {}, "monthly", "0.6"), ("marketing.quote", {}, "monthly", "0.9"),
+    ("marketing.homeowners", {}, "monthly", "0.6"), ("marketing.realtors", {}, "monthly", "0.6"), ("marketing.quote", {}, "monthly", "0.9"), ("marketing.books_review", {}, "monthly", "0.9"),
     ("marketing.contact", {}, "yearly", "0.3"), ("marketing.privacy", {}, "yearly", "0.1"), ("marketing.terms", {}, "yearly", "0.1"),
 ]
 

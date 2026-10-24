@@ -67,6 +67,12 @@ def create_lead(data: dict, source: str | None = None) -> Lead:
         notify_new_lead(lead)
     except Exception as e:  # noqa: BLE001 - never block the quote flow
         log.warning("lead notification failed: %s", e)
+    try:
+        from ..agents import runtime
+
+        runtime.new_lead(lead)
+    except Exception as e:  # noqa: BLE001
+        log.warning("sales lane failed for lead %s: %s", lead.id, e)
     return lead
 
 

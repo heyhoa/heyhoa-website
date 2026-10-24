@@ -6,6 +6,7 @@ import pytest
 from app import create_app
 from app.agents import runtime
 from app.config import TestConfig
+from app.extensions import db
 from app.models import AgentRun, Message, WorkItem
 
 
@@ -45,7 +46,7 @@ def test_balance_question_from_known_owner_is_proposed_in_shadow(client):
     r = client.post("/api/webhooks/postmark?token=tok", json=_inbound("reed@example.com", "What is my balance?", "Hi, what do I owe right now?"))
     j = r.get_json()
     assert r.status_code == 200 and j["lane"] == "cs" and j["state"] == "proposed" and j["action"] == "send_email"
-    w = WorkItem.query.get(j["work_item"])
+    w = db.session.get(WorkItem, j["work_item"])
     assert w.unit_account_id == "ua-1012" and w.category == "balance" and w.needs_review
     assert "balance" in w.proposal["payload"]["body"].lower()
     assert len(w.messages) == 1 and w.messages[0].direction == "in"
@@ -54,7 +55,7 @@ def test_balance_question_from_known_owner_is_proposed_in_shadow(client):
 
 def test_same_question_auto_executes_when_shadow_off(live_client):
     j = live_client.post("/api/webhooks/postmark?token=tok", json=_inbound("reed@example.com", "balance", "what do I owe right now?")).get_json()
-    w = WorkItem.query.get(j["work_item"])
+    w = db.session.get(WorkItem, j["work_item"])
     assert w.state == "done" and w.reviewer is None
     out = [m for m in w.messages if m.direction == "out"]
     assert len(out) == 1 and out[0].channel == "email" and out[0].meta.get("simulated")
@@ -62,13 +63,13 @@ def test_same_question_auto_executes_when_shadow_off(live_client):
 
 def test_dispute_hands_off_to_ar_and_escalates_to_accountant(client):
     j = client.post("/api/webhooks/postmark?token=tok", json=_inbound("reed@example.com", "Late fee is wrong", "I dispute this late fee, please waive it.")).get_json()
-    w = WorkItem.query.get(j["work_item"])
+    w = db.session.get(WorkItem, j["work_item"])
     assert w.lane == "ar" and w.state in ("proposed", "escalated") and w.proposal["action"] == "escalate"
 
 
 def test_unknown_sender_goes_to_person(client):
     j = client.post("/api/webhooks/postmark?token=tok", json=_inbound("stranger@nowhere.com", "balance?", "what is my balance")).get_json()
-    w = WorkItem.query.get(j["work_item"])
+    w = db.session.get(WorkItem, j["work_item"])
     assert w.unit_account_id is None and w.proposal["action"] == "escalate"
 
 
@@ -77,7 +78,7 @@ def test_review_approve_executes_and_logs(client):
     client.post("/login/ops")
     r = client.post(f"/ops/item/{j['work_item']}/approve", data={"body": "Edited answer: May 1.", "note": "ok"}, follow_redirects=True)
     assert r.status_code == 200
-    w = WorkItem.query.get(j["work_item"])
+    w = db.session.get(WorkItem, j["work_item"])
     assert w.state == "done" and w.reviewer == "Jordan Alvarez"
     out = [m for m in w.messages if m.direction == "out"][0]
     assert out.body == "Edited answer: May 1." and out.recipient == "reed@example.com"
@@ -87,7 +88,7 @@ def test_review_reject_sends_nothing(client):
     j = client.post("/api/webhooks/postmark?token=tok", json=_inbound("reed@example.com", "pool", "when does the pool open?")).get_json()
     client.post("/login/ops")
     client.post(f"/ops/item/{j['work_item']}/reject", data={"note": "wrong tone"})
-    w = WorkItem.query.get(j["work_item"])
+    w = db.session.get(WorkItem, j["work_item"])
     assert w.state == "rejected" and not [m for m in w.messages if m.direction == "out"]
 
 

@@ -14,7 +14,7 @@ from .lanes import AGENTS
 
 log = logging.getLogger(__name__)
 
-SLA_HOURS = {"cs": 4, "ar": 24, "ap": 24, "board": 72, "close": 24, "onboarding": 48}
+SLA_HOURS = {"cs": 4, "ar": 24, "ap": 24, "board": 72, "close": 24, "onboarding": 48, "sales": 8}
 KIND_SLA_HOURS = {"records_request": 10 * 24, "resale_order": 3 * 24}  # statutory / promised clocks, business days approximated
 
 
@@ -125,10 +125,42 @@ def inbound_portal(*, community_id: str, unit_account_id: str | None, kind: str,
     return run(item)
 
 
+def new_lead(lead) -> WorkItem:
+    """Quote request → sales lane: proposal email now, sequence A touches scheduled."""
+    from ..services import sales
+
+    item = create_item(kind="lead", lane="sales", subject=f"Quote: {lead.community_name} · {lead.units} doors · score {lead.score}", summary=f"{lead.contact_name} ({lead.contact_role}) · {lead.current_setup} · pains: {lead.pain_points or '-'} · plan asked: {lead.plan or '-'}",
+                       counterpart_email=lead.email, counterpart_name=lead.contact_name, priority="high" if (lead.score or 0) >= 70 else "normal", remote_ids={"lead_id": lead.id}, evidence=[{"label": "quote", "ref": "", "text": f"${sales.quote(lead)['monthly']:,}/mo on {sales.quote(lead)['tier']['name']}"}])
+    schedule_followups(lead, start_step=1)
+    return run(item)
+
+
+def schedule_followups(lead, start_step: int = 1) -> int:
+    from ..services import sales
+
+    n = 0
+    for step in range(start_step, len(sales.SEQUENCE_A)):
+        day = sales.SEQUENCE_A[step][0]
+        wi = WorkItem(kind="followup", lane="sales", state="new", subject=f"Follow-up {step + 1}: {lead.community_name}", summary=f"Sequence A touch {step + 1} (day {day}).", counterpart_email=lead.email, counterpart_name=lead.contact_name,
+                      remote_ids={"lead_id": lead.id, "step": step}, shadow=True, priority="low", sla_due=dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=day))
+        db.session.add(wi)
+        n += 1
+    db.session.commit()
+    return n
+
+
+def run_due_followups() -> int:
+    now = dt.datetime.now(dt.timezone.utc)
+    due = WorkItem.query.filter_by(lane="sales", kind="followup", state="new").filter(WorkItem.sla_due <= now).all()
+    for w in due:
+        run(w)
+    return len(due)
+
+
 def daily(community_id: str | None = None) -> dict:
     """Scheduled work: AR ladder, vendor compliance, close snapshot, Friday digest."""
     p = get_provider()
-    counts = {"ar": 0, "ap": 0, "close": 0, "board": 0}
+    counts = {"ar": 0, "ap": 0, "close": 0, "board": 0, "sales": run_due_followups()}
     for c in p.list_communities():
         if community_id and c.id != str(community_id):
             continue

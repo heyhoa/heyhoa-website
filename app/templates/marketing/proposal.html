@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Proposal for {{ lead.community_name }} — {{ brand.name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1.5rem">
+  <div class="container">
+    <p class="eyebrow">Proposal · prepared {{ lead.created_at|datefmt }} for {{ lead.contact_name }}, {{ lead.contact_role }}</p>
+    <h1>{{ lead.community_name }}<br><span class="muted" style="font-weight:400">${{ "{:,}".format(q.monthly) }} a month.</span></h1>
+    <p class="lede">{{ q.units }} {{ 'units' if lead.community_type == 'condo' else 'doors' }} on <strong>{{ q.tier.name }}</strong>: ${{ q.tier.price }} base for the first 30, {{ q.tier.per_door }} after. That is ${{ "%.2f"|format(q.per_door) }} per door. Onboarding is free. Financials by the 5th business day or that month's fee is waived.</p>
+    <div class="actions"><form method="post"><button class="btn btn-primary" type="submit">Accept and start onboarding</button></form><a class="btn btn-ghost" href="{{ url_for('marketing.books_review') }}">Free books review first</a><a class="btn btn-ghost" href="{{ url_for('auth.login_role', role='board', demo=1) }}">See the board portal</a></div>
+    {% if lead.status == 'accepted' %}<p class="small" style="margin-top:1rem"><span class="pill lime">accepted</span> We will send the agreement and the onboarding checklist within one business day.</p>{% endif %}
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-2">
+      <div class="card"><h3>What {{ q.tier.name }} includes</h3><ul class="iconlist">{% for f in q.tier.features %}<li>{{ f }}</li>{% endfor %}</ul>
+        <p class="small muted">Other tiers at {{ q.units }} doors: {% for a in q.alternatives %}{{ a.name }} ${{ "{:,}".format(a.monthly) }}{% if not loop.last %} · {% endif %}{% endfor %}. A full-service manager for a community this size typically quotes ${{ "{:,}".format(q.full_service_low) }} to ${{ "{:,}".format(q.full_service_high) }} a month plus fees.</p></div>
+      <div class="card"><h3>Onboarding calendar</h3><ol class="steps">{% for s in calendar %}<li><div><h4>Week {{ s.week }} · from {{ s.date|datefmt }}</h4><p class="muted small">{{ s.what }}</p></div></li>{% endfor %}</ol><p class="small muted">You keep paying bills the old way until we say switch. Nothing breaks in the middle.</p></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:1.25rem">
+      <div class="card"><h3>The agreement, in plain words</h3><ul class="iconlist"><li>Written services agreement, 30 days' notice, 60-day cure, no multi-year lock-in</li><li>Accounts in the association's name and tax ID at an FDIC-insured partner bank</li><li>Administrative and advisory capacity; the board decides everything</li><li>Not legal, tax, insurance or property management services</li><li>AI reads and drafts; a person reviews before anything is sent or paid</li><li>Financials by the 5th business day or that month's fee is waived</li></ul><p class="small muted">Full agreement sent on acceptance, before you sign anything.</p></div>
+      <div class="card"><h3>Charged to the owner or requester, not the association</h3><ul class="checks">{% for name, price in owner_fees[:8] %}<li><span>{{ name }}</span><span class="muted">{{ price }}</span></li>{% endfor %}</ul><p class="small muted"><a href="{{ url_for('marketing.pricing_page') }}">Full fee schedule</a> · <a href="{{ url_for('static', filename='docs/hey-sample-financial-packet.pdf') }}">Sample financial packet (PDF)</a></p></div>
+    </div>
+    <p class="small muted" style="margin-top:1.5rem">Questions: {{ brand.email }} · {{ brand.phone }}. This proposal is good for 30 days. Price changes only with sixty days' notice once you are a customer.</p>
+  </div>
+</section>
+{% endblock %}

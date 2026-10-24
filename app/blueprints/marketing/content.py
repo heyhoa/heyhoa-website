@@ -59,13 +59,13 @@ FAQS = [
     ("Do you use AI on our data?", "Yes, and the agreement says so plainly. hey reads invoices, bank lines, documents and owner messages to draft and to check. A person reviews before any notice, letter or payment goes out. Model providers do not train on your data, and your records stay yours."),
 ]
 
-REVIEWS = [
-    ("The first month, they found $4,100 in duplicate landscaping payments our old firm never caught. That paid for the year.", "Dana W., Treasurer, 48-unit townhome community, TX"),
-    ("Financials on the 5th. Every month. I used to chase our manager for three weeks.", "Luis C., President, 36-unit condo, CO"),
-    ("Owners text a question and get an answer with a link to the bylaws in about a minute. The board group chat went quiet.", "Grace T., Secretary, 112-lot HOA, NC"),
-    ("We left a full-service manager and cut our admin cost by 60%. Nothing got worse. Most things got better.", "Ken Y., Treasurer, 64-unit community, AZ"),
-    ("Collections were awkward when neighbors did it. Now the letters go out on schedule, politely, and the balances clear.", "Riya P., President, 28-unit townhomes, GA"),
-    ("Onboarding was three weeks. They rebuilt two years of books and reconciled to the penny.", "Omar H., Treasurer, 22-unit condo, WA"),
+# No fabricated testimonials. This fills with real quotes, with permission, as boards go live.
+REVIEWS: list[tuple[str, str]] = []
+
+TRUST = [
+    ("A track record, not a pitch deck", "hey is the national brand of a team that has run accounting and back office for self-managed Arizona communities for years through its sister company. The processes, the agreement and the collection policy are the ones already in use."),
+    ("A promise with a penalty", "Financials by the 5th business day or that month's fee is waived. It is in the agreement because it is the only promise that changes how a firm behaves."),
+    ("Nothing to take on faith", "Public pricing. A public fee schedule. A sample packet you can download. A board portal you can click through with demo data before you talk to anyone."),
 ]
 
 POSTS = {

@@ -11,6 +11,16 @@
 </section>
 <section class="section tight">
   <div class="container">
+    <div class="card" style="margin-bottom:1.25rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap">
+      <div><label for="calc-doors" style="margin:0">How many doors?</label></div>
+      <input class="form-control" id="calc-doors" type="number" min="4" max="2000" value="48" style="width:120px">
+      <div id="calc-out" class="small muted" style="flex:1">Books <strong>$307</strong> · Back Office <strong>$511</strong> · Board+ <strong>$765</strong> per month</div>
+    </div>
+    <script>
+      (function(){var tiers={{ pricing|tojson }};var el=document.getElementById('calc-doors'),out=document.getElementById('calc-out');
+      function calc(){var n=parseInt(el.value||0,10);out.innerHTML=tiers.map(function(t){var pd=parseInt(t.per_door.replace(/[^0-9]/g,''),10);var m=t.price+Math.max(0,n-30)*pd;return t.name+' <strong>$'+m.toLocaleString()+'</strong>';}).join(' · ')+' per month';}
+      el.addEventListener('input',calc);calc();})();
+    </script>
     <div class="grid grid-3">
       {% for tier in pricing %}
       <div class="card {% if tier.featured %}featured{% endif %}">

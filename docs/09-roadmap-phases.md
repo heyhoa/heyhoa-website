@@ -4,10 +4,17 @@ How to use this: each phase is a checklist. Work the unchecked boxes top to bott
 
 Status legend: `[x]` done · `[ ]` open · `[~]` in progress.
 
+## Priority order (founders, Oct 24)
+1. **Sales and marketing: the first customer.** Everything below that is not on this path waits.
+2. **Board onboarding.** The interview, the document list, the community brain, Caliber setup, go-live.
+3. **Board portal.** Live data, approvals, packet.
+4. **Ops portal.** Agents out of shadow, close pipeline, collections.
+5. **Homeowner portal.** Payments, requests, ask hey.
+
 ## Now (next three boxes, in order)
-1. Phase 1 · Deploy (Render/Fly + Postgres + cron for `agents-daily` and `snapshot-coa`), custom domain, CI
-2. Phase 1 · Postmark account: server token, inbound stream → `/api/webhooks/postmark?token=…`, per-community aliases, SPF/DKIM on heyhoa.com
-3. Phase 1 · Form the hey hoa entity, decide the term question (doc 11 decisions 1 and 3), send the adapted PSA to counsel
+1. Phase 1 · Deploy: connect the repo on Render (render.yaml is in the repo), set secrets, point heyhoa.com, confirm CI green
+2. Phase 1 · Postmark account: server token, inbound stream, SPF/DKIM on heyhoa.com, so proposals and sequence A actually send
+3. Phase 1 · First 150-row outreach CSV from Texas management certificates, imported with `scripts/outreach_import.py`; founder approves touch 1 from the review queue
 
 Keep this list to three. When one is done, tick its box below and promote the next.
 
@@ -25,27 +32,36 @@ Goal: plan, brand, mock-ups, scaffold. Everything renders with demo data.
 - [x] AI layer with live (Claude) and demo modes
 - [x] Smoke tests for every route
 
-## Phase 1 — Launch-ready site (week 1–2)
-Goal: public site that converts; first customer signed by hand.
-- [ ] Replace placeholder reviews with real quotes or remove the page until there are three
+## Phase 1 — First customer (sales and marketing)
+Goal: a signed community. Site live, proposals out, sequence running, books reviews delivered, reference calls available.
+- [x] Placeholder testimonials removed; home shows three trust points, /reviews offers reference calls; real quotes added only with permission
 - [x] Sample financial packet PDF (annotated) downloadable from `/pricing`, `/how-it-works` and the home page (`/sample-packet` is the HTML source; `node scripts/build_sample_packet.js` regenerates the PDF)
 - [x] Lead notification: email to the ops inbox + Slack ping on new `Lead`, with score, plan and attribution (`services/notify.py`)
 - [ ] Postmark account: server token, inbound stream → `/api/webhooks/postmark?token=…`, per-community aliases, SPF/DKIM on heyhoa.com
-- [ ] Quote form: plan preselect from `?plan=`, UTM capture, honeypot, rate limit
+- [x] Quote form: plan preselect from `?plan=`, UTM capture, honeypot, rate limit
+- [x] Sales lane: proposal email drafted on every quote, sequence A follow-ups scheduled (days 4, 7, 11, 14), stopped when a lead is contacted/lost; leads pipeline at `/ops/leads`
+- [x] Web proposal per lead (`/proposal/<token>`): exact price, tier contents, onboarding calendar, agreement in plain words, accept button
+- [x] Free books review page (`/books-review`) with uploads → sales work item for the accountant (2-business-day memo)
+- [x] Pricing calculator on `/pricing`
+- [x] Outreach import script + CSV template (`outreach/`)
+- [ ] Books review: the memo template and the accountant's checklist (what we look for, how we present findings)
+- [ ] Call booking link (Cal.com/Calendly) on proposal, quote-thanks and sequence emails
+- [ ] Founder email identity for sequence A (name, signature, reply-to) and a reply handler that marks the lead contacted and stops the sequence
 - [x] Contact form: becomes a work item in the CS lane plus an ops email and a Slack ping for sales topics
 - [ ] Blog: move posts to markdown files, add RSS, add 9 more posts from the content calendar
 - [ ] SEO: sitemap.xml, robots.txt, OG image per page, schema.org Organization + FAQ
 - [ ] Analytics: privacy-friendly (Plausible) with quote-funnel events
 - [ ] Legal: counsel review of `/terms`, `/privacy`, the 5th-or-free clause, state manager-licensing language
-- [ ] Deploy: Render/Fly with Postgres, custom domain, TLS, GitHub Actions running `pytest`, cron for `agents-daily` and `snapshot-coa`
+- [x] Deploy config: `render.yaml` (web + Postgres + two crons), `Procfile`, GitHub Actions CI, Postgres driver and URL normalisation
+- [ ] Deploy: connect the repo on Render, set secrets, custom domain, TLS, confirm CI green
 - [ ] Portal sidebar collapses to a top bar on phones (currently a full-screen nav list)
 - [x] Services agreement template added to `legal/` and mapped to tiers, fees and collections (doc 11)
 - [ ] Tailor the PSA for hey hoa: hey entity as Service Provider, term decision, 5th-or-free clause, hey hoa Exhibit A, AI review clause, state exhibits (AZ, TX); then counsel
 - [ ] Founding-customer one-pager PDF
-- [ ] Outreach: list of 150 Central Texas treasurers from management certificates, CRM set up, Sequence A loaded; Heywood community migration scheduled
+- [ ] Outreach: 150-row CSV of Central Texas treasurers from management certificates, imported; touch 1 approved and sent; Heywood community migration scheduled
 
-## Phase 2 — Real data, real logins (week 3–6)
-Goal: first community live on FrontSteps data; owners and board use the portals for real.
+## Phase 2 — Board onboarding, then the board portal on real data
+Goal: the first community onboarded end to end (interview, documents, Caliber setup, go-live) and its board using the portal on real data. Homeowner-facing work waits unless the board needs it.
 - [ ] FrontSteps tenant/sandbox API key; run the 13-step verification list in doc 12; record observed payloads; fix `_map_*` field names
 - [x] COA snapshot job and budget model; period financials derived from snapshots (`services/financials.py`, `flask snapshot-coa`)
 - [ ] Nightly cron for `snapshot-coa` on the host; opening snapshot on each community's go-live day

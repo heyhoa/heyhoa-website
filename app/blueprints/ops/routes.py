@@ -63,14 +63,14 @@ def review():
 @bp.route("/item/<int:item_id>")
 @role_required("ops")
 def item(item_id):
-    w = WorkItem.query.get_or_404(item_id)
+    w = db.get_or_404(WorkItem, item_id)
     return render_template("ops/item.html", w=w, agent=AGENTS.get(w.lane), communities=_communities(), lanes=LANES)
 
 
 @bp.route("/item/<int:item_id>/approve", methods=["POST"])
 @role_required("ops")
 def approve(item_id):
-    w = WorkItem.query.get_or_404(item_id)
+    w = db.get_or_404(WorkItem, item_id)
     edits = {}
     if request.form.get("body") and request.form.get("body") != ((w.proposal or {}).get("payload") or {}).get("body"):
         edits["body"] = request.form["body"]
@@ -82,7 +82,7 @@ def approve(item_id):
 @bp.route("/item/<int:item_id>/reject", methods=["POST"])
 @role_required("ops")
 def reject(item_id):
-    w = WorkItem.query.get_or_404(item_id)
+    w = db.get_or_404(WorkItem, item_id)
     runtime.reject(w, session["user"]["name"], note=request.form.get("note", ""))
     flash("Rejected. Nothing was sent.")
     return redirect(url_for("ops.review"))
@@ -91,7 +91,7 @@ def reject(item_id):
 @bp.route("/item/<int:item_id>/rerun", methods=["POST"])
 @role_required("ops")
 def rerun(item_id):
-    w = WorkItem.query.get_or_404(item_id)
+    w = db.get_or_404(WorkItem, item_id)
     lane = request.form.get("lane")
     if lane in LANES:
         w.lane = lane
@@ -104,7 +104,7 @@ def rerun(item_id):
 @bp.route("/item/<int:item_id>/note", methods=["POST"])
 @role_required("ops")
 def note(item_id):
-    w = WorkItem.query.get_or_404(item_id)
+    w = db.get_or_404(WorkItem, item_id)
     db.session.add(Message(work_item_id=w.id, direction="out", channel="note", body=request.form.get("body", ""), author=session["user"].get("title", "staff").lower(), delivered=True))
     db.session.commit()
     return redirect(url_for("ops.item", item_id=w.id))
@@ -154,6 +154,32 @@ def run_daily():
 @role_required("ops")
 def activity():
     return render_template("ops/activity.html", log=AuditLog.query.order_by(AuditLog.created_at.desc()).limit(200).all(), runs=AgentRun.query.order_by(AgentRun.created_at.desc()).limit(100).all())
+
+
+@bp.route("/leads")
+@role_required("ops")
+def leads():
+    from ...models import Lead
+    from ...services import sales
+
+    status = request.args.get("status")
+    q = Lead.query.order_by(Lead.created_at.desc())
+    if status:
+        q = q.filter_by(status=status)
+    rows = q.limit(200).all()
+    return render_template("ops/leads.html", leads=rows, status=status or "", quote=sales.quote, proposal_url=sales.proposal_url)
+
+
+@bp.route("/leads/<int:lead_id>/status", methods=["POST"])
+@role_required("ops")
+def lead_status(lead_id):
+    from ...models import Lead
+
+    lead = db.get_or_404(Lead, lead_id)
+    lead.status = request.form.get("status", lead.status)
+    db.session.commit()
+    flash(f"{lead.community_name}: {lead.status}.")
+    return redirect(url_for("ops.leads"))
 
 
 @bp.route("/settings")

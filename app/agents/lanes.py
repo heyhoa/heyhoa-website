@@ -1,6 +1,8 @@
 """The six agent lanes. Each has a prompt, a tool set and a demo planner."""
 from __future__ import annotations
 
+from flask import url_for
+
 from .. import brand
 from ..ai import assistant
 from ..ai.prompts import HEY_SYSTEM
@@ -138,4 +140,39 @@ class OnboardingAgent(Agent):
         return Proposal(action="request_documents", payload={"to": item.counterpart_email or "board@example.com", "missing": missing}, preview="Email the liaison for: " + ", ".join(missing), confidence=0.9, reason="documents outstanding")
 
 
-AGENTS: dict[str, Agent] = {a.lane: a for a in (CSAgent(), ARAgent(), APAgent(), BoardAgent(), CloseAgent(), OnboardingAgent())}
+class SalesAgent(Agent):
+    lane, name = "sales", "Sales"
+    description = "Quote requests, proposals, outbound sequence A, free books reviews, follow-ups until a board says yes or later. The founder sends; hey drafts and keeps the calendar."
+    system_prompt = HEY_SYSTEM + "\n\nYou are the sales lane. Treasurers are tired volunteers: be short, specific and honest. Quote the exact monthly number for their door count, link the written proposal, offer the free books review, never discount, never pressure. Schedule the next touch from sequence A unless they replied."
+    tools = pick("send_email", "escalate")
+    auto_execute_risks = {RISK_READ}
+
+    def plan(self, item):
+        from ..extensions import db
+        from ..models import Lead
+        from ..services import sales
+
+        lead = db.session.get(Lead, (item.remote_ids or {}).get("lead_id") or 0)
+        if not lead:
+            return Proposal(action="escalate", payload={"lane": "coordinator", "note": "lead not found"}, preview="Lead record missing.", confidence=0.5)
+        if item.kind == "lead":
+            q = sales.quote(lead)
+            subject = f"Your hey hoa proposal: ${q['monthly']:,}/month for {lead.community_name}"
+            body = (f"Hi {(lead.contact_name or 'there').split(' ')[0]},\n\nThanks for the details on {lead.community_name}. For {q['units']} doors on {q['tier']['name']} the price is ${q['monthly']:,} a month (${q['per_door']:.2f} per door). "
+                    f"Onboarding is free and takes three weeks. Financials land by the 5th business day every month or that month's fee is waived.\n\n"
+                    f"The written proposal, with what is included, the onboarding calendar and the agreement in plain words: {sales.proposal_url(lead)}\n\n"
+                    f"Two ways to go from here:\n1. Send three recent bank statements for a free books review and we tell you what we find within two business days: {url_for('marketing.books_review', _external=True)}\n"
+                    f"2. Reply with a time for a 15-minute call and I will walk your board through the portal.\n\nAustin\nhey hoa · {brand.BRAND['phone']}")
+            return Proposal(action="send_email", payload={"to": lead.email, "subject": subject, "body": body}, preview=body, confidence=0.9, sources=["pricing", "lead"], reason=f"score {lead.score}, {q['tier']['name']} recommended")
+        if item.kind == "followup":
+            step = int((item.remote_ids or {}).get("step", 1))
+            if lead.status in ("won", "lost") or (lead.status == "contacted" and step > 0 and (item.remote_ids or {}).get("replied")):
+                return Proposal(action="none", preview=f"Lead is {lead.status}; sequence stopped.", confidence=0.95)
+            subject, body = sales.render_touch(step, lead)
+            return Proposal(action="send_email", payload={"to": lead.email, "subject": subject, "body": body}, preview=body, confidence=0.85, sources=["sequence A"], reason=f"touch {step + 1} of {len(sales.SEQUENCE_A)}")
+        if item.kind == "books_review":
+            return Proposal(action="escalate", payload={"lane": "accountant", "note": "Free books review: statements attached. Deliver the one-page findings memo within 2 business days."}, preview="Statements received for a free books review. Accountant delivers the findings memo in 2 business days; sales follows up with the proposal.", confidence=0.9, reason="offer")
+        return Proposal(action="escalate", payload={"lane": "coordinator", "note": item.summary or ""}, preview="Sales item needs a person.", confidence=0.5)
+
+
+AGENTS: dict[str, Agent] = {a.lane: a for a in (CSAgent(), ARAgent(), APAgent(), BoardAgent(), CloseAgent(), OnboardingAgent(), SalesAgent())}

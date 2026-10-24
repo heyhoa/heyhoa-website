@@ -28,6 +28,10 @@ Set `ANTHROPIC_API_KEY` to make `hey` answer with Claude instead of the rule-bas
 
 `python -m app.mcp_server` exposes the same capabilities as the portals over MCP, scoped by token (homeowner, board, vendor, realtor, public). Owners' and boards' own assistants file requests, check balances, approve invoices and order closing documents; every write becomes a reviewed work item in hey ops. Discovery at `/.well-known/hey-agent.json`; each community has a public page at `/c/<slug>` and a JSON twin at `/c/<slug>.json`.
 
+## Sales
+
+Quote requests and the free books review create leads; the sales lane drafts the proposal email and schedules sequence A follow-ups, all approved from `/ops/review`. Each lead has a web proposal the prospect can accept. Outreach lists import from CSV: see `outreach/README.md`. Deploy with `render.yaml` (web, Postgres, two crons); CI runs `pytest` on every push.
+
 ## The plan
 
 Start at [docs/00-README.md](docs/00-README.md). Business model, marketing, go-to-market, brand, launch plan, outreach campaigns, product spec, architecture, and the phased roadmap with checkboxes are all there. Brand assets are in `brand/`.

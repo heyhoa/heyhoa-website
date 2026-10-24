@@ -5,8 +5,13 @@
 <section class="hero">
   <div class="container narrow">
     <p class="eyebrow">Got it</p>
+    {% if request.args.get('review') %}
+    <h1>Got your statements.</h1>
+    <p class="lede">An accountant and hey read them next. You get a one-page findings memo by email within two business days, and a proposal with the exact monthly number for your door count.</p>
+    {% else %}
     <h1>Your proposal is on its way.</h1>
-    <p class="lede">Check your inbox within a few hours (business days). It will have the exact monthly number, the onboarding calendar and a sample financial packet.</p>
+    <p class="lede">Check your inbox within a few hours (business days). It has the exact monthly number, the onboarding calendar, the agreement in plain words and a link to a sample financial packet.</p>
+    {% endif %}
     <div class="actions">
       <a class="btn btn-primary" href="{{ url_for('auth.login_role', role='board', demo=1) }}">Explore the board portal meanwhile</a>
       <a class="btn btn-ghost" href="{{ url_for('marketing.how_it_works') }}">How onboarding works</a>

@@ -97,7 +97,7 @@ def post_note(item, unit_account_id: str, text: str) -> dict:
 
 
 def handoff(item, lane: str, note: str = "") -> dict:
-    item.lane = lane if lane in ("cs", "ar", "ap", "board", "close", "onboarding") else item.lane
+    item.lane = lane if lane in ("cs", "ar", "ap", "board", "close", "onboarding", "sales") else item.lane
     item.state = "new"
     item.summary = (item.summary or "") + f"\n\n[handoff] {note}"
     _log(item, "handoff", f"to={lane} {note}")

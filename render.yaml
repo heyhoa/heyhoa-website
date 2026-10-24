@@ -1,0 +1,54 @@
+# Render blueprint: web service + Postgres + two cron jobs. `render blueprint launch` or connect the repo in the dashboard.
+services:
+  - type: web
+    name: heyhoa-web
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -k gthread --threads 4 -b 0.0.0.0:$PORT wsgi:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: heyhoa-db
+          property: connectionString
+      - key: ACCOUNTING_PROVIDER
+        value: mock
+      - key: SHADOW_MODE
+        value: "true"
+      - key: POSTMARK_INBOUND_TOKEN
+        generateValue: true
+      # set in the dashboard: ANTHROPIC_API_KEY, POSTMARK_SERVER_TOKEN, FRONTSTEPS_API_KEY, SLACK_WEBHOOK_URL, COMMUNITY_ALIASES
+  - type: cron
+    name: heyhoa-agents-daily
+    runtime: python
+    schedule: "0 13 * * *"   # 06:00 Arizona, daily
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask --app run agents-daily
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: heyhoa-db
+          property: connectionString
+      - key: SECRET_KEY
+        sync: false
+  - type: cron
+    name: heyhoa-snapshot-coa
+    runtime: python
+    schedule: "30 8 * * *"   # 01:30 Arizona, nightly
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask --app run snapshot-coa
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: heyhoa-db
+          property: connectionString
+      - key: SECRET_KEY
+        sync: false
+databases:
+  - name: heyhoa-db
+    plan: basic-256mb

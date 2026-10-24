@@ -1,20 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Reviews — {{ brand.name }}{% endblock %}
+{% block title %}References — {{ brand.name }}{% endblock %}
 {% block content %}
 <section class="hero" style="padding-bottom:2rem">
-  <div class="container">
-    <p class="eyebrow">Reviews</p>
-    <h1>What boards say after the first packet.</h1>
+  <div class="container narrow">
+    <p class="eyebrow">References</p>
+    <h1>We will put you on the phone with a board.</h1>
+    <p class="lede">hey is a new brand with an old back office behind it. We do not publish quotes we cannot stand behind, so until our first hey communities are live, references are reference calls: a treasurer or president served by our sister company in Arizona, on request, for any board over 20 doors.</p>
+    <div class="actions"><a class="btn btn-primary" href="{{ url_for('marketing.contact') }}">Request a reference call</a><a class="btn btn-ghost" href="{{ url_for('marketing.books_review') }}">Or start with a free books review</a></div>
   </div>
 </section>
 <section class="section tight">
   <div class="container">
-    <div class="grid grid-2">
-      {% for text, who in reviews %}
-      <blockquote class="quote card" style="margin:0">{{ text }}<cite>{{ who }}</cite></blockquote>
-      {% endfor %}
-    </div>
-    <p class="small muted" style="margin-top:1.5rem">Quotes are lightly edited for length. Names shortened at the reviewers' request. Reference calls available on request for communities over 40 doors.</p>
+    <div class="grid grid-3">{% for title, text in trust %}<div class="card"><h3>{{ title }}</h3><p class="muted">{{ text }}</p></div>{% endfor %}</div>
+    {% if reviews %}<div class="grid grid-2" style="margin-top:2rem">{% for text, who in reviews %}<blockquote class="quote card" style="margin:0">{{ text }}<cite>{{ who }}</cite></blockquote>{% endfor %}</div>{% endif %}
   </div>
 </section>
 {% include 'partials/cta.html' %}

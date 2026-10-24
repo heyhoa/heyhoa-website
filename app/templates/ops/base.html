@@ -10,6 +10,11 @@
   <li><a href="{{ url_for('ops.threads') }}" {% if p == '/ops/threads' %}aria-current="page"{% endif %}>Messages</a></li>
   <li><a href="{{ url_for('ops.new_item') }}" {% if p == '/ops/new' %}aria-current="page"{% endif %}>Log a call / item</a></li>
 </ul>
+<div class="section-label">Sales</div>
+<ul>
+  <li><a href="{{ url_for('ops.leads') }}" {% if p.startswith('/ops/leads') %}aria-current="page"{% endif %}>Leads &amp; proposals</a></li>
+  <li><a href="{{ url_for('ops.queue', lane='sales', state='open') }}">Sales work</a></li>
+</ul>
 <div class="section-label">Agents</div>
 <ul>
   <li><a href="{{ url_for('ops.agents') }}" {% if p == '/ops/agents' %}aria-current="page"{% endif %}>Lanes &amp; policy</a></li>

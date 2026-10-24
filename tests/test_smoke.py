@@ -8,10 +8,10 @@ MARKETING = [
     "/", "/pricing", "/services", "/services/accounting", "/services/back-office", "/services/collections",
     "/how-it-works", "/self-managed", "/compare", "/reviews", "/about", "/faq", "/blog",
     "/blog/myth-of-full-service-management", "/homeowners", "/realtors", "/quote", "/contact", "/privacy", "/terms", "/brand", "/login",
-    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office", "/sample-packet", "/c/willow-creek", "/c/willow-creek.json", "/c/willow-creek/records-request", "/.well-known/hey-agent.json",
+    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office", "/sample-packet", "/c/willow-creek", "/c/willow-creek.json", "/c/willow-creek/records-request", "/.well-known/hey-agent.json", "/books-review", "/quote/thanks?review=1",
 ]
 HOMEOWNER = ["/me/dashboard", "/me/pay", "/me/ledger", "/me/requests", "/me/requests/new", "/me/arc", "/me/arc/new", "/me/documents", "/me/directory", "/me/profile", "/me/ask"]
-OPS = ["/ops/dashboard", "/ops/review", "/ops/queue?state=open", "/ops/threads", "/ops/new", "/ops/agents", "/ops/activity", "/ops/settings"]
+OPS = ["/ops/dashboard", "/ops/review", "/ops/queue?state=open", "/ops/threads", "/ops/new", "/ops/agents", "/ops/activity", "/ops/settings", "/ops/leads", "/ops/leads?status=new"]
 BOARD = ["/board/dashboard", "/board/financials", "/board/invoices", "/board/invoices?status=pending_board", "/board/delinquencies", "/board/delinquencies?draft=ua-1003",
          "/board/owners", "/board/requests", "/board/arc", "/board/violations", "/board/documents", "/board/vendors", "/board/announcements", "/board/meetings", "/board/budget", "/board/settings", "/board/ask", "/board/activity"]
 

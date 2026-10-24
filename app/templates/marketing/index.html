@@ -99,13 +99,13 @@
 
 <section class="section">
   <div class="container">
-    <p class="eyebrow">Boards say</p>
+    <p class="eyebrow">Why boards trust this</p>
     <div class="grid grid-3">
-      {% for text, who in reviews %}
-      <blockquote class="quote card" style="margin:0">{{ text }}<cite>{{ who }}</cite></blockquote>
+      {% for title, text in trust %}
+      <div class="card"><h3>{{ title }}</h3><p class="muted">{{ text }}</p></div>
       {% endfor %}
     </div>
-    <p style="margin-top:1.5rem"><a href="{{ url_for('marketing.reviews') }}">More reviews →</a></p>
+    <p style="margin-top:1.5rem"><a href="{{ url_for('marketing.books_review') }}">Start with a free books review →</a> · <a href="{{ url_for('marketing.reviews') }}">References</a></p>
   </div>
 </section>
 
