@@ -32,7 +32,7 @@
           <td style="text-align:right"><form method="post" onsubmit="return confirm('Remove {{ m.name|e }} from the roster?')"><input type="hidden" name="intent" value="member_remove"><input type="hidden" name="id" value="{{ m.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
         </tr>{% else %}<tr><td colspan="4" class="muted">No roster yet. Add the board, with seats and term dates; hey tracks the terms and the election.</td></tr>{% endfor %}</tbody>
       </table></div>
-      <p class="help">Signers can approve money. Term end = start + term length unless you set it. Officers change at the first meeting after the election; update the seats here and the bank signers at {{ config.BANK_NAME }}.</p>
+      <p class="help">Adding a member with an email sends them a login setup link (password, then a code by email on each new device). Signers can approve money. Term end = start + term length unless you set it. Officers change at the first meeting after the election; update the seats here and the bank signers at {{ config.BANK_NAME }}.</p>
     </div>
     <div class="card" style="margin-top:.8rem">
       <h3>All recurring items</h3>
@@ -73,6 +73,6 @@
   <button class="btn btn-primary btn-sm">Save</button>
 </form>
 {% endmacro %}
-{% for m in roster %}<aside class="drawer" id="member-{{ m.id }}"><div class="drawer-head"><div><h3>{{ m.name }}</h3><div class="small muted">{{ dict(roles)[m.role] }}{% if m.term_end %} · term ends {{ m.term_end|datefmt }}{% endif %}</div></div><button class="drawer-close" aria-label="Close">×</button></div>{{ member_form(m) }}</aside>{% endfor %}
+{% for m in roster %}<aside class="drawer" id="member-{{ m.id }}"><div class="drawer-head"><div><h3>{{ m.name }}</h3><div class="small muted">{{ dict(roles)[m.role] }}{% if m.term_end %} · term ends {{ m.term_end|datefmt }}{% endif %} · {% if m.password_hash %}login set{% if m.last_login_at %}, last {{ m.last_login_at|datefmt('%b %d') }}{% endif %}{% else %}no login yet{% endif %}</div></div>{% if m.email %}<form method="post"><input type="hidden" name="intent" value="invite"><input type="hidden" name="id" value="{{ m.id }}"><button class="btn btn-ghost btn-sm">{{ 'Send reset link' if m.password_hash else 'Send login setup' }}</button></form>{% endif %}<button class="drawer-close" aria-label="Close">×</button></div>{{ member_form(m) }}</aside>{% endfor %}
 <aside class="drawer" id="new-member" data-autofocus="1"><div class="drawer-head"><div><h3>Add a board member</h3></div><button class="drawer-close" aria-label="Close">×</button></div>{{ member_form(none) }}</aside>
 {% endblock %}

@@ -10,6 +10,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me")
+    PERMANENT_SESSION_LIFETIME = 60 * 60 * 24 * 30  # a signed-in device stays trusted for 30 days
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
+    DEMO_LOGIN = os.environ.get("DEMO_LOGIN", "true").lower() != "false"  # the pick-a-role demo login; off in production
+    MFA_TRUST_DAYS = int(os.environ.get("MFA_TRUST_DAYS", "30"))
     _db_url = os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR / 'instance' / 'heyhoa.db'}")
     if _db_url.startswith("postgres://"):
         _db_url = _db_url.replace("postgres://", "postgresql+psycopg://", 1)

@@ -61,7 +61,8 @@ Goal: a signed community. Site live, proposals out, sequence running, books revi
 - [x] Data model written down (`docs/17-data-model.md`)
 - [x] Board calendar: recurring items with lead times, owners, steps and sources; standard Arizona year; reminders through the board lane; roster with seats, terms and time left
 - [ ] Legal: counsel review of `/terms`, `/privacy`, the agreement, the 5th-or-free clause, state manager-licensing language
-- [x] Magic-link login and one-click approve/deny from email; board home is the Needs-you inbox; plain-language labels; ask hey on every page; first-month strip
+- [x] Board sign-in: password + emailed 6-digit code, trusted devices 30 days, invite and reset links, lockout; one-click email actions finish after sign-in; board home is the Needs-you inbox; plain-language labels; ask hey on every page
+- [ ] Owner sign-in on the same model (password + code), linked to the Caliber contact; ops sign-in with hardware keys
 - [ ] Signup: email the signed agreement PDF and a magic link to the signer; roster row created from the signup contact
 - [ ] Lob account + return address; letter PDF with the hey letterhead instead of HTML
 - [x] Deploy config: `render.yaml` (web + Postgres + two crons), `Procfile`, GitHub Actions CI, Postgres driver and URL normalisation
@@ -79,7 +80,7 @@ Goal: the first community onboarded end to end (interview, documents, Caliber se
 - [ ] Nightly cron for `snapshot-coa` on the host; opening snapshot on each community's go-live day
 - [ ] Budget entry UI in the board portal (`BudgetLine`), approval recorded; budget vs actual on `/board/financials` from the service
 - [ ] Bank reconciliation verification: statement balance entry (manual/CSV from First Citizens) vs COA cash; status on the financials page
-- [ ] Magic-link auth (email), session hardening, CSRF (Flask-WTF), password-less board invites
+- [ ] CSRF tokens on every portal form (Flask-WTF); SESSION_COOKIE_SECURE on in production
 - [ ] Link portal users to FrontSteps `contact` / `clientcontact` ids; owner sees only own unit account
 - [ ] Homeowner: live ledger, statements (PDF proxy), autopay via `unitaccount/{id}/ach`
 - [ ] Payments: hosted processor redirect from `paymentproviders`; webhook → `POST paymentaccepted`

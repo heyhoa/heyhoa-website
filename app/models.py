@@ -451,10 +451,29 @@ class BoardMember(db.Model):
     signer = db.Column(db.Boolean, default=False)
     contact_id = db.Column(db.String(40))  # Caliber ClientContact id when live
     active = db.Column(db.Boolean, default=True)
+    password_hash = db.Column(db.String(300))
+    password_set_at = db.Column(db.DateTime)
+    last_login_at = db.Column(db.DateTime)
+    failed_logins = db.Column(db.Integer, default=0)
+    locked_until = db.Column(db.DateTime)
 
     @property
     def days_left(self):
         return (self.term_end - dt.date.today()).days if self.term_end else None
+
+
+class LoginCode(db.Model):
+    """A one-time emailed code (second factor). Hashed, short-lived, single use, few attempts."""
+
+    __tablename__ = "login_codes"
+    id = db.Column(db.Integer, primary_key=True)
+    member_id = db.Column(db.Integer, index=True)
+    code_hash = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    expires_at = db.Column(db.DateTime)
+    used_at = db.Column(db.DateTime)
+    attempts = db.Column(db.Integer, default=0)
+    purpose = db.Column(db.String(20), default="login")  # login
 
 
 class CalendarItem(db.Model):

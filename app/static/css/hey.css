@@ -583,22 +583,10 @@ body.drawer-open .ask-fab { display: none; }
 .shell .inbox-row .ir-sub { display: block; font-size: 0.76rem; color: var(--fg-2); margin-top: 0.08rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .shell .inbox-row .ir-meta { font-size: 0.76rem; color: var(--fg-2); white-space: nowrap; text-align: right; }
 @media (max-width: 640px) {
-  .shell .inbox-row { grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 0.15rem 0.6rem; padding: 0.7rem 0.8rem; align-items: start; }
+  .shell .inbox-row { grid-template-columns: 4.4rem 1fr; grid-template-rows: auto auto; gap: 0.15rem 0.5rem; padding: 0.7rem 0.8rem; align-items: start; }
   .shell .inbox-row .ir-tag { grid-row: 1; padding-top: 0.15rem; }
   .shell .inbox-row .ir-main { grid-column: 2; grid-row: 1; }
   .shell .inbox-row .ir-title, .shell .inbox-row .ir-sub { white-space: normal; }
   .shell .inbox-row .ir-meta { grid-column: 2; grid-row: 2; text-align: left; }
 }
-/* first-month strip */
-.shell .firstmonth { display: flex; align-items: center; gap: 0.6rem 1.2rem; flex-wrap: wrap; border: 1px solid var(--lime); background: #FBFFE6; border-radius: 10px; padding: 0.6rem 0.9rem; margin-bottom: 0.9rem; font-size: 0.86rem; }
-.shell .firstmonth ol { display: flex; gap: 0.3rem 1.2rem; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; flex: 1; }
-.shell .firstmonth li a { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--fg); text-decoration: none; }
-.shell .firstmonth li.done a { color: var(--fg-2); text-decoration: line-through; }
-.shell .firstmonth .n { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1px solid var(--line); font-size: 0.68rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
-.shell .firstmonth li.done .n { background: var(--ink); color: var(--lime); border-color: var(--ink); }
-.shell .firstmonth form { margin-left: auto; }
-@media (max-width: 640px) {
-  .shell .firstmonth { align-items: flex-start; flex-direction: column; gap: 0.5rem; }
-  .shell .firstmonth ol { flex-direction: column; gap: 0.35rem; }
-  .shell .firstmonth form { margin-left: 0; }
 }

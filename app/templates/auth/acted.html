@@ -6,6 +6,6 @@
   <p class="eyebrow">{{ 'Done' if ok else 'That did not work' }}</p>
   <h1 style="font-size:clamp(1.8rem,4vw,2.6rem)">{{ message }}</h1>
   {% if ok %}<p class="lede">That is all. You can close this tab.{% if member %} Every action is logged under your name, {{ member.name }}.{% endif %}</p>{% endif %}
-  {% if login_url %}<div class="actions"><a class="btn btn-ghost" href="{{ login_url }}">Open the board portal</a></div>{% endif %}
+  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('board.dashboard') if ok else url_for('auth.login') }}">{{ 'Open the board portal' if ok else 'Sign in' }}</a></div>
 </div></section>
 {% endblock %}

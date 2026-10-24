@@ -5,12 +5,6 @@
 {% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
 {% block page_actions %}<span class="small muted">{{ today|datefmt('%A, %B %d') }}</span>{% endblock %}
 {% block content %}
-{% if show_firsts %}<div class="firstmonth">
-  <strong>Your first month</strong>
-  <ol>{% for label, ok, url in firsts %}<li class="{{ 'done' if ok }}"><a href="{{ url }}"><span class="n">{{ '✓' if ok else loop.index }}</span>{{ label }}</a></li>{% endfor %}</ol>
-  <form method="post" action="{{ url_for('board.hide_firsts') }}"><button class="btn btn-ghost btn-sm">Hide</button></form>
-</div>{% endif %}
-
 <div class="toolbar"><h3 style="margin:0">Needs you <span class="pill {{ 'lime' if n_needs else '' }}">{{ n_needs }}</span></h3><span class="small muted hide-phone"><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve</span></div>
 {% if n_needs %}
 <ul class="inbox">

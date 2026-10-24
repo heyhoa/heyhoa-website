@@ -187,8 +187,16 @@ def save_member(community_id: str, form, member: BoardMember | None = None) -> B
         m.term_end = dt.date.fromisoformat(te)
     elif m.term_start and m.term_years:
         m.term_end = dt.date(m.term_start.year + m.term_years, m.term_start.month, min(m.term_start.day, 28))
+    is_new = member is None
     db.session.add(m)
     db.session.commit()
+    if is_new and m.email:
+        try:
+            from . import accounts
+
+            accounts.send_setup(m, reason="invite")
+        except Exception:  # noqa: BLE001 - an email failure must not block the roster
+            pass
     return m
 
 

@@ -50,20 +50,9 @@ def dashboard():
     cal_rows = [r for r in board_calendar.due_now(community.id) if r["item"].owner in ("board", my_seat) or (r["item"].owner != "hey" and not my_seat)]
     messages = WorkItem.query.filter_by(community_id=community.id).filter(WorkItem.kind.in_(OWNER_FACING_KINDS), WorkItem.state.in_(["new", "working", "escalated"])).order_by(WorkItem.updated_at.desc()).limit(10).all()
     arcs = [a for a in p.list_arc_requests(community.id) if a.status in ("submitted", "under_review")]
-    me_log = AuditLog.query.filter_by(actor=me["name"]).all()
-    firsts = [("Approve a bill", any(a.action.startswith("invoice.") for a in me_log), url_for("board.invoices")), ("Vote on a decision", any(a.action.startswith("decision.") for a in me_log), url_for("board.decisions_page")),
-              ("Read the monthly package", any(a.action == "package.open" for a in me_log), url_for("board.financials")), ("Check the board calendar", any(a.action.startswith("calendar.") for a in me_log), url_for("board.calendar_page"))]
-    show_firsts = not session.get("hide_firsts") and not all(ok for _, ok, _ in firsts)
     n_needs = len(pending) + len(votes) + len(cal_rows) + len(messages) + len(arcs)
     return render_template("board/dashboard.html", community=community, snap=snap, pending=pending, evidence=evidence, flags=flags, signers=signers, initials=_initials, votes=votes, spec=lambda k: decisions.spec(k, community.id),
-                           cal_rows=cal_rows, messages=messages, arcs=arcs, delinquencies=p.list_delinquencies(community.id), firsts=firsts, show_firsts=show_firsts, n_needs=n_needs, today=dt.date.today())
-
-
-@bp.route("/hide-firsts", methods=["POST"])
-@role_required("board")
-def hide_firsts():
-    session["hide_firsts"] = True
-    return redirect(url_for("board.dashboard"))
+                           cal_rows=cal_rows, messages=messages, arcs=arcs, delinquencies=p.list_delinquencies(community.id), n_needs=n_needs, today=dt.date.today())
 
 
 @bp.route("/package/<audience>")
@@ -646,6 +635,13 @@ def calendar_page():
             m = board_calendar.save_member(community.id, f, db.session.get(BoardMember, int(f["id"])) if f.get("id") else None)
             _audit(me["name"], "board.member", f"member:{m.id}", f"{m.name} {m.role}")
             flash("Roster saved.")
+        elif intent == "invite":
+            from ...services import accounts
+
+            m = db.get_or_404(BoardMember, int(f["id"]))
+            if m.community_id == community.id and m.email:
+                accounts.send_setup(m, reason="invite" if not m.password_hash else "reset")
+                flash(f"Login setup email sent to {m.email}.")
         elif intent == "member_remove":
             m = db.get_or_404(BoardMember, int(f["id"]))
             if m.community_id == community.id:

@@ -108,17 +108,22 @@ is built so those need no training:
 - **Home is the inbox.** `/board/` lists everything waiting on this person as rows: bills, votes,
   reviews, calendar items for their seat, owner messages. Click a row, the drawer opens with what
   it is, why it is here, what hey checked, and the buttons. Nothing waiting: it says so.
-- **Email is the UI.** When a bill or a vote appears, every signer or member gets an email with the
-  context and one-click Approve / Reject (or Deny) links signed to that person (`/go/<token>`,
-  14 days, idempotent, audited under their name). Login is a magic link (`/login/magic/<token>`,
-  7 days); "email me a link" on the login page; no passwords.
+- **Email carries the work.** When a bill or a vote appears, every signer or member gets an email
+  with the context and one-click Approve / Reject (or Deny) links signed to that person
+  (`/go/<token>`, 14 days, idempotent, audited under their name). The link acts only once that
+  member is signed in on the device; otherwise it parks the action, sends them to sign in, and
+  finishes after.
+- **Sign-in is password plus an emailed code.** Board members set a password from an invite link
+  (sent when they are added to the roster, 7 days, one use), then sign in with email and password
+  and a 6-digit code emailed each time on a new device; a device stays trusted for 30 days. Five
+  wrong passwords lock the account for 15 minutes; codes expire in 10 minutes, hashed at rest,
+  five attempts. Forgot-password sends the same set-password link. The pick-a-role demo login is
+  off in production (`DEMO_LOGIN=false`).
 - **Plain words.** Bills, Votes, Owners behind, Projects & reserves, Documents, Owner messages,
   Meetings & mail. No GL, AP, AR, COA, quorum, memo.
 - **Defaults, not settings.** Standard calendar, rules, letters and package. Empty tabs are hidden
   (Architectural and Violations appear when something exists).
 - **Ask hey on every page.** A floating button opens a drawer that knows the page and the role.
-- **First month strip.** Four tasks (approve a bill, vote, open the package, check the calendar)
-  tracked from the audit log, dismissible, gone when done.
 
 ## Self-serve signup and onboarding
 

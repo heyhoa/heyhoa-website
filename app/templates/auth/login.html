@@ -1,25 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Log in — {{ brand.name }}{% endblock %}
+{% block title %}Sign in — {{ brand.name }}{% endblock %}
 {% block robots %}noindex{% endblock %}
 {% block content %}
-<section class="hero" style="padding-bottom:1rem">
-  <div class="container narrow"><p class="eyebrow">Log in</p><h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Who are you today?</h1><p class="lede">One account can hold more than one role. Pick the one you need right now.</p></div>
-</section>
-<section class="section tight">
-  <div class="container narrow">
-    <ul class="picklist">
-      <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>I'm a homeowner</li></a>
-      <a href="{{ url_for('auth.login_role', role='board') }}"><li>I'm a board member</li></a>
-      <a href="{{ url_for('marketing.realtors') }}"><li>I'm a realtor, lender or title company</li></a>
-      <a href="{{ url_for('marketing.contact') }}"><li>I'm a vendor</li></a>
-      <a href="{{ url_for('auth.login_role', role='ops') }}"><li>I work at hey (ops)</li></a>
-    </ul>
-    <form method="post" action="{{ url_for('auth.login_email') }}" class="card" style="margin-top:1.5rem;padding:1rem">
-      <label for="le" style="font-weight:600">Board member? Email yourself a link.</label>
-      <div style="display:flex;gap:.5rem;margin-top:.4rem"><input class="form-control" id="le" name="email" type="email" placeholder="you@example.com" required><button class="btn btn-primary" type="submit">Send link</button></div>
-      <p class="small muted" style="margin:.5rem 0 0">No password. The link works for 7 days and only for you. Decisions also arrive by email with one-click approve.</p>
-    </form>
-    <p class="small muted" style="margin-top:1rem">Demo mode above: pick a role, no password needed.</p>
-  </div>
-</section>
+<section class="hero" style="padding-bottom:1rem"><div class="container narrow"><p class="eyebrow">Sign in</p><h1 style="font-size:clamp(2rem,5vw,3.2rem)">Board members</h1><p class="lede">Email and password, then a 6-digit code we email you. Your device stays trusted for 30 days.</p></div></section>
+<section class="section tight"><div class="container narrow">
+  {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, m in messages %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}{% endwith %}
+  <form method="post" class="card" style="padding:1.25rem">
+    <div class="form-group"><label for="em">Email</label><input class="form-control" id="em" name="email" type="email" autocomplete="username" required></div>
+    <div class="form-group"><label for="pw">Password</label><input class="form-control" id="pw" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primary" type="submit">Continue</button>
+  </form>
+  <form method="post" action="{{ url_for('auth.forgot') }}" class="small muted" style="margin-top:.9rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+    <span>Forgot it, or never set one?</span><input class="form-control" name="email" type="email" placeholder="your email" required style="width:220px"><button class="btn btn-ghost btn-sm" type="submit">Email me a reset link</button>
+  </form>
+  <p class="small muted" style="margin-top:1.2rem">Homeowners: <a href="{{ url_for('auth.login_role', role='homeowner') }}">sign in here</a>. Realtors, lenders and title: <a href="{{ url_for('marketing.realtors') }}">resale and lender documents</a>.</p>
+  {% if demo %}<div class="card" style="margin-top:1.5rem;padding:1rem"><p class="eyebrow" style="margin-bottom:.4rem">Demo</p><ul class="picklist" style="margin:0">
+    <a href="{{ url_for('auth.login_role', role='board') }}"><li>Board member (demo data)</li></a>
+    <a href="{{ url_for('auth.login_role', role='homeowner') }}"><li>Homeowner (demo data)</li></a>
+    <a href="{{ url_for('auth.login_role', role='ops') }}"><li>hey ops (demo data)</li></a>
+  </ul></div>{% endif %}
+</div></section>
 {% endblock %}
