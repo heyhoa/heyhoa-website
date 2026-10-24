@@ -9,7 +9,7 @@
       <div class="form-group"><label for="title">Title</label><input class="form-control" id="title" name="title" required value="{{ draft.title if draft else '' }}"></div>
       <div class="form-group"><label for="body">Message</label><textarea class="form-control" id="body" name="body" rows="6" required>{{ draft.body if draft else '' }}</textarea></div>
       <div class="form-row">
-        <div class="form-group"><label for="channel">Send via</label><select class="form-control" id="channel" name="channel"><option value="email">Email + portal</option><option value="sms">Email + text + portal</option><option value="portal">Portal only</option></select></div>
+        <div class="form-group"><label for="channel">Send via</label><select class="form-control" id="channel" name="channel"><option value="email">Email + portal</option><option value="sms">Email + text + portal</option><option value="portal">Portal only</option><option value="mail">Email + portal + letter to owners without email</option><option value="mail_all">Email + portal + letter to every owner</option></select></div>
         <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary btn-block" type="submit">Send to {{ community.units }} owners</button></div>
       </div>
     </form>

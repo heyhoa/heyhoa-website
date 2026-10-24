@@ -1,0 +1,42 @@
+{% extends "board/base.html" %}
+{% block title %}Insurance — {{ brand.name }}{% endblock %}
+{% block page_title %}Insurance{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents', category='insurance') }}">Declarations pages</a>{% if not policies %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo policies</button></form>{% endif %}{% endblock %}
+{% block content %}
+{% if renewing %}<div class="flash">Renewing within 60 days: {% for p in renewing %}{{ dict(kinds)[p.kind] }} ({{ p.expires|datefmt }}){% if not loop.last %}, {% endif %}{% endfor %}. hey asks the agent for renewal terms 45 days out and puts the premium on the decisions list.</div>{% endif %}
+<div class="row">
+  <div>
+    <div class="card">
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>Policy</th><th>Carrier · number</th><th class="num">Coverage</th><th class="num">Deductible</th><th class="num">Premium</th><th>Expires</th><th>Agent</th><th></th></tr></thead>
+        <tbody>{% for p in policies %}<tr>
+          <td class="lead"><strong>{{ dict(kinds)[p.kind] }}</strong>{% if p.notes %}<br><span class="small muted">{{ p.notes }}</span>{% endif %}</td>
+          <td class="small" data-label="">{{ p.carrier }} · {{ p.policy_number }}</td>
+          <td class="num" data-label="Coverage">{{ p.coverage|money0 if p.coverage else '—' }}</td><td class="num" data-label="Deductible">{{ p.deductible|money0 if p.deductible else '—' }}</td><td class="num" data-label="Premium">{{ p.premium|money0 if p.premium else '—' }}/yr</td>
+          <td data-label="Expires">{% if p.expires %}<span class="pill {{ 'red' if p.days_to_expiry < 0 else 'amber' if p.days_to_expiry <= 60 else 'green' }}">{{ p.expires|datefmt }}</span>{% else %}—{% endif %}</td>
+          <td class="small">{{ p.agent_name or '' }}{% if p.agent_phone %}<br>{{ p.agent_phone }}{% endif %}</td>
+          <td><form method="post"><input type="hidden" name="intent" value="delete"><input type="hidden" name="id" value="{{ p.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
+        </tr>{% else %}<tr><td colspan="8" class="muted">No policies on file. Add them below or upload the declarations pages and hey fills this in.</td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% if gaps %}<p class="small" style="margin-top:.5rem"><strong>Not on file:</strong> {% for g in gaps %}{{ dict(kinds)[g] }}{% if not loop.last %}, {% endif %}{% endfor %}. Most bylaws require property, liability, D&amp;O and fidelity; lenders check them at every closing.</p>{% endif %}
+    </div>
+    <div class="card" style="margin-top:.8rem;border-color:var(--lime)">
+      <h3>Cyber coverage: your accounts, your risk</h3>
+      <p class="small">hey is software plus a service. Your board controls who can log in and approve. If someone uses a board member's credentials to approve a payment or change a vendor, that action is the association's, and our terms say so. Two things close the gap: approval rules that need more than one person (Settings), and a cyber policy that covers social engineering and funds transfer fraud.</p>
+      <p><a class="btn btn-primary btn-sm" href="{{ cyber_url }}" target="_blank" rel="noopener">Get a cyber quote ↗</a> <a class="btn btn-ghost btn-sm" href="{{ url_for('marketing.terms') }}">Read the terms</a></p>
+      <p class="small muted">Typical for a community this size: $1M limit, $500–$1,500 a year. Add it here when bound; hey tracks the renewal like any other policy.</p>
+    </div>
+  </div>
+  <form class="card" method="post">
+    <h3>Add a policy</h3>
+    <div class="form-group"><label>Type</label><select class="form-control" name="kind">{% for k, label in kinds %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-row"><div class="form-group"><label>Carrier</label><input class="form-control" name="carrier" required></div><div class="form-group"><label>Policy number</label><input class="form-control" name="policy_number"></div></div>
+    <div class="form-row"><div class="form-group"><label>Coverage</label><input class="form-control" name="coverage" inputmode="decimal" placeholder="1,000,000"></div><div class="form-group"><label>Deductible</label><input class="form-control" name="deductible" inputmode="decimal"></div></div>
+    <div class="form-row"><div class="form-group"><label>Annual premium</label><input class="form-control" name="premium" inputmode="decimal"></div><div class="form-group"><label>Declarations page</label><select class="form-control" name="document_id"><option value="">—</option>{% for d in docs %}<option value="{{ d.id }}">{{ d.title }}</option>{% endfor %}</select></div></div>
+    <div class="form-row"><div class="form-group"><label>Begins</label><input class="form-control" name="begins" type="date"></div><div class="form-group"><label>Expires</label><input class="form-control" name="expires" type="date" required></div></div>
+    <div class="form-row"><div class="form-group"><label>Agent</label><input class="form-control" name="agent_name"></div><div class="form-group"><label>Agent phone / email</label><div style="display:flex;gap:.4rem"><input class="form-control" name="agent_phone"><input class="form-control" name="agent_email"></div></div></div>
+    <div class="form-group"><label>Notes</label><input class="form-control" name="notes" placeholder="Hold vendor payments if their COI lapses; management co. additional insured"></div>
+    <button class="btn btn-primary btn-sm">Save policy</button>
+  </form>
+</div>
+{% endblock %}

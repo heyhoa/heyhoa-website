@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sign the agreement — {{ brand.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem"><div class="container narrow">
+  <p class="eyebrow">Step 2 of 3</p>
+  <h1>The agreement for {{ profile.name }}.</h1>
+  <p class="lede">Plain words first, the full text under it. Sign by typing your name. You can print the full agreement any time.</p>
+</div></section>
+<section class="section tight"><div class="container narrow">
+<div class="card" style="padding:1.5rem">
+  <h3>What you are agreeing to</h3>
+  <div class="table-wrap"><table>
+    <tbody>
+      <tr><td>Association</td><td><strong>{{ profile.name }}</strong> · {{ profile.units }} {{ profile.unit_kind }} · {{ profile.city }}, {{ profile.state }}</td></tr>
+      <tr><td>Service</td><td>{{ profile.plan|replace('-', ' ')|title }}: accounting and back office on a cash basis, financial package by the 5th business day or that month is free</td></tr>
+      <tr><td>Fee</td><td><strong>${{ "{:,}".format(profile.monthly_price) }} a month</strong>, billed monthly from the association's operating account. Setup fee: none. Owner-charged fees per the published schedule.</td></tr>
+      <tr><td>Term</td><td>12 months, then month to month. Either party may end it with 30 days' written notice. Breaches get 60 days to cure.</td></tr>
+      <tr><td>Money</td><td>Association funds stay in the association's name and tax ID at the partner bank. Payments go out only after your board's approvals. Transfers and investments are executed by a person after a board decision. Software never moves money.</td></tr>
+      <tr><td>Access</td><td>You control who on the board can log in and approve. The association is responsible for its users' credentials and for actions taken from its accounts. We recommend a cyber policy; the insurance page links one.</td></tr>
+      <tr><td>Data</td><td>The association's data belongs to the association and exports on request. We do not sell it.</td></tr>
+      <tr><td>Law</td><td>Arizona law; disputes go to mediation then arbitration. Full terms are below and at <a href="{{ url_for('marketing.terms') }}">/terms</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <details style="margin-top:1rem"><summary class="small">Read the full Professional Services Agreement (version {{ version }}, hash {{ sha }}…)</summary>
+    <iframe src="{{ url_for('marketing.agreement') }}" title="Agreement" style="width:100%;height:480px;border:1px solid var(--line);border-radius:8px;margin-top:.5rem"></iframe></details>
+  <form method="post" style="margin-top:1.25rem">
+    <div class="form-row">
+      <div class="form-group"><label>Type your full name to sign</label><input class="form-control" name="signed_by" required placeholder="{{ profile.contact.name }}" style="font-family:'Caveat',cursive;font-size:1.4rem"></div>
+      <div class="form-group"><label>Title</label><input class="form-control" name="title" value="{{ profile.contact.title }}"></div>
+    </div>
+    <label class="small" style="display:block;margin:.5rem 0 1rem"><input type="checkbox" name="agree" required> I am an officer or director of {{ profile.name }}, authorized by its board to enter this agreement, and I agree to the Professional Services Agreement and the Terms of Service.</label>
+    <button class="btn btn-primary" type="submit">Sign and start onboarding →</button>
+    <p class="small muted" style="margin-top:.75rem">Your signature record keeps your typed name, title, the time, your IP address and the agreement version and hash. A copy goes to your email. Need the board to vote first? Bookmark this page; it waits.</p>
+  </form>
+</div>
+</div></section>
+{% endblock %}

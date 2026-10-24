@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Onboarding · {{ profile.name }} — {{ brand.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem"><div class="container">
+  <p class="eyebrow">Onboarding · {{ profile.status }}</p>
+  <h1>{{ profile.name }}: {{ progress.done }} of {{ progress.total }} done.</h1>
+  <p class="lede">What we need, in order. Do it in any sitting; it saves as you go. Target go-live: {{ profile.go_live_on|datefmt if profile.go_live_on else 'four weeks from signing' }}. Questions: {{ brand.email }} · {{ brand.phone }}.</p>
+  <ol class="small" style="display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;list-style:none;padding:0;margin:0">{% for key, label, ok in progress.steps %}<li><span class="pill {{ 'green' if ok }}">{{ '✓' if ok else loop.index }}</span> {{ label }}</li>{% endfor %}</ol>
+</div></section>
+<section class="section tight"><div class="container">
+<div class="grid grid-2" style="align-items:start">
+
+<form method="post" class="card" id="intake"><input type="hidden" name="intent" value="intake">
+  <h3>1 · Community details <span class="small muted">(what the accounting system needs)</span></h3>
+  <div class="form-row">
+    <div class="form-group"><label>Type</label><select class="form-control" name="kind">{% for k, label in kinds %}<option value="{{ k }}" {% if k == profile.kind %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label>Structure</label><select class="form-control" name="structure">{% for k, label in structures %}<option value="{{ k }}" {% if k == profile.structure %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Master association (if a sub)</label><input class="form-control" name="master_name" value="{{ profile.master_name or '' }}"></div>
+    <div class="form-group"><label>{{ profile.unit_kind|title }}</label><input class="form-control" name="units" type="number" value="{{ profile.units or '' }}"></div>
+  </div>
+  {% for key, label, ph in intake %}{% if loop.index0 % 2 == 0 %}<div class="form-row">{% endif %}
+    <div class="form-group"><label>{{ label }}</label><input class="form-control" name="{{ key }}" value="{{ profile[key] if profile[key] is not none else '' }}" placeholder="{{ ph }}"{% if key == 'ein_last4' %} maxlength="4"{% endif %}></div>
+  {% if loop.index0 % 2 == 1 or loop.last %}</div>{% endif %}{% endfor %}
+  <div class="form-group"><label>Assessments billed</label><select class="form-control" name="dues_frequency">{% for k, label in frequencies %}<option value="{{ k }}" {% if k == profile.dues_frequency %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <h4>Board members <span class="small muted">(signers can approve money)</span></h4>
+  {% for i in range(5) %}{% set b = (profile.board or [])[i] if i < (profile.board or [])|length else {} %}<div class="form-row" style="grid-template-columns:1.6fr 1.1fr 1.8fr 1.3fr auto;gap:.4rem;margin-bottom:.4rem">
+    <input class="form-control" name="b{{ i }}_name" value="{{ b.get('name','') }}" placeholder="Name"><input class="form-control" name="b{{ i }}_title" value="{{ b.get('title','') }}" placeholder="Title"><input class="form-control" name="b{{ i }}_email" value="{{ b.get('email','') }}" placeholder="Email"><input class="form-control" name="b{{ i }}_phone" value="{{ b.get('phone','') }}" placeholder="Phone"><label class="small" style="white-space:nowrap;align-self:center"><input type="checkbox" name="b{{ i }}_signer" {% if b.get('signer') %}checked{% endif %}> signer</label>
+  </div>{% endfor %}
+  <button class="btn btn-primary btn-sm" type="submit">Save details</button>
+</form>
+
+<div>
+<form method="post" enctype="multipart/form-data" class="card"><input type="hidden" name="intent" value="roster">
+  <h3>2 · Owner roster</h3>
+  <p class="small">A CSV with a header row. Columns we read: <code>unit, address, owner, email, phone, mailing_address, balance</code>. Export it from whatever you have; extra columns are ignored.{% if units %} <strong>{{ units|length }} units imported.</strong>{% endif %}</p>
+  <div class="form-row"><div class="form-group"><input class="form-control" type="file" name="roster" accept=".csv,text/csv" required></div><div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Import</button></div></div>
+  {% if units %}<div class="table-wrap"><table class="stack"><thead><tr><th>Unit</th><th>Owner</th><th>Email</th><th class="num">Balance</th></tr></thead><tbody>{% for u in units[:8] %}<tr><td class="lead">{{ u.unit_label }} <span class="small muted">{{ u.address or '' }}</span></td><td>{{ u.owner_name }}</td><td class="small">{{ u.email or '—' }}</td><td class="num">{{ u.balance|money if u.balance is not none else '—' }}</td></tr>{% endfor %}{% if units|length > 8 %}<tr><td colspan="4" class="muted small">… and {{ units|length - 8 }} more</td></tr>{% endif %}</tbody></table></div>{% endif %}
+</form>
+
+<form method="post" enctype="multipart/form-data" class="card" style="margin-top:1rem"><input type="hidden" name="intent" value="documents">
+  <h3>3 · Documents</h3>
+  <ul class="small" style="columns:2;margin:0 0 .75rem 1rem;padding:0">{% for d in docs_needed %}<li>{{ d }}</li>{% endfor %}</ul>
+  <div class="form-row"><div class="form-group"><input class="form-control" type="file" name="files" multiple required></div><div class="form-group"><select class="form-control" name="category"><option value="governing">governing</option><option value="financial">bank statements / financial</option><option value="contract">contracts</option><option value="insurance">insurance</option><option value="reserve_study">reserve study</option><option value="meetings">minutes</option><option value="other">other</option></select></div></div>
+  <button class="btn btn-primary btn-sm" type="submit">Upload</button>
+  {% if documents %}<p class="small muted" style="margin-top:.5rem">{{ documents|length }} on file: {% for d in documents[:6] %}{{ d.title }}{% if not loop.last %}, {% endif %}{% endfor %}{% if documents|length > 6 %}…{% endif %}</p>{% endif %}
+  <p class="small muted" style="margin-top:.5rem">Don't have something? Skip it; hey emails you a short list of what is still missing and why it matters.</p>
+</form>
+
+<form method="post" class="card" style="margin-top:1rem"><input type="hidden" name="intent" value="rules">
+  <h3>4 · Board rules <span class="small muted">(how many approvals)</span></h3>
+  <div class="table-wrap"><table><tbody>{% for key, label in rule_labels %}<tr><td>{{ label }}</td><td class="num"><input class="form-control" name="rule_{{ key }}" type="number" min="1" max="7" value="{{ rules.get(key, 2) }}" style="width:4.5rem;display:inline-block;text-align:center"></td></tr>{% endfor %}</tbody></table></div>
+  <p class="small muted">Defaults: 2 for invoices and vendors, 3 for bank transfers, CDs, budgets and special assessments. Change them any time in the board portal.</p>
+  <button class="btn btn-primary btn-sm" type="submit">Save rules</button>
+</form>
+
+<div class="card" style="margin-top:1rem">
+  <h3>5 · Bank</h3>
+  <ol class="small" style="padding-left:1.1rem">
+    <li><strong>Accounts</strong>: we open operating and reserve accounts at {{ bank.BANK_NAME }} in the association's legal name and EIN. Your signers get {{ bank.BANK_PORTAL_NAME }} access for statements and signature cards. {% if profile.bank and profile.bank.accounts_opened %}<span class="pill green">opened</span>{% else %}<span class="pill amber">in progress</span>{% endif %}</li>
+    <li><strong>Start-up check</strong>: mail a check for <strong>{{ startup|money0 }}</strong> (one assessment cycle, minimum ${{ "{:,}".format(bank.STARTUP_CHECK_MIN) }}) payable to <em>{{ profile.legal_name or profile.name }}</em> to the lockbox: <em>{{ lockbox }}</em>. It opens the operating account so bills can be paid from day one.
+      {% if profile.bank and profile.bank.startup_check_received %}<span class="pill green">received</span>{% elif profile.bank and profile.bank.startup_check_mailed %}<span class="pill amber">mailed, awaiting</span>{% else %}<form method="post" style="display:inline"><input type="hidden" name="intent" value="bank"><input type="hidden" name="step" value="startup_check_mailed"><button class="btn btn-ghost btn-sm">I mailed it</button></form>{% endif %}</li>
+    <li><strong>Final funds transfer</strong>: after the parallel month, close the old accounts and send the remaining balances by check (one per account) to the same lockbox. No wires, no logins, no software moves it.
+      {% if profile.bank and profile.bank.final_transfer_received %}<span class="pill green">received</span>{% elif profile.bank and profile.bank.final_transfer_mailed %}<span class="pill amber">mailed, awaiting</span>{% else %}<form method="post" style="display:inline"><input type="hidden" name="intent" value="bank"><input type="hidden" name="step" value="final_transfer_mailed"><button class="btn btn-ghost btn-sm">I mailed the final checks</button></form>{% endif %}</li>
+  </ol>
+  <p class="small muted">Why checks: the association's money moves only by an instrument your signers control, with a paper trail at both banks.</p>
+</div>
+</div>
+</div>
+</div></section>
+{% endblock %}

@@ -206,6 +206,27 @@ def lead_review(lead_id):
     return render_template("ops/books_review.html", lead=lead, review=review, checklist=CHECKLIST, q=sales.quote(lead))
 
 
+@bp.route("/onboarding", methods=["GET", "POST"])
+@role_required("ops")
+def onboarding_list():
+    """Every community between signup and live, with the bank steps a person confirms."""
+    from ...models import CommunityProfile
+    from ...services import onboarding
+
+    if request.method == "POST":
+        prof = db.get_or_404(CommunityProfile, int(request.form.get("id")))
+        intent = request.form.get("intent")
+        if intent in ("accounts_opened", "startup_check_received", "final_transfer_received"):
+            onboarding.bank_step(prof, intent, True, **({"confirmed_by": session["user"]["name"]}))
+            flash(f"{prof.name}: {intent.replace('_', ' ')}.")
+        elif intent == "go_live" and request.form.get("provider_client_id"):
+            onboarding.go_live(prof, request.form["provider_client_id"].strip())
+            flash(f"{prof.name} is live as Caliber client {prof.provider_client_id}.")
+        return redirect(url_for("ops.onboarding_list"))
+    rows = CommunityProfile.query.order_by(CommunityProfile.created_at.desc()).all()
+    return render_template("ops/onboarding.html", rows=rows, progress=onboarding.progress, onboarding_url=onboarding.onboarding_url, startup_amount=onboarding.startup_amount)
+
+
 @bp.route("/settings")
 @role_required("ops")
 def settings():

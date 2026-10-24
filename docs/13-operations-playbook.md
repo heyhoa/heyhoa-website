@@ -115,7 +115,18 @@ Onboarding is where most of hey's later accuracy is decided. We run a structured
 ### Collections (Exhibit B as data)
 hey computes stage daily; drafts the notice from the ledger and policy; coordinator sends (email + mail where required) and the fee posts to the owner ledger; `addnote` records it; at the $400/75-day threshold hey prepares the lien packet for the accountant; attorney referral only after a board vote recorded in the portal. Payment plans: owner self-service in portal within policy; hey creates the ACH plan via API; breaches detected from missed ACH and re-staged.
 
-### Bank (First Citizens Client Connect)
+### New community: bank steps (a person does every one)
+
+1. Signed agreement arrives (work item `signup` in the onboarding lane). Open operating and reserve
+   accounts at the partner bank in the association's legal name and EIN; add the board's signers; give
+   them Client Connect access. Mark **accounts opened** on the ops onboarding page.
+2. The board mails the **start-up check** (one assessment cycle, floor in config) to the lockbox. When
+   it clears, mark **start-up check received**. The operating account is funded; bills can be paid.
+3. Parallel month: hey rebuilds the books from statements while the old process runs.
+4. The board closes the old accounts and mails the **final transfer** as checks. Mark **received**.
+5. Create the Caliber client, import the roster and opening balances, enter the client id → live.
+
+## Bank (First Citizens Client Connect)
 The only place money moves. Accountant executes approved transfers and CD actions there; boards submit signature cards and download statements there; statements for the package are downloaded there and attached unchanged. hey verifies balances against statements and never touches the portal.
 
 ### Accounts payable

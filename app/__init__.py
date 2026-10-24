@@ -31,6 +31,7 @@ def create_app(config_object=None):
     def inject_globals():
         return {
             "brand": BRAND,
+            "timedelta": __import__("datetime").timedelta,
             "pricing": PRICING,
             "add_ons": ADD_ONS,
             "association_fees": ASSOCIATION_FEES,

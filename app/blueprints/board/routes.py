@@ -8,8 +8,8 @@ from ...ai.assistant import draft_announcement, draft_delinquency_notice
 from ...channels import email as email_channel
 from ...extensions import db
 from ...integrations.registry import get_provider
-from ...models import Announcement, AuditLog, InvoiceFlag, Message, Project, ReserveComponent, ResponsibilityItem, StoredDocument, WorkItem
-from ...services import decisions, plans
+from ...models import Announcement, ApprovalRule, AuditLog, InsurancePolicy, InvoiceFlag, Meeting, Message, Project, ReserveComponent, ResponsibilityItem, StoredDocument, WorkItem
+from ...services import decisions, insurance, letters, meetings, plans
 from ...services.auth import role_required
 from . import bp
 
@@ -64,7 +64,7 @@ def invoices():
 @role_required("board")
 def decisions_page():
     p, me, community = _ctx()
-    return render_template("board/decisions.html", community=community, pending=decisions.pending(community.id), done=decisions.history(community.id), invoices=p.list_invoices(community.id, status="pending_board"), types=decisions.DECISION_TYPES, spec=decisions.spec)
+    return render_template("board/decisions.html", community=community, pending=decisions.pending(community.id), done=decisions.history(community.id), invoices=p.list_invoices(community.id, status="pending_board"), types={k: decisions.spec(k, community.id) for k in decisions.DECISION_TYPES}, spec=lambda k: decisions.spec(k, community.id))
 
 
 @bp.route("/decisions/new", methods=["POST"])
@@ -74,7 +74,7 @@ def decision_new():
     f = request.form
     amount = float(f.get("amount") or 0) or None
     d = decisions.create(community.id, f.get("decision_type", "other"), f.get("title", ""), f.get("body", ""), amount=amount, requested_by=me["name"], shadow=True)
-    flash(f"Decision #{d.id} is on the board's list ({decisions.spec(d.category)['approvals']} approvals needed).")
+    flash(f"Decision #{d.id} is on the board's list ({decisions.spec(d.category, community.id)['approvals']} approvals needed).")
     return redirect(url_for("board.decisions_page"))
 
 
@@ -89,7 +89,7 @@ def decision_vote(item_id):
     if choice not in ("approve", "deny", "abstain"):
         abort(400)
     decisions.vote(item, me["id"], me["name"], choice, request.form.get("note", ""))
-    flash(f"{item.subject}: {item.state} ({sum(1 for v in item.remote_ids['votes'] if v['vote'] == 'approve')}/{decisions.spec(item.category)['approvals']} approvals).")
+    flash(f"{item.subject}: {item.state} ({sum(1 for v in item.remote_ids['votes'] if v['vote'] == 'approve')}/{decisions.spec(item.category, community.id)['approvals']} approvals).")
     return redirect(url_for("board.decisions_page"))
 
 
@@ -431,19 +431,125 @@ def announcements():
         if request.form.get("intent") == "draft":
             draft = draft_announcement(request.form.get("brief", ""), community)
         else:
-            db.session.add(Announcement(community_id=community.id, title=request.form.get("title"), body=request.form.get("body"), channel=request.form.get("channel", "email"), author=me["name"]))
+            channel = request.form.get("channel", "email")
+            a = Announcement(community_id=community.id, title=request.form.get("title"), body=request.form.get("body"), channel=channel, author=me["name"])
+            db.session.add(a)
             db.session.commit()
-            flash("Announcement queued. Email goes out within 10 minutes; texts go to owners who opted in.")
+            msg = "Announcement queued. Email goes out within 10 minutes; texts go to owners who opted in."
+            if channel in ("mail", "mail_all"):
+                r = letters.send(p, community.id, kind="general", subject=a.title, body=a.body, audience="all" if channel == "mail_all" else "no_email", requested_by=me["name"], announcement_id=a.id)
+                msg += f" {r['count']} letter(s) {'queued' if r['status'] == 'sent' else 'recorded for printing'} · ${r['cost']:,.2f} pass-through."
+            flash(msg)
             return redirect(url_for("board.announcements"))
     items = Announcement.query.filter_by(community_id=community.id).order_by(Announcement.created_at.desc()).all()
     return render_template("board/announcements.html", community=community, items=items, draft=draft)
 
 
-@bp.route("/meetings")
+@bp.route("/meetings", methods=["GET", "POST"])
 @role_required("board")
-def meetings():
+def meetings_page():
+    """Schedule a meeting from a template, build the agenda from what is actually pending, send the notice, keep minutes."""
     p, me, community = _ctx()
-    return render_template("board/meetings.html", community=community)
+    if request.method == "POST":
+        f = request.form
+        kind = f.get("kind", "board")
+        agenda = [a.strip() for a in (f.get("agenda") or "").splitlines() if a.strip()] or meetings.build_agenda(kind, community.id, p)
+        try:
+            date = dt.date.fromisoformat(f.get("date"))
+        except (TypeError, ValueError):
+            flash("Pick a date.", "error")
+            return redirect(url_for("board.meetings_page"))
+        m = meetings.create(community.id, kind=kind, date=date, time=f.get("time") or "7:00 pm", where=f.get("where") or "Clubhouse", agenda=agenda, created_by=me["name"], notice_days=int(f.get("notice_days") or 0) or None)
+        _audit(me["name"], "meeting.create", f"meeting:{m.id}", f"{kind} {date}")
+        flash("Meeting scheduled. Send the notice when the agenda is final.")
+        return redirect(url_for("board.meeting", meeting_id=m.id))
+    kind = request.args.get("kind", "board")
+    return render_template("board/meetings.html", community=community, upcoming=meetings.upcoming(community.id), past=meetings.past(community.id), kinds=meetings.KINDS, kind=kind,
+                           draft_agenda=meetings.build_agenda(kind, community.id, p), notice_days=meetings.NOTICE_DAYS, today=dt.date.today())
+
+
+@bp.route("/meetings/<int:meeting_id>", methods=["GET", "POST"])
+@role_required("board")
+def meeting(meeting_id):
+    p, me, community = _ctx()
+    m = db.get_or_404(Meeting, meeting_id)
+    if m.community_id != community.id:
+        abort(403)
+    if request.method == "POST":
+        intent = request.form.get("intent")
+        if intent == "agenda":
+            m.agenda = [a.strip() for a in (request.form.get("agenda") or "").splitlines() if a.strip()]
+            db.session.commit()
+            flash("Agenda saved.")
+        elif intent == "notice":
+            subject, body = meetings.notice_text(m, community.name)
+            channels = request.form.getlist("channels") or ["email", "portal"]
+            db.session.add(Announcement(community_id=community.id, title=subject, body=body, channel="sms" if "sms" in channels else "email", author=me["name"]))
+            db.session.commit()
+            sent = None
+            if "mail" in channels:
+                sent = letters.send(p, community.id, kind="meeting_notice", subject=subject, body=body, audience=request.form.get("audience", "no_email"), requested_by=me["name"], meeting_id=m.id)
+            m.notice_sent_at = dt.datetime.now(dt.timezone.utc)
+            m.notice_channels = ",".join(channels)
+            db.session.commit()
+            _audit(me["name"], "meeting.notice", f"meeting:{m.id}", ",".join(channels))
+            flash("Notice sent by " + ", ".join(channels) + (f" · {sent['count']} letters, ${sent['cost']:,.2f}" if sent else "") + ".")
+        elif intent == "minutes":
+            m.minutes = request.form.get("minutes")
+            m.status = request.form.get("status", m.status)
+            db.session.commit()
+            _audit(me["name"], "meeting.minutes", f"meeting:{m.id}", m.status)
+            flash("Minutes saved.")
+        elif intent == "cancel":
+            m.status = "cancelled"
+            db.session.commit()
+            flash("Meeting cancelled.")
+        return redirect(url_for("board.meeting", meeting_id=m.id))
+    if request.args.get("print"):
+        return render_template("board/meeting_print.html", community=community, m=m, kinds=dict(meetings.KINDS))
+    return render_template("board/meeting.html", community=community, m=m, kinds=dict(meetings.KINDS), deadline=meetings.notice_deadline(m), today=dt.date.today(), letters=meetings.letters_for(m), mail_on=letters.configured(), per_letter=letters.per_letter(),
+                           no_email=len(letters.recipients(p, community.id, "no_email")), all_owners=len(letters.recipients(p, community.id, "all")))
+
+
+@bp.route("/letters", methods=["GET", "POST"])
+@role_required("board")
+def letters_page():
+    """Mailed letters: pick a template, an audience, preview, send. Email blasts live on Announcements."""
+    p, me, community = _ctx()
+    preview = None
+    form = request.form if request.method == "POST" else None
+    if form:
+        kind = form.get("kind", "general")
+        subject, body = letters.render(kind, {"community": community.name, "message": form.get("message", ""), "subject": form.get("subject", ""), "dues": form.get("dues", ""), "frequency": form.get("frequency", ""), "start": form.get("start", "")})
+        if form.get("intent") == "send":
+            r = letters.send(p, community.id, kind=kind, subject=form.get("final_subject") or subject, body=form.get("final_body") or body, audience=form.get("audience", "all"), unit_account_id=form.get("unit_account_id"), requested_by=me["name"], certified=bool(form.get("certified")))
+            _audit(me["name"], "letters.send", f"{kind}:{form.get('audience')}", f"{r['count']} letters ${r['cost']:,.2f}")
+            flash(f"{r['count']} letter(s) {'queued to the mail service' if r['status'] == 'sent' else 'recorded; hey prints and mails them today'} · ${r['cost']:,.2f} pass-through.")
+            return redirect(url_for("board.letters_page"))
+        preview = {"subject": subject, "body": body, "kind": kind, "audience": form.get("audience", "all"), "unit_account_id": form.get("unit_account_id"), "certified": bool(form.get("certified")), "count": len(letters.recipients(p, community.id, form.get("audience", "all"), form.get("unit_account_id")))}
+    return render_template("board/letters.html", community=community, templates=letters.TEMPLATES, audiences=letters.AUDIENCES, owners=p.list_unit_accounts(community.id), recent=letters.recent(community.id), preview=preview, mail_on=letters.configured(), per_letter=letters.per_letter())
+
+
+@bp.route("/insurance", methods=["GET", "POST"])
+@role_required("board")
+def insurance_page():
+    p, me, community = _ctx()
+    if request.method == "POST":
+        if request.form.get("intent") == "seed_demo":
+            insurance.seed_demo(community.id)
+            flash("Demo policies loaded.")
+        elif request.form.get("intent") == "delete":
+            pol = db.get_or_404(InsurancePolicy, int(request.form.get("id")))
+            if pol.community_id == community.id:
+                db.session.delete(pol)
+                db.session.commit()
+        else:
+            pol = insurance.save(community.id, request.form)
+            _audit(me["name"], "insurance.save", f"policy:{pol.id}", f"{pol.kind} {pol.carrier}")
+            flash("Policy saved.")
+        return redirect(url_for("board.insurance_page"))
+    docs = StoredDocument.query.filter_by(community_id=community.id, category="insurance").order_by(StoredDocument.created_at.desc()).all()
+    return render_template("board/insurance.html", community=community, policies=insurance.policies(community.id), kinds=insurance.KINDS, gaps=insurance.gaps(community.id), renewing=insurance.renewing(community.id), docs=docs, cyber_url=current_app.config.get("CYBER_INSURANCE_URL"), today=dt.date.today())
 
 
 @bp.route("/budget")
@@ -454,11 +560,25 @@ def budget():
     return render_template("board/budget.html", community=community, snap=snap)
 
 
-@bp.route("/settings")
+@bp.route("/settings", methods=["GET", "POST"])
 @role_required("board")
 def settings():
     p, me, community = _ctx()
-    return render_template("board/settings.html", community=community)
+    from ...services.onboarding import RULE_LABELS
+
+    if request.method == "POST":
+        for key, _ in RULE_LABELS:
+            v = request.form.get(f"rule_{key}")
+            if v:
+                r = ApprovalRule.query.filter_by(community_id=community.id, decision_type=key).first() or ApprovalRule(community_id=community.id, decision_type=key)
+                r.approvals = max(1, min(int(v), 7))
+                db.session.add(r)
+        db.session.commit()
+        _audit(me["name"], "settings.rules", community.id, ", ".join(f"{k}={request.form.get('rule_' + k)}" for k, _ in RULE_LABELS if request.form.get("rule_" + k)))
+        flash("Board rules saved. They apply to the next decision.")
+        return redirect(url_for("board.settings"))
+    rules = {k: decisions.spec(k, community.id)["approvals"] for k, _ in RULE_LABELS}
+    return render_template("board/settings.html", community=community, rules=rules, rule_labels=RULE_LABELS)
 
 
 @bp.route("/ask")

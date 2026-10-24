@@ -14,6 +14,7 @@
   <li><a href="{{ url_for('board.projects') }}" {% if p.startswith('/board/projects') %}aria-current="page"{% endif %}>Projects</a></li>
   <li><a href="{{ url_for('board.who_fixes_what') }}" {% if p == '/board/who-fixes-what' %}aria-current="page"{% endif %}>Who fixes what</a></li>
   <li><a href="{{ url_for('board.vendors') }}" {% if p == '/board/vendors' %}aria-current="page"{% endif %}>Vendors</a></li>
+  <li><a href="{{ url_for('board.insurance_page') }}" {% if p == '/board/insurance' %}aria-current="page"{% endif %}>Insurance</a></li>
 </ul>
 <div class="section-label">Community</div>
 <ul>
@@ -23,7 +24,8 @@
   <li><a href="{{ url_for('board.arc') }}" {% if p.startswith('/board/arc') %}aria-current="page"{% endif %}>ARC review</a></li>
   <li><a href="{{ url_for('board.violations') }}" {% if p == '/board/violations' %}aria-current="page"{% endif %}>Violations</a></li>
   <li><a href="{{ url_for('board.announcements') }}" {% if p == '/board/announcements' %}aria-current="page"{% endif %}>Announcements</a></li>
-  <li><a href="{{ url_for('board.meetings') }}" {% if p == '/board/meetings' %}aria-current="page"{% endif %}>Meetings</a></li>
+  <li><a href="{{ url_for('board.meetings_page') }}" {% if p.startswith('/board/meetings') %}aria-current="page"{% endif %}>Meetings</a></li>
+  <li><a href="{{ url_for('board.letters_page') }}" {% if p == '/board/letters' %}aria-current="page"{% endif %}>Letters</a></li>
   <li><a href="{{ url_for('board.documents') }}" {% if p == '/board/documents' %}aria-current="page"{% endif %}>Documents</a></li>
 </ul>
 <div class="section-label">hey</div>

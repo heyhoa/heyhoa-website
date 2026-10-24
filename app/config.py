@@ -55,6 +55,15 @@ class Config:
     BANK_NAME = os.environ.get("BANK_NAME", "First Citizens Bank")
     BANK_PORTAL_NAME = os.environ.get("BANK_PORTAL_NAME", "Client Connect")
     BANK_PORTAL_URL = os.environ.get("BANK_PORTAL_URL", "https://www.firstcitizens.com/cab")
+    STARTUP_CHECK_MIN = int(os.environ.get("STARTUP_CHECK_MIN", "2500"))  # opening deposit floor for the new operating account
+    LOCKBOX_ADDRESS = os.environ.get("LOCKBOX_ADDRESS", "hey hoa · PO Box 00000 · Phoenix, AZ 85000")
+    # Physical mail (Lob). Unset = letters are recorded and printed by a person.
+    LOB_API_KEY = os.environ.get("LOB_API_KEY", "")
+    LOB_FROM_ADDRESS = os.environ.get("LOB_FROM_ADDRESS", "")  # Lob address id for the return address
+    LETTER_COST = float(os.environ.get("LETTER_COST", "1.45"))  # pass-through per first-class letter
+    # Where boards buy a cyber policy. Our terms say account access and actions are theirs.
+    CYBER_INSURANCE_URL = os.environ.get("CYBER_INSURANCE_URL", "https://www.coalitioninc.com/")
+    AGREEMENT_VERSION = os.environ.get("AGREEMENT_VERSION", "2026-10")
     # "alias@heyhoa.com=1001,other@heyhoa.com=1002"
     COMMUNITY_ALIASES = dict(p.split("=", 1) for p in os.environ.get("COMMUNITY_ALIASES", "").split(",") if "=" in p)
 

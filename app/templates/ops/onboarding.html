@@ -1,0 +1,22 @@
+{% extends "ops/base.html" %}
+{% block title %}Onboarding — hey ops{% endblock %}
+{% block page_title %}Onboarding{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Community</th><th>Signed</th><th>Progress</th><th>Bank</th><th>Go-live</th><th></th></tr></thead>
+  <tbody>{% for r in rows %}{% set pr = progress(r) %}<tr>
+    <td><strong>{{ r.name }}</strong><br><span class="small muted">{{ r.kind }} · {{ r.structure }} · {{ r.units or '?' }} {{ r.unit_kind }} · {{ r.city }}, {{ r.state }} · {{ r.plan }} ${{ "{:,}".format(r.monthly_price or 0) }}/mo · <a href="{{ onboarding_url(r) }}" target="_blank">onboarding page ↗</a></span></td>
+    <td class="small">{% if r.agreement %}{{ r.agreement.signed_by }}, {{ r.agreement.title }}<br><span class="muted">{{ r.agreement.signed_at[:16]|replace('T',' ') }} · v{{ r.agreement.version }} · {{ r.agreement.ip }}</span>{% else %}<span class="pill amber">not signed</span>{% endif %}</td>
+    <td class="small">{{ pr.done }}/{{ pr.total }}<br><span class="muted">{% for k, label, ok in pr.steps if not ok %}{{ label }}{% if not loop.last %}, {% endif %}{% endfor %}</span></td>
+    <td class="small">
+      <form method="post" style="display:flex;flex-direction:column;gap:.25rem"><input type="hidden" name="id" value="{{ r.id }}">
+        <span>Accounts {% if r.bank and r.bank.accounts_opened %}<span class="pill green">open</span>{% else %}<button class="btn btn-ghost btn-sm" name="intent" value="accounts_opened">mark opened</button>{% endif %}</span>
+        <span>Start-up {{ startup_amount(r)|money0 }} {% if r.bank and r.bank.startup_check_received %}<span class="pill green">received</span>{% elif r.bank and r.bank.startup_check_mailed %}<span class="pill amber">mailed</span> <button class="btn btn-ghost btn-sm" name="intent" value="startup_check_received">received</button>{% else %}<span class="muted">not mailed</span>{% endif %}</span>
+        <span>Final transfer {% if r.bank and r.bank.final_transfer_received %}<span class="pill green">received</span>{% elif r.bank and r.bank.final_transfer_mailed %}<span class="pill amber">mailed</span> <button class="btn btn-ghost btn-sm" name="intent" value="final_transfer_received">received</button>{% else %}<span class="muted">—</span>{% endif %}</span>
+      </form></td>
+    <td class="small">{% if r.status == 'live' %}<span class="pill green">live · {{ r.provider_client_id }}</span>{% else %}<form method="post" style="display:flex;gap:.25rem"><input type="hidden" name="id" value="{{ r.id }}"><input type="hidden" name="intent" value="go_live"><input class="form-control" name="provider_client_id" placeholder="Caliber client id" style="width:9rem"><button class="btn btn-dark btn-sm">go live</button></form><span class="muted">target {{ r.go_live_on|datefmt if r.go_live_on else '—' }}</span>{% endif %}</td>
+    <td class="small muted">{{ r.status }}</td>
+  </tr>{% else %}<tr><td colspan="6" class="muted">Nobody onboarding. Signups from /start land here.</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="small muted" style="margin-top:.75rem">Bank steps are confirmed by a person who saw the check. Go-live: create the Caliber client, import the roster and the opening balances, then enter the client id here; approval rules move with it.</p>
+{% endblock %}

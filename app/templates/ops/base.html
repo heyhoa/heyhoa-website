@@ -13,6 +13,7 @@
 <div class="section-label">Sales</div>
 <ul>
   <li><a href="{{ url_for('ops.leads') }}" {% if p.startswith('/ops/leads') %}aria-current="page"{% endif %}>Leads &amp; proposals</a></li>
+  <li><a href="{{ url_for('ops.onboarding_list') }}" {% if p == '/ops/onboarding' %}aria-current="page"{% endif %}>Onboarding</a></li>
   <li><a href="{{ url_for('ops.queue', lane='sales', state='open') }}">Sales work</a></li>
 </ul>
 <div class="section-label">Agents</div>

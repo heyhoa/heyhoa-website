@@ -293,6 +293,147 @@ class ResponsibilityItem(db.Model):
     sort = db.Column(db.Integer, default=0)
 
 
+class CommunityProfile(db.Model):
+    """A community as hey knows it, from signup through go-live. Mirrors Caliber's client once live
+    (provider_client_id); until then it is the only record. Structured like the Caliber client so the
+    go-live export is a copy, not a translation."""
+
+    __tablename__ = "community_profiles"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    provider_client_id = db.Column(db.String(40), index=True)  # Caliber ClientID once live
+    slug = db.Column(db.String(80), unique=True)
+    name = db.Column(db.String(200))  # display name, e.g. Willow Creek Townhomes
+    legal_name = db.Column(db.String(300))  # as incorporated, e.g. Willow Creek Townhomes Association, Inc.
+    kind = db.Column(db.String(30))  # hoa|condo|townhome|mixed|commercial
+    structure = db.Column(db.String(20), default="standalone")  # standalone|master|sub
+    master_name = db.Column(db.String(200))  # for a sub association: the master it belongs to
+    units = db.Column(db.Integer)
+    unit_kind = db.Column(db.String(10), default="units")  # units|lots
+    address1 = db.Column(db.String(200))
+    city = db.Column(db.String(100))
+    state = db.Column(db.String(2))
+    zip = db.Column(db.String(12))
+    county = db.Column(db.String(100))
+    incorporation_state = db.Column(db.String(2))
+    ein_last4 = db.Column(db.String(4))  # never the full EIN here; the bank and Caliber hold it
+    fiscal_year_end = db.Column(db.String(5), default="12/31")
+    dues_amount = db.Column(db.Numeric(10, 2))
+    dues_frequency = db.Column(db.String(20), default="monthly")  # monthly|quarterly|semiannual|annual
+    plan = db.Column(db.String(30))  # books|back-office|board-plus
+    monthly_price = db.Column(db.Integer)
+    contact = db.Column(db.JSON)  # {"name","title","email","phone"} the board member who signed up
+    board = db.Column(db.JSON)  # [{"name","title","email","phone","signer":bool}]
+    prior = db.Column(db.JSON)  # {"setup": self|management_co|accountant, "manager","bank","software"}
+    agreement = db.Column(db.JSON)  # {"version","sha256","signed_by","title","signed_at","ip","user_agent","plan","monthly_price"}
+    bank = db.Column(db.JSON)  # {"accounts_opened","startup_amount","startup_check_mailed","startup_check_received","final_transfer_mailed","final_transfer_received","signers"}
+    checklist = db.Column(db.JSON)  # {"intake": bool, "roster": bool, "documents": bool, "rules": bool, "bank": bool}
+    status = db.Column(db.String(20), default="signup")  # signup|signed|onboarding|parallel|live|churned
+    go_live_on = db.Column(db.Date)
+    lead_id = db.Column(db.Integer)
+
+    @property
+    def community_id(self) -> str:
+        """The id the rest of the app keys on: the Caliber client id once live, else a local one."""
+        return self.provider_client_id or f"new-{self.id}"
+
+
+class OnboardingUnit(db.Model):
+    """The owner roster as imported at signup (CSV). Becomes Caliber units and contacts at go-live."""
+
+    __tablename__ = "onboarding_units"
+    id = db.Column(db.Integer, primary_key=True)
+    profile_id = db.Column(db.Integer, index=True)
+    unit_label = db.Column(db.String(60))
+    address = db.Column(db.String(300))
+    owner_name = db.Column(db.String(200))
+    email = db.Column(db.String(200))
+    phone = db.Column(db.String(40))
+    mailing_address = db.Column(db.String(300))
+    balance = db.Column(db.Numeric(12, 2))
+    notes = db.Column(db.String(300))
+
+
+class ApprovalRule(db.Model):
+    """Board rules: how many approvals a decision type needs in this community."""
+
+    __tablename__ = "approval_rules"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    decision_type = db.Column(db.String(40))
+    approvals = db.Column(db.Integer, default=2)
+    note = db.Column(db.String(200))
+    __table_args__ = (db.UniqueConstraint("community_id", "decision_type", name="uq_approval_rule"),)
+
+
+class Meeting(db.Model):
+    """A board, annual, budget or special meeting: notice, agenda, minutes."""
+
+    __tablename__ = "meetings"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    kind = db.Column(db.String(20), default="board")  # board|annual|budget|special|executive
+    date = db.Column(db.Date)
+    time = db.Column(db.String(20))
+    where = db.Column(db.String(200))
+    notice_days = db.Column(db.Integer, default=10)
+    notice_sent_at = db.Column(db.DateTime)
+    notice_channels = db.Column(db.String(60))  # "email,portal,mail"
+    agenda = db.Column(db.JSON)  # ["Call to order", ...]
+    minutes = db.Column(db.Text)
+    status = db.Column(db.String(20), default="scheduled")  # scheduled|held|cancelled
+    created_by = db.Column(db.String(120))
+
+
+class Letter(db.Model):
+    """A physical letter: queued to the mail API or printed and mailed by a person. One row per recipient."""
+
+    __tablename__ = "letters"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    community_id = db.Column(db.String(40), index=True)
+    kind = db.Column(db.String(40))  # meeting_notice|collection|violation|budget|general|...
+    unit_account_id = db.Column(db.String(40))
+    to_name = db.Column(db.String(200))
+    to_address = db.Column(db.String(400))
+    subject = db.Column(db.String(300))
+    body = db.Column(db.Text)
+    status = db.Column(db.String(20), default="queued")  # queued|sent|simulated|failed
+    provider = db.Column(db.String(20))  # lob|manual
+    provider_id = db.Column(db.String(80))
+    cost = db.Column(db.Numeric(8, 2))
+    sent_at = db.Column(db.DateTime)
+    certified = db.Column(db.Boolean, default=False)
+    meeting_id = db.Column(db.Integer)
+    announcement_id = db.Column(db.Integer)
+    requested_by = db.Column(db.String(120))
+
+
+class InsurancePolicy(db.Model):
+    """The association's policies, renewal dates and agent. Mirrors Caliber's Insurance record."""
+
+    __tablename__ = "insurance_policies"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    kind = db.Column(db.String(30))  # property|liability|do|fidelity|umbrella|workers_comp|cyber|flood|other
+    carrier = db.Column(db.String(200))
+    policy_number = db.Column(db.String(80))
+    coverage = db.Column(db.Numeric(14, 2))
+    deductible = db.Column(db.Numeric(12, 2))
+    premium = db.Column(db.Numeric(12, 2))
+    begins = db.Column(db.Date)
+    expires = db.Column(db.Date, index=True)
+    agent_name = db.Column(db.String(200))
+    agent_phone = db.Column(db.String(40))
+    agent_email = db.Column(db.String(200))
+    document_id = db.Column(db.Integer)  # StoredDocument with the declarations page
+    notes = db.Column(db.Text)
+
+    @property
+    def days_to_expiry(self):
+        return (self.expires - dt.date.today()).days if self.expires else None
+
+
 class InvoiceFlag(db.Model):
     """Board-set flags on provider invoices, e.g. hide from owners (legal bills)."""
 

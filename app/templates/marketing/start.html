@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Start — {{ brand.name }}{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem"><div class="container narrow">
+  <p class="eyebrow">Start today</p>
+  <h1>Sign up, sign the agreement, start onboarding. <span class="muted" style="font-weight:400">No call required.</span></h1>
+  <p class="lede">Five questions about your community, your name, and the agreement to read and sign. Then an onboarding page lists exactly what we need, in order. Most boards are live in four weeks.</p>
+</div></section>
+<section class="section tight"><div class="container narrow">
+<form method="post" class="card" style="padding:1.5rem">
+  <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+  <h3>Your community</h3>
+  <div class="form-row">
+    <div class="form-group"><label>Community name</label><input class="form-control" name="community_name" required placeholder="Willow Creek Townhomes"></div>
+    <div class="form-group"><label>Type</label><select class="form-control" name="kind">{% for k, label in kinds %}<option value="{{ k }}" {% if k == 'townhome' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Structure</label><select class="form-control" name="structure">{% for k, label in structures %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label>Master association (if a sub)</label><input class="form-control" name="master_name" placeholder="leave blank if standalone"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Units or lots</label><input class="form-control" name="units" type="number" min="2" required value="{{ units }}"></div>
+    <div class="form-group"><label>City, state</label><div style="display:flex;gap:.5rem"><input class="form-control" name="city" required placeholder="Mesa"><input class="form-control" name="state" required maxlength="2" placeholder="AZ" style="width:5rem"></div></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Assessments are billed</label><select class="form-control" name="dues_frequency">{% for k, label in frequencies %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label>Who keeps the books today</label><select class="form-control" name="prior_setup">{% for k, label in priors %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+  </div>
+  <h3 style="margin-top:1rem">Plan</h3>
+  <div class="grid grid-3">{% for t in pricing %}<label class="card" style="cursor:pointer;padding:.9rem"><input type="radio" name="plan" value="{{ t.slug }}" {% if t.slug == plan %}checked{% endif %}> <strong>{{ t.name }}</strong><br><span class="small muted">${{ "{:,}".format(prices[t.slug]) }}/mo for {{ units }} doors</span></label>{% endfor %}</div>
+  <p class="small muted">Priced for the door count above; the agreement shows the exact number. Onboarding is free. Financials by the 5th business day or that month is free.</p>
+  <h3 style="margin-top:1rem">You</h3>
+  <div class="form-row">
+    <div class="form-group"><label>Your name</label><input class="form-control" name="contact_name" required></div>
+    <div class="form-group"><label>Board title</label><select class="form-control" name="contact_role"><option>President</option><option selected>Treasurer</option><option>Secretary</option><option>Director</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label>Email</label><input class="form-control" name="email" type="email" required></div>
+    <div class="form-group"><label>Phone</label><input class="form-control" name="phone" type="tel"></div>
+  </div>
+  <button class="btn btn-primary" type="submit">Continue to the agreement →</button>
+  <p class="small muted" style="margin-top:.75rem">Nothing is charged until your first month live. You can read the agreement first: <a href="{{ url_for('marketing.agreement') }}">the Professional Services Agreement</a>.</p>
+</form>
+</div></section>
+{% endblock %}

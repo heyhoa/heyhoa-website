@@ -1,28 +1,30 @@
 {% extends "board/base.html" %}
 {% block title %}Meetings — {{ brand.name }}{% endblock %}
 {% block page_title %}Meetings{% endblock %}
-{% block page_actions %}<a class="btn btn-primary btn-sm" href="#">Schedule a meeting</a>{% endblock %}
 {% block content %}
 <div class="row">
-  <div class="card">
-    <h3>Next: Board meeting · Nov 12, 7:00 pm · Clubhouse + Zoom</h3>
-    <p class="small muted">Notice sent Oct 28 (14 days, per Bylaws §3.4). 11 owners RSVP'd.</p>
-    <h4>Agenda (hey drafted from this month's activity)</h4>
-    <ol class="small">
-      <li>Call to order, quorum</li>
-      <li>September financials (delivered Oct 5): $48,210 operating, reserves 82% funded</li>
-      <li>Pool service contract: Oct invoice 28% over trend; renew, rebid or renegotiate</li>
-      <li>Delinquency: Unit 3 attorney referral vote (lien recorded Oct 5; over $400 and 90+ days per Exhibit B)</li>
-      <li>ARC: Unit 22 solar placement</li>
-      <li>2027 budget: first draft (dues +3.1% to fund reserve study recommendation)</li>
-      <li>Owner forum</li>
-    </ol>
-    <div class="actions"><a class="btn btn-ghost btn-sm" href="#">Edit agenda</a><a class="btn btn-ghost btn-sm" href="#">Download packet</a></div>
+  <div>
+    <div class="card">
+      <h3>Upcoming</h3>
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>When</th><th>Meeting</th><th>Notice</th><th>Agenda</th><th></th></tr></thead>
+        <tbody>{% for m in upcoming %}<tr><td class="lead"><strong>{{ m.date|datefmt('%a %b %d') }}</strong> {{ m.time }}</td><td data-label="">{{ dict(kinds)[m.kind] }} · {{ m.where }}</td><td>{% if m.notice_sent_at %}<span class="pill green">sent {{ m.notice_sent_at|datefmt('%b %d') }}</span>{% else %}<span class="pill amber">due {{ (m.date - timedelta(days=m.notice_days))|datefmt('%b %d') }}</span>{% endif %}</td><td class="small muted">{{ (m.agenda or [])|length }} items</td><td><a class="btn btn-ghost btn-sm" href="{{ url_for('board.meeting', meeting_id=m.id) }}">Open</a></td></tr>{% else %}<tr><td colspan="5" class="muted">Nothing scheduled. Pick a template on the right.</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </div>
+    <div class="card" style="margin-top:.8rem">
+      <h3>Past</h3>
+      <ul class="checks">{% for m in past %}<li><span>{{ m.date|datefmt }} · {{ dict(kinds)[m.kind] }}</span><a href="{{ url_for('board.meeting', meeting_id=m.id) }}">{{ 'Minutes' if m.minutes else m.status }}</a></li>{% else %}<li class="muted small">No past meetings recorded yet.</li>{% endfor %}</ul>
+    </div>
   </div>
-  <div class="card">
-    <h3>Past</h3>
-    <ul class="checks"><li><span>Oct 8 · Board meeting</span><a href="#">Minutes</a></li><li><span>Sep 10 · Board meeting</span><a href="#">Minutes</a></li><li><span>Feb 18 · Annual meeting</span><a href="#">Minutes</a></li></ul>
-    <p class="small muted" style="margin-top:1rem">Record the Zoom and hey drafts minutes with motions, votes and action items for the secretary to edit.</p>
-  </div>
+  <form class="card" method="post">
+    <h3>Schedule a meeting</h3>
+    <div class="form-group"><label>Template</label><select class="form-control" name="kind" onchange="location.href='?kind='+this.value">{% for k, label in kinds %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ label }} · {{ notice_days[k] }}-day notice</option>{% endfor %}</select></div>
+    <div class="form-row"><div class="form-group"><label>Date</label><input class="form-control" name="date" type="date" required min="{{ today }}"></div><div class="form-group"><label>Time</label><input class="form-control" name="time" value="7:00 pm"></div></div>
+    <div class="form-group"><label>Where</label><input class="form-control" name="where" value="Clubhouse + Zoom"></div>
+    <div class="form-group"><label>Agenda <span class="small muted">(one item per line; hey filled it from what is pending)</span></label><textarea class="form-control" name="agenda" rows="11">{{ draft_agenda|join('\n') }}</textarea></div>
+    <input type="hidden" name="notice_days" value="{{ notice_days[kind] }}">
+    <button class="btn btn-primary btn-sm" type="submit">Schedule</button>
+    <p class="small muted" style="margin-top:.5rem">Next: open the meeting, fix the agenda, send the notice (email, portal, and letters to owners without email). After the meeting, paste or dictate the minutes.</p>
+  </form>
 </div>
 {% endblock %}

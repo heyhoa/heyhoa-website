@@ -34,3 +34,6 @@ def seed_demo():
     from . import plans
 
     plans.seed_demo("1001")
+    from . import insurance
+
+    insurance.seed_demo("1001")

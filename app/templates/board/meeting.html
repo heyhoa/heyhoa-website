@@ -1,0 +1,33 @@
+{% extends "board/base.html" %}
+{% block title %}{{ kinds[m.kind] }} · {{ m.date|datefmt }} — {{ brand.name }}{% endblock %}
+{% block page_title %}{{ kinds[m.kind] }} · {{ m.date|datefmt }}{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.meetings_page') }}">← Meetings</a><a class="btn btn-dark btn-sm" href="{{ url_for('board.meeting', meeting_id=m.id, print=1) }}" target="_blank">Print agenda</a>{% endblock %}
+{% block content %}
+<div class="row">
+  <div>
+    <form class="card" method="post"><input type="hidden" name="intent" value="agenda">
+      <h3>Agenda <span class="small muted">{{ m.time }} · {{ m.where }} · {{ m.status }}</span></h3>
+      <textarea class="form-control" name="agenda" rows="12">{{ (m.agenda or [])|join('\n') }}</textarea>
+      <div style="display:flex;gap:.5rem;margin-top:.5rem"><button class="btn btn-primary btn-sm">Save agenda</button>{% if m.status == 'scheduled' %}<button class="btn btn-ghost btn-sm" name="intent" value="cancel" formnovalidate onclick="return confirm('Cancel this meeting?')">Cancel meeting</button>{% endif %}</div>
+    </form>
+    <form class="card" method="post" style="margin-top:.8rem"><input type="hidden" name="intent" value="minutes">
+      <h3>Minutes</h3>
+      <textarea class="form-control" name="minutes" rows="10" placeholder="Called to order 7:02 pm. Present: … Motion to approve … Vote 3-0. Action items: …">{{ m.minutes or '' }}</textarea>
+      <div class="form-row" style="margin-top:.5rem"><div class="form-group"><select class="form-control" name="status"><option value="scheduled" {% if m.status == 'scheduled' %}selected{% endif %}>Scheduled</option><option value="held" {% if m.status == 'held' %}selected{% endif %}>Held (minutes final)</option></select></div><div class="form-group"><button class="btn btn-primary btn-sm">Save minutes</button></div></div>
+      <p class="small muted">Owners see final minutes in the portal. Decisions voted here are also recorded on the Decisions page so the vote and the execution are in one place.</p>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Notice</h3>
+    {% if m.notice_sent_at %}<p><span class="pill green">sent {{ m.notice_sent_at|datefmt }}</span> by {{ m.notice_channels }}{% if letters %} · {{ letters|length }} letters ({{ letters[0].status }}){% endif %}</p>
+    {% else %}<p class="small">Due by <strong>{{ deadline|datefmt }}</strong> ({{ m.notice_days }} days before). {% if deadline < today %}<span class="pill red">late</span>{% endif %}</p>{% endif %}
+    <form method="post"><input type="hidden" name="intent" value="notice">
+      <p class="small"><label><input type="checkbox" name="channels" value="email" checked> Email ({{ all_owners - no_email }} owners)</label><br><label><input type="checkbox" name="channels" value="portal" checked> Portal</label><br><label><input type="checkbox" name="channels" value="sms"> Text (opted-in owners)</label><br><label><input type="checkbox" name="channels" value="mail"> Letter</label>
+        <select class="form-control" name="audience" style="display:inline-block;width:auto;padding:.2rem .4rem;font-size:.8rem"><option value="no_email">to the {{ no_email }} owners without email</option><option value="all">to all {{ all_owners }} owners</option></select> <span class="muted">${{ "%.2f"|format(per_letter) }} each{% if not mail_on %}, printed and mailed by hey{% endif %}</span></p>
+      <button class="btn btn-primary btn-sm">{{ 'Send again' if m.notice_sent_at else 'Send notice' }}</button>
+    </form>
+    <h4 style="margin-top:1rem">The notice says</h4>
+    <p class="small muted">A {{ kinds[m.kind]|lower }} on {{ m.date|datefmt('%A, %B %d, %Y') }} at {{ m.time }}, {{ m.where }}, with the agenda above, given {{ m.notice_days }} days in advance per the bylaws and state statute.</p>
+  </div>
+</div>
+{% endblock %}

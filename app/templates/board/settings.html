@@ -3,12 +3,12 @@
 {% block page_title %}Settings{% endblock %}
 {% block content %}
 <div class="grid grid-2">
-  <div class="card">
-    <h3>Approvals</h3>
-    <div class="form-group"><label>Invoice approvals required</label><select class="form-control"><option>1 under $500, 2 above</option><option selected>2 for everything</option><option>1 for everything</option></select></div>
-    <div class="form-group"><label>ARC approvals required</label><select class="form-control"><option>2 of 3 committee</option><option selected>3 of 3 committee</option></select></div>
-    <div class="form-group"><label>Auto-approve recurring contract invoices that match the contract exactly</label><select class="form-control"><option>Off</option><option selected>On, board notified</option></select></div>
-  </div>
+  <form class="card" method="post">
+    <h3>Board rules <span class="small muted">(approvals needed)</span></h3>
+    <div class="table-wrap"><table><tbody>{% for key, label in rule_labels %}<tr><td>{{ label }}</td><td class="num"><input class="form-control" name="rule_{{ key }}" type="number" min="1" max="7" value="{{ rules[key] }}" style="width:4.5rem;display:inline-block;text-align:center"></td></tr>{% endfor %}</tbody></table></div>
+    <p class="small muted" style="margin:.5rem 0">Invoices are approved in the payments queue; everything else on the Decisions page. A rule can never be set below 1. Money moves only after the rule is met, by a person.</p>
+    <button class="btn btn-primary btn-sm">Save rules</button>
+  </form>
   <div class="card">
     <h3>Integrations</h3>
     <ul class="checks">

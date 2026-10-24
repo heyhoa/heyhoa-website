@@ -32,8 +32,21 @@ DECISION_TYPES = {
 }
 
 
-def spec(decision_type: str) -> dict:
-    return DECISION_TYPES.get(decision_type or "other", DECISION_TYPES["other"])
+def rules_for(community_id: str | None) -> dict[str, int]:
+    """Board rules: approvals per decision type for this community (ApprovalRule), else the defaults."""
+    from ..models import ApprovalRule
+
+    if not community_id:
+        return {}
+    return {r.decision_type: r.approvals for r in ApprovalRule.query.filter_by(community_id=str(community_id)).all()}
+
+
+def spec(decision_type: str, community_id: str | None = None) -> dict:
+    s = dict(DECISION_TYPES.get(decision_type or "other", DECISION_TYPES["other"]))
+    n = rules_for(community_id).get(decision_type or "other")
+    if n:
+        s["approvals"] = n
+    return s
 
 
 def pending(community_id: str) -> list[WorkItem]:
@@ -57,7 +70,7 @@ def vote(item: WorkItem, member_id: str, member_name: str, choice: str, note: st
     votes = [v for v in (item.remote_ids or {}).get("votes", []) if v.get("member_id") != member_id]
     votes.append({"member_id": member_id, "member": member_name, "vote": choice, "note": note, "at": dt.datetime.now(dt.timezone.utc).isoformat()})
     item.remote_ids = {**(item.remote_ids or {}), "votes": votes}
-    s = spec(item.category)
+    s = spec(item.category, item.community_id)
     approvals = sum(1 for v in votes if v["vote"] == "approve")
     denials = sum(1 for v in votes if v["vote"] == "deny")
     db.session.add(AuditLog(actor=member_name, action=f"decision.{choice}", target=f"wi:{item.id}", detail=f"{item.category}: {item.subject} ({approvals}/{s['approvals']})"))

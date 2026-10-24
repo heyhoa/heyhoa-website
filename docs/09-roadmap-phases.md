@@ -52,7 +52,16 @@ Goal: a signed community. Site live, proposals out, sequence running, books revi
 - [ ] Blog: move posts to markdown files, add RSS, add 9 more posts from the content calendar
 - [ ] SEO: sitemap.xml, robots.txt, OG image per page, schema.org Organization + FAQ
 - [ ] Analytics: privacy-friendly (Plausible) with quote-funnel events
-- [ ] Legal: counsel review of `/terms`, `/privacy`, the 5th-or-free clause, state manager-licensing language
+- [x] Terms of service rewritten: software plus service, access and actions are the association's, cyber insurance, money by a person, AI, data, limits, Arizona law
+- [x] Self-serve signup (`/start`): e-signed agreement, onboarding page (intake like the Caliber client, roster CSV, documents, board rules, bank start-up check and final transfer), ops onboarding list, go-live rekey
+- [x] Board rules: approvals per decision type, set at onboarding and in Settings
+- [x] Meetings: templates, agenda built from what is pending, notice by email/portal/text/letter, minutes, print
+- [x] Letters: templates, audiences, certified, Lob or printed by a person; announcement mail channel
+- [x] Insurance page with gaps, renewals and the cyber nudge
+- [x] Data model written down (`docs/17-data-model.md`)
+- [ ] Legal: counsel review of `/terms`, `/privacy`, the agreement, the 5th-or-free clause, state manager-licensing language
+- [ ] Signup: email the signed agreement PDF to the signer; magic-link login for the signer into a pre-live board portal
+- [ ] Lob account + return address; letter PDF with the hey letterhead instead of HTML
 - [x] Deploy config: `render.yaml` (web + Postgres + two crons), `Procfile`, GitHub Actions CI, Postgres driver and URL normalisation
 - [ ] Deploy: connect the repo on Render, set secrets, custom domain, TLS, confirm CI green
 - [x] Portal sidebar collapses to a top bar with a Menu toggle on phones; tables marked `.stack` read as one record per block

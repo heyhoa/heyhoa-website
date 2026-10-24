@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 
 from flask import Response, abort, current_app, flash, redirect, render_template, request, session, url_for
 
+from ... import brand as brand_module
 from ...extensions import db
 from ...models import ContactMessage
 from ...services.leads import create_lead
@@ -104,6 +105,98 @@ def proposal(token):
         flash("Thank you. We will send the agreement and the onboarding checklist within one business day.")
         return redirect(url_for("marketing.proposal", token=token))
     return render_template("marketing/proposal.html", lead=lead, q=q, calendar=sales.onboarding_calendar(), token=token)
+
+
+@bp.route("/start", methods=["GET", "POST"])
+def start():
+    """Self-serve signup: a board member can start without talking to anyone."""
+    from ...services import onboarding, sales
+
+    if request.method == "POST":
+        if _is_bot(request.form) or _rate_limited(request.remote_addr or "?"):
+            return redirect(url_for("marketing.start"))
+        profile = onboarding.start(request.form)
+        return redirect(url_for("marketing.start_agreement", token=onboarding.token_for(profile)))
+    units = request.args.get("units", type=int) or 48
+    return render_template("marketing/start.html", kinds=onboarding.KINDS, structures=onboarding.STRUCTURES, frequencies=onboarding.FREQUENCIES, priors=onboarding.PRIOR_SETUPS, units=units,
+                           prices={t["slug"]: sales.monthly_price(t["slug"], units) for t in brand_module.PRICING}, plan=request.args.get("plan", "back-office"))
+
+
+@bp.route("/start/<token>/agreement", methods=["GET", "POST"])
+def start_agreement(token):
+    """Read and sign. The signature record is name, title, time, IP, agreement version and hash."""
+    from ...agents import runtime
+    from ...services import onboarding
+
+    profile = onboarding.profile_from_token(token)
+    if not profile:
+        abort(404)
+    if profile.agreement:
+        return redirect(url_for("marketing.onboard", token=token))
+    if request.method == "POST":
+        if not request.form.get("agree") or not (request.form.get("signed_by") or "").strip():
+            flash("Type your name and tick the box to sign.", "error")
+        else:
+            onboarding.sign(profile, signed_by=request.form["signed_by"].strip(), title=request.form.get("title", ""), ip=request.remote_addr or "", user_agent=request.user_agent.string)
+            runtime.inbound_portal(community_id=profile.community_id, unit_account_id=None, kind="signup", subject=f"New community signed: {profile.name} · {profile.units} {profile.unit_kind} · {profile.plan}",
+                                   body=f"{profile.contact['name']} ({profile.contact.get('title')}) signed the agreement. Onboarding: {onboarding.onboarding_url(profile)}", email=profile.contact.get("email"), name=profile.contact.get("name"), lane="onboarding")
+            return redirect(url_for("marketing.onboard", token=token))
+    return render_template("marketing/start_agreement.html", profile=profile, token=token, version=current_app.config.get("AGREEMENT_VERSION"), sha=onboarding.agreement_hash()[:12])
+
+
+@bp.route("/start/<token>", methods=["GET", "POST"])
+def onboard(token):
+    """The onboarding page: what we need, in the order a treasurer can give it."""
+    from ...models import ApprovalRule, OnboardingUnit, StoredDocument
+    from ...services import onboarding
+
+    profile = onboarding.profile_from_token(token)
+    if not profile:
+        abort(404)
+    if not profile.agreement:
+        return redirect(url_for("marketing.start_agreement", token=token))
+    if request.method == "POST":
+        intent = request.form.get("intent")
+        if intent == "intake":
+            onboarding.save_intake(profile, request.form)
+            flash("Community details saved.")
+        elif intent == "roster":
+            f = request.files.get("roster")
+            n = onboarding.import_roster(profile, f.read()) if f and f.filename else 0
+            flash(f"{n} units imported." if n else "No rows found. The first row must be headers: unit, address, owner, email, phone, mailing_address, balance.", "info" if n else "error")
+        elif intent == "rules":
+            onboarding.save_rules(profile, request.form)
+            flash("Board rules saved.")
+        elif intent == "bank":
+            onboarding.bank_step(profile, request.form.get("step", "startup_check_mailed"), True, startup_amount=onboarding.startup_amount(profile))
+            flash("Noted. We will confirm when it arrives.")
+        elif intent == "documents":
+            import os
+            updir = os.path.join(current_app.instance_path, "uploads", "communities", profile.community_id)
+            os.makedirs(updir, exist_ok=True)
+            n = 0
+            for f in request.files.getlist("files"):
+                if f and f.filename:
+                    fn = f"{int(__import__('time').time())}-{os.path.basename(f.filename)}"
+                    f.save(os.path.join(updir, fn))
+                    db.session.add(StoredDocument(community_id=profile.community_id, title=f.filename, category=request.form.get("category", "other"), filename=fn, path=os.path.join(updir, fn), uploaded_by=profile.contact.get("name"), visibility="board"))
+                    n += 1
+            db.session.commit()
+            onboarding.mark_documents(profile, StoredDocument.query.filter_by(community_id=profile.community_id).count() >= 3)
+            flash(f"{n} file(s) stored.")
+        return redirect(url_for("marketing.onboard", token=token))
+    rules = {r.decision_type: r.approvals for r in ApprovalRule.query.filter_by(community_id=profile.community_id).all()}
+    return render_template("marketing/onboard.html", profile=profile, token=token, progress=onboarding.progress(profile), intake=onboarding.INTAKE_FIELDS, kinds=onboarding.KINDS, structures=onboarding.STRUCTURES, frequencies=onboarding.FREQUENCIES,
+                           rules=rules, rule_labels=onboarding.RULE_LABELS, docs_needed=onboarding.DOCUMENTS, units=OnboardingUnit.query.filter_by(profile_id=profile.id).order_by(OnboardingUnit.unit_label).all(),
+                           documents=StoredDocument.query.filter_by(community_id=profile.community_id).order_by(StoredDocument.created_at.desc()).all(), startup=onboarding.startup_amount(profile), bank=current_app.config, lockbox=current_app.config.get("LOCKBOX_ADDRESS"))
+
+
+@bp.route("/agreement")
+def agreement():
+    """The Professional Services Agreement, readable on the web."""
+    from ...services import onboarding
+
+    return render_template("marketing/agreement.html", text=onboarding.agreement_text(), version=current_app.config.get("AGREEMENT_VERSION"))
 
 
 @bp.route("/books-review", methods=["GET", "POST"])

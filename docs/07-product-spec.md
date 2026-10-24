@@ -100,6 +100,50 @@ Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools w
 | Draft budget | actuals + reserve study + known increases | line-item draft | board votes |
 Live mode uses Claude via the Anthropic SDK (model from `HEY_AI_MODEL`, default Opus 5.5, server-side refusal fallbacks on). Demo mode is rule-based so every page works offline.
 
+## Self-serve signup and onboarding
+
+A board member can sign up at `/start`, sign the agreement and start onboarding without a call.
+Signup takes the community basics (name, type, standalone/master/sub, units or lots, city, billing
+frequency, who keeps the books today), the plan, and the person. The agreement page shows the deal in
+a table (service, fee, term, money, access, data, law) with the full PSA under it; typing a name and
+ticking the box records a signature with version, hash, time and IP. The onboarding page then lists,
+in order: community details structured like the Caliber client (legal name, incorporation state, EIN
+last 4, address, county, fiscal year end, assessment amount, board roster with signers), the owner
+roster by CSV, documents, board rules (approvals per decision type) and the bank steps.
+
+Bank: we open operating and reserve accounts at the partner bank in the association's name and EIN.
+The board mails a **start-up check** (one assessment cycle, floor in config) to the lockbox so bills
+can be paid from day one; after the parallel month the board closes the old accounts and mails the
+**final funds transfer** as checks. A person in ops confirms each check. Go-live is a person creating
+the Caliber client and entering its id; approval rules are rekeyed to it.
+
+## Board rules
+
+`ApprovalRule` per community and decision type: invoices 2, bank transfers 3, CDs 3, new vendors 2,
+bids 2, ARC 2, special assessments 3, budget 3, liens and attorney 2, fee waivers 2 by default. Set at
+onboarding, changed in board Settings, applied to the next decision. Never below 1.
+
+## Meetings
+
+Board, annual, budget, special and executive templates. "Schedule" builds the agenda from what is
+actually pending (decisions, invoices, projects due, the latest package, open requests), the board
+edits it, sends the notice by email, portal, text and letter (to owners without email, or everyone),
+and records minutes. Print view for the packet. Notice days per type with a "late" flag.
+
+## Letters and email blasts
+
+Email and text blasts live on Announcements; a "letter" option also mails owners without email (or
+all owners). The Letters page has templates (general, meeting notice, budget letter, collection
+notice, courtesy/violation, welcome), audiences (all, no email on file, one unit), a preview with
+per-recipient fields, certified mail, and a log with cost. Lob when configured; otherwise the letter
+is recorded and a person prints and mails it. Cost is a pass-through.
+
+## Insurance
+
+Policies with carrier, number, coverage, deductible, premium, dates, agent and the declarations page;
+gaps against the recommended set (property, liability, D&O, fidelity, cyber) and renewals within 60
+days. A standing cyber callout: account access and actions are the association's; buy a policy here.
+
 ## Projects, reserve plan, who fixes what
 
 Three board pages, each a copy of a sheet treasurers already keep, each editable under the table:

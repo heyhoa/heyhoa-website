@@ -1,0 +1,38 @@
+{% extends "board/base.html" %}
+{% block title %}Letters — {{ brand.name }}{% endblock %}
+{% block page_title %}Letters{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.announcements') }}">Email blast instead</a>{% endblock %}
+{% block content %}
+<div class="row">
+  <form class="card" method="post">
+    <h3>Write a letter</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Template</label><select class="form-control" name="kind">{% for k, t in templates.items() %}<option value="{{ k }}" {% if preview and preview.kind == k %}selected{% endif %}>{{ t.label }}</option>{% endfor %}</select></div>
+      <div class="form-group"><label>To</label><select class="form-control" name="audience">{% for k, label in audiences %}<option value="{{ k }}" {% if preview and preview.audience == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Unit (if one unit)</label><select class="form-control" name="unit_account_id"><option value="">—</option>{% for u in owners %}<option value="{{ u.id }}" {% if preview and preview.unit_account_id == u.id %}selected{% endif %}>{{ u.unit_label }} · {{ u.owner_name }}</option>{% endfor %}</select></div>
+      <div class="form-group"><label>Subject (meeting notice only)</label><input class="form-control" name="subject" value="{{ request.form.get('subject','') }}"></div>
+    </div>
+    <div class="form-group"><label>Message <span class="small muted">({owner}, {unit} and {balance} fill in per recipient)</span></label><textarea class="form-control" name="message" rows="6" required>{{ request.form.get('message','') }}</textarea></div>
+    <div class="form-row"><div class="form-group"><label>New assessment (budget letter)</label><input class="form-control" name="dues" value="{{ request.form.get('dues','') }}" placeholder="$320"></div><div class="form-group"><label>Frequency · start</label><div style="display:flex;gap:.4rem"><input class="form-control" name="frequency" value="{{ request.form.get('frequency','monthly') }}"><input class="form-control" name="start" value="{{ request.form.get('start','') }}" placeholder="Jan 1"></div></div></div>
+    <label class="small"><input type="checkbox" name="certified" {% if preview and preview.certified %}checked{% endif %}> Certified mail (collection and legal notices; +$6.50)</label>
+    <div style="display:flex;gap:.5rem;margin-top:.75rem"><button class="btn btn-ghost btn-sm" name="intent" value="preview">Preview</button></div>
+  </form>
+  <div>
+    {% if preview %}<form class="card" method="post">
+      <h3>Preview <span class="small muted">· {{ preview.count }} letter(s) · ${{ "%.2f"|format(preview.count * (per_letter + (6.5 if preview.certified else 0))) }} pass-through</span></h3>
+      <input type="hidden" name="intent" value="send"><input type="hidden" name="kind" value="{{ preview.kind }}"><input type="hidden" name="audience" value="{{ preview.audience }}"><input type="hidden" name="unit_account_id" value="{{ preview.unit_account_id or '' }}">{% if preview.certified %}<input type="hidden" name="certified" value="1">{% endif %}
+      <div class="form-group"><input class="form-control" name="final_subject" value="{{ preview.subject }}"></div>
+      <textarea class="form-control" name="final_body" rows="14">{{ preview.body }}</textarea>
+      <button class="btn btn-primary btn-sm" style="margin-top:.5rem">Send {{ preview.count }} letter(s)</button>
+      <p class="small muted" style="margin-top:.5rem">{% if mail_on %}Printed and mailed first class by our mail service, usually delivered in 4–6 business days.{% else %}hey prints and mails these today; tracking appears below.{% endif %} Every letter is logged with the recipient and address.</p>
+    </form>{% endif %}
+    <div class="card" {% if preview %}style="margin-top:.8rem"{% endif %}>
+      <h3>Sent</h3>
+      <div class="table-wrap"><table class="stack"><thead><tr><th>Date</th><th>To</th><th>Letter</th><th>Status</th><th class="num">Cost</th></tr></thead>
+        <tbody>{% for l in recent[:40] %}<tr><td class="lead">{{ l.created_at|datefmt('%b %d') }} <span class="small muted">{{ l.requested_by }}</span></td><td>{{ l.to_name }}</td><td class="small">{{ l.subject }}{% if l.certified %} <span class="pill">certified</span>{% endif %}</td><td><span class="pill {{ 'green' if l.status in ('sent','simulated') else 'red' if l.status == 'failed' else 'amber' }}">{{ 'mailed by hey' if l.status == 'simulated' else l.status }}</span></td><td class="num">${{ "%.2f"|format(l.cost or 0) }}</td></tr>{% else %}<tr><td colspan="5" class="muted">No letters yet.</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
