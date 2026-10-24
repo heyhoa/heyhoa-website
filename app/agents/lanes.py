@@ -16,8 +16,8 @@ AUTO_SEND_CATEGORIES = {"balance", "payment", "autopay", "document", "rule_quest
 class CSAgent(Agent):
     lane, name = "cs", "Customer service"
     description = "Owner, board and vendor communication on every channel. Answers what it can cite; hands money, disputes and emotion to people."
-    system_prompt = HEY_SYSTEM + "\n\nYou are the customer-service lane. Use lookup_owner and get_ledger before answering account questions; search_rules before answering rule questions. Reply with send_email or send_sms. Hand billing changes to the ar lane, invoices to ap, board decisions to board. Escalate disputes, waivers, threats and distress."
-    tools = pick("lookup_owner", "get_ledger", "search_rules", "list_decisions", "send_email", "send_sms", "post_note", "create_service_request", "handoff", "escalate")
+    system_prompt = HEY_SYSTEM + "\n\nYou are the customer-service lane. Use lookup_owner and get_ledger before answering account questions; who_fixes_what before answering who-repairs-what questions (cite its note); search_rules before answering rule questions; list_projects for when-is-X-getting-fixed questions. Reply with send_email or send_sms. Hand billing changes to the ar lane, invoices to ap, board decisions to board. Escalate disputes, waivers, threats and distress."
+    tools = pick("lookup_owner", "get_ledger", "search_rules", "who_fixes_what", "list_projects", "list_decisions", "send_email", "send_sms", "post_note", "create_service_request", "handoff", "escalate")
     auto_execute_risks = {RISK_READ, RISK_SEND, RISK_WRITE}
 
     def plan(self, item):

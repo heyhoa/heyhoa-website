@@ -11,6 +11,8 @@
   <li><a href="{{ url_for('board.delinquencies') }}" {% if p == '/board/delinquencies' %}aria-current="page"{% endif %}>Delinquencies</a></li>
   <li><a href="{{ url_for('board.budget') }}" {% if p == '/board/budget' %}aria-current="page"{% endif %}>Budget</a></li>
   <li><a href="{{ url_for('board.reserves') }}" {% if p.startswith('/board/reserves') %}aria-current="page"{% endif %}>Reserve plan</a></li>
+  <li><a href="{{ url_for('board.projects') }}" {% if p.startswith('/board/projects') %}aria-current="page"{% endif %}>Projects</a></li>
+  <li><a href="{{ url_for('board.who_fixes_what') }}" {% if p == '/board/who-fixes-what' %}aria-current="page"{% endif %}>Who fixes what</a></li>
   <li><a href="{{ url_for('board.vendors') }}" {% if p == '/board/vendors' %}aria-current="page"{% endif %}>Vendors</a></li>
 </ul>
 <div class="section-label">Community</div>

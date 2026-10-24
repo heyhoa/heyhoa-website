@@ -24,6 +24,12 @@ def slug_for(community_id: str) -> str | None:
     return next((s for s, c in SLUGS.items() if c == str(community_id)), None)
 
 
+def _plans():
+    from . import plans
+
+    return plans
+
+
 def community_public(slug: str) -> dict | None:
     cid = SLUGS.get(slug)
     if not cid:
@@ -41,6 +47,8 @@ def community_public(slug: str) -> dict | None:
         "fees": {"owner_charged": brand.OWNER_FEES, "association_items": brand.ASSOCIATION_FEES} if pub["fees"] else None,
         "collection_policy": {"stages": [{"key": k, "days": d, "label": l, "fee": f} for k, d, l, f in brand.COLLECTION_STAGES], "lien_threshold": brand.LIEN_THRESHOLD} if pub["fees"] else None,
         "documents": docs,
+        "who_fixes_what": [{"item": r.item, "who": r.party, "note": r.note or ""} for r in _plans().responsibilities(cid)],
+        "projects": [{"name": x.name, "status": x.status, "year": x.year, "cost": x.cost} for x in _plans().projects(cid) if x.status != "completed"],
         "published_financials": ({"as_of": snap.as_of, "operating_cash": snap.operating_cash, "reserve_cash": snap.reserve_cash, "reserve_funded_pct": 82, "ytd_income": snap.ytd_income, "ytd_expense": snap.ytd_expense, "last_packet_date": snap.last_packet_date, "packet_url": None} if snap else None),
         "records_policy": RECORDS_POLICY.get(c.state) if pub["records_policy"] else None,
         "meetings": [{"date": "2026-11-12", "time": "19:00", "where": "Clubhouse + Zoom", "kind": "board", "notice_sent": "2026-10-28"}] if pub["meetings"] else [],

@@ -93,7 +93,7 @@ def test_reserve_study_upload_creates_extraction_item_and_plan_math(client):
     client.post("/board/reserves", data={"intent": "seed_demo"})
     assert ReserveComponent.query.count() == 5
     r = client.get("/board/reserves")
-    assert r.status_code == 200 and b"Percent funded" in r.data and b"2027" in r.data
+    assert r.status_code == 200 and b"Year end balance" in r.data and b"2027" in r.data
     roof = ReserveComponent.query.filter_by(name="Roofs (12 buildings)").first()
     assert round(roof.accrued) == round(412000 * 16 / 25)
 

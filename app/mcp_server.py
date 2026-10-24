@@ -164,6 +164,23 @@ def my_ledger(p, limit: int = 24) -> dict:
     return {"lines": [l.__dict__ for l in get_provider().get_ledger(p.unit_account_id)[:limit]]}
 
 
+@server.tool(description="Who fixes what: is a building part (roof, window, patio gate, water line) the owner's or the association's responsibility, per the board's chart, with its source.")
+@require("homeowner")
+def who_fixes_what(p, item: str = "") -> dict:
+    from .services import plans
+
+    rows = plans.who_fixes(p.community_id, item) if item else plans.responsibilities(p.community_id)
+    return {"items": [{"item": r.item, "who": r.party, "note": r.note or ""} for r in rows], "published": bool(plans.responsibilities(p.community_id))}
+
+
+@server.tool(description="The community's project list: what is planned, in progress or done, with cost, year and status.")
+@require("homeowner")
+def community_projects(p) -> dict:
+    from .services import plans
+
+    return {"projects": [{"name": x.name, "status": x.status, "year": x.year, "cost": x.cost, "what": x.description or ""} for x in plans.projects(p.community_id)]}
+
+
 @server.tool(description="Monthly statements available for the owner.")
 @require("homeowner")
 def my_statements(p) -> dict:

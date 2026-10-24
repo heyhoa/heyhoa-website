@@ -8,8 +8,8 @@ from ...ai.assistant import draft_announcement, draft_delinquency_notice
 from ...channels import email as email_channel
 from ...extensions import db
 from ...integrations.registry import get_provider
-from ...models import Announcement, AuditLog, InvoiceFlag, Message, ReserveComponent, StoredDocument, WorkItem
-from ...services import decisions
+from ...models import Announcement, AuditLog, InvoiceFlag, Message, Project, ReserveComponent, ResponsibilityItem, StoredDocument, WorkItem
+from ...services import decisions, plans
 from ...services.auth import role_required
 from . import bp
 
@@ -168,35 +168,126 @@ def document_upload():
     return redirect(url_for("board.documents"))
 
 
+def _num(v) -> float:
+    try:
+        return float(str(v or "0").replace(",", "").replace("$", "").strip() or 0)
+    except ValueError:
+        return 0.0
+
+
+def _save_project(f, community_id: str, me: dict, project: Project | None = None) -> Project:
+    pr = project or Project(community_id=community_id)
+    pr.name = f.get("name", pr.name)
+    pr.description = f.get("description", pr.description)
+    pr.priority = int(f.get("priority") or pr.priority or 2)
+    pr.status = f.get("status") or pr.status or "planned"
+    low, high = _num(f.get("cost_low")), _num(f.get("cost_high"))
+    pr.cost_low, pr.cost_high = (low or high), (high or low)
+    pr.year = int(f.get("year") or 0) or None
+    pr.fund = f.get("fund") or pr.fund or "reserve"
+    pr.notes = f.get("notes", pr.notes)
+    pr.updated_by = me["name"]
+    db.session.add(pr)
+    db.session.commit()
+    return pr
+
+
 @bp.route("/reserves", methods=["GET", "POST"])
 @role_required("board")
 def reserves():
+    """The reserve plan, laid out like a treasurer's sheet: projects, the same projects by year, the money under them."""
+    p, me, community = _ctx()
+    if request.method == "POST":
+        f = request.form
+        intent = f.get("intent")
+        if intent == "seed_demo":
+            seed_reserve_components(community.id)
+            plans.seed_demo(community.id)
+            flash("Demo plan loaded.")
+        elif intent == "funding":
+            plans.set_funding(community.id, int(f.get("year")), _num(f.get("contribution")), _num(f.get("special_assessment")), f.get("note", ""))
+            _audit(me["name"], "reserve.funding", f"year:{f.get('year')}", f"contribution {f.get('contribution')} special {f.get('special_assessment')}")
+        elif intent == "from_study":
+            c = db.get_or_404(ReserveComponent, int(f.get("component_id")))
+            if c.community_id == community.id and not Project.query.filter_by(community_id=community.id, name=c.name).first():
+                db.session.add(Project(community_id=community.id, name=c.name, description=c.notes or f"From the reserve study: {c.quantity or ''}".strip(), priority=1 if (c.next_year or 9999) <= dt.date.today().year + 2 else 2,
+                                       cost_low=c.replacement_cost, cost_high=c.replacement_cost, year=c.next_year, fund="reserve", updated_by=me["name"]))
+                db.session.commit()
+        else:
+            pr = _save_project(f, community.id, me)
+            pr.fund = "reserve"
+            db.session.commit()
+            _audit(me["name"], "project.add", f"project:{pr.id}", pr.name)
+        return redirect(url_for("board.reserves"))
+    snap = p.get_financial_snapshot(community.id)
+    grid = plans.reserve_grid(community.id, snap.reserve_cash)
+    comps = ReserveComponent.query.filter_by(community_id=community.id).order_by(ReserveComponent.next_year).all()
+    in_plan = {pr.name for pr in plans.projects(community.id)}
+    return render_template("board/reserves.html", community=community, snap=snap, grid=grid, comps=[c for c in comps if c.name not in in_plan], this_year=dt.date.today().year,
+                           studies=StoredDocument.query.filter_by(community_id=community.id, category="reserve_study").all())
+
+
+@bp.route("/projects", methods=["GET", "POST"])
+@role_required("board")
+def projects():
+    """The project list: priority, project, cost, year, status and a sentence."""
+    p, me, community = _ctx()
+    if request.method == "POST":
+        if request.form.get("intent") == "seed_demo":
+            plans.seed_demo(community.id)
+            flash("Demo projects loaded.")
+        else:
+            pr = _save_project(request.form, community.id, me)
+            _audit(me["name"], "project.add", f"project:{pr.id}", pr.name)
+        return redirect(url_for("board.projects"))
+    return render_template("board/projects.html", community=community, projects=plans.projects(community.id), statuses=plans.STATUSES, funds=plans.FUNDS, this_year=dt.date.today().year)
+
+
+@bp.route("/projects/<int:project_id>/<action>", methods=["POST"])
+@role_required("board")
+def project_action(project_id, action):
+    p, me, community = _ctx()
+    pr = db.get_or_404(Project, project_id)
+    if pr.community_id != community.id:
+        abort(403)
+    if action == "delete":
+        db.session.delete(pr)
+        db.session.commit()
+        _audit(me["name"], "project.delete", f"project:{project_id}", pr.name or "")
+    elif action == "status":
+        pr.status = request.form.get("status", pr.status)
+        pr.updated_by = me["name"]
+        db.session.commit()
+        _audit(me["name"], "project.status", f"project:{project_id}", pr.status)
+    elif action == "edit":
+        _save_project(request.form, community.id, me, pr)
+        _audit(me["name"], "project.edit", f"project:{project_id}", pr.name or "")
+    return redirect(request.form.get("next") or url_for("board.projects"))
+
+
+@bp.route("/who-fixes-what", methods=["GET", "POST"])
+@role_required("board")
+def who_fixes_what():
+    """Who's responsible for what. Owners see it; hey cites it when an owner asks."""
     p, me, community = _ctx()
     if request.method == "POST":
         f = request.form
         if f.get("intent") == "seed_demo":
-            seed_reserve_components(community.id)
-            flash("Demo components loaded from the sample study.")
+            plans.seed_demo(community.id)
+            flash("Demo chart loaded.")
+        elif f.get("intent") == "delete":
+            r = db.get_or_404(ResponsibilityItem, int(f.get("id")))
+            if r.community_id == community.id:
+                db.session.delete(r)
+                db.session.commit()
         else:
-            c = ReserveComponent(community_id=community.id, name=f.get("name"), category=f.get("category", "other"), quantity=f.get("quantity"), useful_life=int(f.get("useful_life") or 0) or None,
-                                 remaining_life=int(f.get("remaining_life") or 0), replacement_cost=float(f.get("replacement_cost") or 0), next_year=int(f.get("next_year") or 0) or None, notes=f.get("notes"), source=f.get("source") or "board entry")
-            db.session.add(c)
-            db.session.commit()
-            _audit(me["name"], "reserve.component.add", f"rc:{c.id}", c.name)
-        return redirect(url_for("board.reserves"))
-    comps = ReserveComponent.query.filter_by(community_id=community.id).order_by(ReserveComponent.next_year).all()
-    snap = p.get_financial_snapshot(community.id)
-    total_cost = sum(float(c.replacement_cost or 0) for c in comps)
-    fully_funded = sum(c.accrued for c in comps)
-    pct = round(snap.reserve_cash / fully_funded * 100) if fully_funded else None
-    annual = sum(c.annual_contribution for c in comps)
-    years = {}
-    for c in comps:
-        if c.next_year:
-            years[c.next_year] = years.get(c.next_year, 0) + float(c.replacement_cost or 0)
-    horizon = sorted(years.items())[:10]
-    return render_template("board/reserves.html", community=community, comps=comps, snap=snap, total_cost=total_cost, fully_funded=fully_funded, pct=pct, annual=annual, horizon=horizon, this_year=dt.date.today().year,
-                           studies=StoredDocument.query.filter_by(community_id=community.id, category="reserve_study").all())
+            r = ResponsibilityItem(community_id=community.id, item=f.get("item", "").strip(), party=f.get("party", "association"), note=f.get("note", "").strip(), sort=ResponsibilityItem.query.filter_by(community_id=community.id).count())
+            if r.item:
+                db.session.add(r)
+                db.session.commit()
+                _audit(me["name"], "responsibility.add", f"resp:{r.id}", f"{r.item}: {r.party}")
+        return redirect(url_for("board.who_fixes_what"))
+    return render_template("board/who_fixes_what.html", community=community, items=plans.responsibilities(community.id), parties=plans.PARTIES)
 
 
 @bp.route("/reserves/<int:comp_id>/delete", methods=["POST"])

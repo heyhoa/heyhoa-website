@@ -55,7 +55,7 @@ Goal: a signed community. Site live, proposals out, sequence running, books revi
 - [ ] Legal: counsel review of `/terms`, `/privacy`, the 5th-or-free clause, state manager-licensing language
 - [x] Deploy config: `render.yaml` (web + Postgres + two crons), `Procfile`, GitHub Actions CI, Postgres driver and URL normalisation
 - [ ] Deploy: connect the repo on Render, set secrets, custom domain, TLS, confirm CI green
-- [ ] Portal sidebar collapses to a top bar on phones (currently a full-screen nav list)
+- [x] Portal sidebar collapses to a top bar with a Menu toggle on phones; tables marked `.stack` read as one record per block
 - [x] Services agreement template added to `legal/` and mapped to tiers, fees and collections (doc 11)
 - [ ] Tailor the PSA for hey hoa: hey entity as Service Provider, term decision, 5th-or-free clause, hey hoa Exhibit A, AI review clause, state exhibits (AZ, TX); then counsel
 - [ ] Founding-customer one-pager PDF
@@ -87,7 +87,8 @@ Goal: the first community onboarded end to end (interview, documents, Caliber se
 - [x] Owner spending page: paid bills minus board-flagged confidential bills; owners never see delinquencies, violations or other balances
 - [x] Phone intake (Twilio TwiML): name, reason, callback → work item in the board inbox
 - [x] Inbound data importer and intake guide (doc 15)
-- [ ] Reserve study extraction in live mode (PDF → components via Claude) replacing the demo seed
+- [x] Projects list, reserve plan by year with the money under it, who-fixes-what chart; owner page, public JSON, MCP and CS tools
+- [ ] Reserve study extraction in live mode (PDF → components via Claude) feeding the "from the study" list on the reserve plan
 - [ ] Per-community quorum settings and signer list for decisions; signatures on approved transfers
 - [ ] Contract rates from Documents feed the AP lane's invoice matching
 - [ ] Two weeks of shadow mode on the Heywood community; weekly 10% audit of agent-closed items; then `LIVE_COMMUNITIES` for CS/AP/Board lanes

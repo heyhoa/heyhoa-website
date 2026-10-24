@@ -17,6 +17,16 @@ def _ctx():
     return p, me, ua, community
 
 
+@bp.route("/community")
+@role_required("homeowner", "board")
+def community_page():
+    """Projects and who fixes what: the two sheets every owner asks about."""
+    from ...services import plans
+
+    p, me, ua, community = _ctx()
+    return render_template("homeowner/community.html", ua=ua, community=community, projects=plans.projects(community.id), items=plans.responsibilities(community.id), statuses=dict(plans.STATUSES))
+
+
 @bp.route("/")
 @bp.route("/dashboard")
 @role_required("homeowner")

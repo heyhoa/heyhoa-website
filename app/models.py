@@ -245,6 +245,54 @@ class ReserveComponent(db.Model):
         return float(self.replacement_cost) / max(self.remaining_life, 1)
 
 
+class Project(db.Model):
+    """One line on the community's project list. The reserve plan is the same list, by year, with the money under it."""
+
+    __tablename__ = "projects"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    name = db.Column(db.String(200))
+    description = db.Column(db.Text)  # what it is, in the board's words
+    priority = db.Column(db.Integer, default=2)  # 1 now, 2 next, 3 someday
+    status = db.Column(db.String(30), default="planned")  # planned|in_progress|under_review|scoping|completed
+    cost_low = db.Column(db.Numeric(14, 2))
+    cost_high = db.Column(db.Numeric(14, 2))
+    year = db.Column(db.Integer)
+    fund = db.Column(db.String(20), default="reserve")  # reserve|operating|special
+    notes = db.Column(db.Text)
+    updated_by = db.Column(db.String(120))
+    updated_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc), onupdate=lambda: dt.datetime.now(dt.timezone.utc))
+
+    @property
+    def cost(self) -> float:
+        return float(self.cost_high or self.cost_low or 0)
+
+
+class ReserveFunding(db.Model):
+    """Money into reserves per year: the contribution from dues and any special assessment."""
+
+    __tablename__ = "reserve_funding"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    year = db.Column(db.Integer)
+    contribution = db.Column(db.Numeric(14, 2), default=0)
+    special_assessment = db.Column(db.Numeric(14, 2), default=0)
+    note = db.Column(db.String(200))
+    __table_args__ = (db.UniqueConstraint("community_id", "year", name="uq_reserve_funding_year"),)
+
+
+class ResponsibilityItem(db.Model):
+    """Who fixes what: one row per building part, owner or association, with the resolution it came from."""
+
+    __tablename__ = "responsibility_items"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    item = db.Column(db.String(200))
+    party = db.Column(db.String(20), default="association")  # owner|association|shared
+    note = db.Column(db.String(200))  # "2012 resolution", "CC&R 7.2"
+    sort = db.Column(db.Integer, default=0)
+
+
 class InvoiceFlag(db.Model):
     """Board-set flags on provider invoices, e.g. hide from owners (legal bills)."""
 

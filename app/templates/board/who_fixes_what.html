@@ -1,0 +1,28 @@
+{% extends "board/base.html" %}
+{% block title %}Who fixes what — {{ brand.name }}{% endblock %}
+{% block page_title %}Who fixes what{% endblock %}
+{% block page_actions %}{% if not items %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo chart</button></form>{% endif %}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card">
+    <div class="table-wrap"><table class="stack">
+      <thead><tr><th>Item</th><th style="text-align:center">Homeowner</th><th style="text-align:center">Association</th><th>Note</th><th></th></tr></thead>
+      <tbody>{% for r in items %}<tr>
+        <td class="lead">{{ r.item }}</td>
+        <td style="text-align:center" data-label="Homeowner:">{% if r.party in ('owner','shared') %}<strong>X</strong>{% endif %}</td>
+        <td style="text-align:center" data-label="Association:">{% if r.party in ('association','shared') %}<strong>X</strong>{% endif %}</td>
+        <td class="small muted">{{ r.note or '' }}</td>
+        <td><form method="post"><input type="hidden" name="intent" value="delete"><input type="hidden" name="id" value="{{ r.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
+      </tr>{% else %}<tr><td colspan="5" class="muted">Nothing here yet. Add the parts owners ask about most: roofs, windows, doors, patios, pipes, termites.</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <p class="small muted" style="margin-top:.5rem">Owners see this chart in their portal, and hey cites it when someone asks "who fixes my patio gate?". Put the resolution or CC&amp;R section in the note so the answer carries its source.</p>
+  </div>
+  <form class="card" method="post">
+    <h4>Add a line</h4>
+    <div class="form-group"><label>Item</label><input class="form-control" name="item" required placeholder="Atrium wrought iron gate"></div>
+    <div class="form-group"><label>Who</label><select class="form-control" name="party">{% for k, label in parties %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label>Note</label><input class="form-control" name="note" placeholder="2012 resolution"></div>
+    <button class="btn btn-primary btn-sm">Add</button>
+  </form>
+</div>
+{% endblock %}

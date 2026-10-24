@@ -1,0 +1,35 @@
+{% extends "board/base.html" %}
+{% block title %}Projects — {{ brand.name }}{% endblock %}
+{% block page_title %}Projects{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.reserves') }}">Reserve plan</a>{% if not projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo list</button></form>{% endif %}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="table-wrap"><table class="stack">
+    <thead><tr><th class="num">Priority</th><th>Project</th><th>Est. cost</th><th class="num">Year</th><th>Status</th><th>Notes</th><th></th></tr></thead>
+    <tbody>{% for p in projects %}<tr {% if p.status == 'completed' %}style="color:var(--fg-2)"{% endif %}>
+      <td class="num" data-label="Priority">{{ p.priority }}</td>
+      <td class="lead"><strong>{{ p.name }}</strong>{% if p.fund != 'reserve' %}<br><span class="small muted">{{ dict(funds)[p.fund] }}</span>{% endif %}</td>
+      <td class="small">{% if p.cost_low and p.cost_high and p.cost_low != p.cost_high %}{{ p.cost_low|money0 }}–{{ p.cost_high|money0 }}{% elif p.cost %}{{ p.cost|money0 }}{% else %}?{% endif %}</td>
+      <td class="num" data-label="Year">{{ p.year or '' }}</td>
+      <td><form method="post" action="{{ url_for('board.project_action', project_id=p.id, action='status') }}"><select class="form-control" name="status" onchange="this.form.submit()" style="width:auto;padding:.2rem .4rem;font-size:.78rem">{% for k, label in statuses %}<option value="{{ k }}" {% if p.status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></form></td>
+      <td class="small">{{ p.description or '' }}{% if p.notes %}<br><span class="muted">{{ p.notes }}</span>{% endif %}</td>
+      <td><form method="post" action="{{ url_for('board.project_action', project_id=p.id, action='delete') }}" onsubmit="return confirm('Delete {{ p.name|e }}?')"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
+    </tr>{% else %}<tr><td colspan="7" class="muted">No projects yet. Add the first one below.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small muted" style="margin-top:.5rem">1 = now, 2 = next, 3 = someday. Reserve-funded projects with a year show up on the <a href="{{ url_for('board.reserves') }}">reserve plan</a>. Owners see this list (not the priorities' reasoning, just the list).{% if projects %} Last updated by {{ (projects|sort(attribute='updated_at')|last).updated_by }}.{% endif %}</p>
+</div>
+<form class="card" method="post" style="margin-top:.8rem">
+  <h4>Add a project</h4>
+  <div class="grid grid-4">
+    <div class="form-group"><label>Project</label><input class="form-control" name="name" required></div>
+    <div class="form-group"><label>Priority</label><select class="form-control" name="priority"><option value="1">1 · now</option><option value="2" selected>2 · next</option><option value="3">3 · someday</option></select></div>
+    <div class="form-group"><label>Est. cost, low</label><input class="form-control" name="cost_low" inputmode="decimal" placeholder="15,000"></div>
+    <div class="form-group"><label>Est. cost, high</label><input class="form-control" name="cost_high" inputmode="decimal" placeholder="30,000"></div>
+    <div class="form-group"><label>Year</label><input class="form-control" name="year" type="number" placeholder="{{ this_year + 1 }}"></div>
+    <div class="form-group"><label>Status</label><select class="form-control" name="status">{% for k, label in statuses %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label>Paid from</label><select class="form-control" name="fund">{% for k, label in funds %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="form-group"><label>What it is</label><input class="form-control" name="description" placeholder="Paint all buildings, including atrium wood beams"></div>
+  <button class="btn btn-primary btn-sm">Add</button>
+</form>
+{% endblock %}

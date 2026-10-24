@@ -5,6 +5,7 @@
 {% if provider_name == 'mock' %}<div class="demo-banner">Demo data · signed in as {{ me.name }} ({{ role }}) · <a href="{{ url_for('auth.logout') }}">sign out</a></div>{% endif %}
 <div class="shell">
   <aside class="sidebar">
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden><label for="nav-toggle" class="nav-btn" aria-label="Menu">Menu</label>
     <a class="logo" href="{{ url_for('marketing.index') }}">{% include 'partials/hey-mark.html' %}<span>{% block portal_name %}portal{% endblock %}</span></a>
     <div class="community">{% if community is defined and community %}<strong>{{ community.name }}</strong><span>{{ community.units }} {{ 'units' if community.kind == 'condo' else 'doors' }} · {{ community.city }}, {{ community.state }}</span>{% else %}<strong>hey ops</strong><span>all communities</span>{% endif %}</div>
     <nav aria-label="Portal">{% block sidenav %}{% endblock %}</nav>

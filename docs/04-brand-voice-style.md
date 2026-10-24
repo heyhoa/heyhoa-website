@@ -35,6 +35,21 @@ Everything is light by default: white page, ink type, soft grey (`#F6F5F8`) card
 - **Mono (labels, numbers, eyebrows):** Space Grotesk, uppercase eyebrows at 0.78rem with 0.08em tracking.
 - Numbers in tables use tabular figures, right-aligned.
 
+## Simple as a spreadsheet
+
+The bar for every screen is the sheet a treasurer already keeps: a project list with a cost and a
+sentence, the same projects by year with the money under them, a chart of who fixes what with an X in
+one of two columns. Those sheets are understood in ten seconds by a volunteer at 9pm. If our page is
+harder to read than the sheet it replaces, we failed.
+
+Rules that follow:
+- One table per idea. Columns a person would write by hand. No dashboards where a table will do.
+- Show the math. Starting amount, money in, money out, year end. Totals on the last row.
+- Plain words in the cells: "Crack fill, seal coat, restripe", not a category code.
+- The thing itself, not a summary of it. The owner sees the chart, not a paragraph about the chart.
+- Edit where you read. A short form under the table, never a separate admin screen.
+- Last updated by whom, at the bottom, like the sheet had.
+
 ## Voice
 **Plain. Warm. Short. Certain.** We write like the most competent person on the board who also happens to be kind.
 - Lead with the answer. Then the source. Then the next step.

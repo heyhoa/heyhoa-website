@@ -1,46 +1,70 @@
 {% extends "board/base.html" %}
 {% block title %}Reserve plan — {{ brand.name }}{% endblock %}
 {% block page_title %}Reserve plan{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents', category='reserve_study') }}">Upload a reserve study</a>{% if not comps %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo components</button></form>{% endif %}{% endblock %}
+{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents', category='reserve_study') }}">Upload a reserve study</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.projects') }}">Project list</a>{% if not grid.projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo plan</button></form>{% endif %}{% endblock %}
 {% block content %}
-<div class="grid grid-4">
-  <div class="card stat"><div class="label">Reserve balance</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">cash basis, from the bank</div></div>
-  <div class="card stat"><div class="label">Fully funded balance</div><div class="value">{{ fully_funded|money0 }}</div><div class="delta">straight-line accrual on {{ comps|length }} components</div></div>
-  <div class="card stat"><div class="label">Percent funded</div><div class="value">{{ pct ~ '%' if pct is not none else '—' }}</div><div class="delta">{% if pct is not none %}{% if pct >= 70 %}strong{% elif pct >= 30 %}fair{% else %}weak{% endif %} (CAI bands){% else %}add components{% endif %}</div></div>
-  <div class="card stat"><div class="label">Suggested annual contribution</div><div class="value">{{ annual|money0 }}</div><div class="delta">cost ÷ remaining life, summed · ${{ "{:,.0f}".format(annual / 12) }}/mo</div></div>
+<div class="card">
+  <h3>Reserve projects</h3>
+  <div class="table-wrap"><table class="stack">
+    <thead><tr><th>Project</th><th class="num">Cost</th><th class="num">Year</th><th></th></tr></thead>
+    <tbody>{% for p in grid.projects %}<tr>
+      <td class="lead"><strong>{{ p.name }}</strong><span class="small muted" style="display:block">{{ p.description or '' }}</span></td><td class="num" data-label="Cost">{{ p.cost|money0 }}</td><td class="num" data-label="Year">{{ p.year or '—' }}</td>
+      <td class="small"><form method="post" action="{{ url_for('board.project_action', project_id=p.id, action='delete') }}" onsubmit="return confirm('Remove {{ p.name|e }} from the plan?')"><input type="hidden" name="next" value="{{ url_for('board.reserves') }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
+    </tr>{% else %}<tr><td colspan="4" class="muted">No reserve projects yet. Add one below, pull them from the reserve study, or load the demo plan.</td></tr>{% endfor %}
+    {% if grid.projects %}<tr class="tot"><td><strong>Total</strong></td><td class="num"><strong>{{ grid.total_cost|money0 }}</strong></td><td colspan="2"></td></tr>{% endif %}</tbody>
+  </table></div>
 </div>
+
+<div class="card" style="margin-top:.8rem">
+  <h3>By year</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th></th>{% for y in grid.years %}<th class="num">{{ y }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for r in grid.rows %}<tr><td>{{ r.project.name }}</td>{% for c in r.cells %}<td class="num">{{ c|money0 if c else '' }}</td>{% endfor %}</tr>{% endfor %}
+      <tr class="tot"><td><strong>Total expenditures</strong></td>{% for s in grid.spend %}<td class="num"><strong>{{ s|money0 if s else '—' }}</strong></td>{% endfor %}</tr>
+      <tr><td colspan="{{ grid.years|length + 1 }}" style="border:0;height:.4rem"></td></tr>
+      <tr><td>Starting amount</td>{% for m in grid.money %}<td class="num">{{ m.starting|money0 }}</td>{% endfor %}</tr>
+      <tr><td>Reserve contributions</td>{% for m in grid.money %}<td class="num">{{ m.contribution|money0 if m.contribution else '—' }}</td>{% endfor %}</tr>
+      <tr><td>Special assessment</td>{% for m in grid.money %}<td class="num">{{ m.special|money0 if m.special else '—' }}</td>{% endfor %}</tr>
+      <tr><td>Funds available</td>{% for m in grid.money %}<td class="num">{{ m.available|money0 }}</td>{% endfor %}</tr>
+      <tr class="tot"><td><strong>Year end balance</strong></td>{% for m in grid.money %}<td class="num {{ 'neg' if m.end < 0 }}"><strong>{{ m.end|money0 }}</strong></td>{% endfor %}</tr>
+    </tbody>
+  </table></div>
+  <p class="small muted" style="margin-top:.5rem">Starting amount for {{ grid.years[0] }} is today's reserve cash at the bank ({{ snap.reserve_cash|money0 }}); each year after starts where the last one ended. A red year end means the plan needs more contribution, a special assessment, or a later year.{% if grid.unscheduled %} Not in the grid yet (no year inside the window): {% for p in grid.unscheduled %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}.{% endif %}</p>
+</div>
+
 <div class="row" style="margin-top:.8rem">
-  <div>
-    <div class="card">
-      <h3>Components</h3>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Component</th><th>Category</th><th>Qty</th><th class="num">Useful</th><th class="num">Remaining</th><th class="num">Cost</th><th class="num">Next</th><th class="num">Accrued</th><th></th></tr></thead>
-        <tbody>{% for c in comps %}<tr><td>{{ c.name }}{% if c.notes %}<br><span class="small muted">{{ c.notes }}</span>{% endif %}</td><td class="small">{{ c.category }}</td><td class="small">{{ c.quantity or '' }}</td><td class="num">{{ c.useful_life or '—' }}</td><td class="num">{{ c.remaining_life if c.remaining_life is not none else '—' }}</td><td class="num">{{ c.replacement_cost|money0 }}</td><td class="num {% if c.next_year and c.next_year <= this_year + 1 %}neg{% endif %}">{{ c.next_year or '—' }}</td><td class="num">{{ c.accrued|money0 }}</td><td><form method="post" action="{{ url_for('board.reserve_delete', comp_id=c.id) }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td></tr>{% else %}<tr><td colspan="9" class="muted">No components yet. Upload your reserve study and hey will extract them, or add them by hand.</td></tr>{% endfor %}</tbody>
-      </table></div>
-      <p class="small muted" style="margin-top:.5rem">Source: {% for s in studies %}{{ s.title }}{% if not loop.last %}, {% endif %}{% else %}no study on file{% endfor %}. Accrued = cost × (useful − remaining) ÷ useful. Components due within a year get a bid request from hey in the spring.</p>
+  <form class="card" method="post">
+    <h4>Add a reserve project</h4>
+    <input type="hidden" name="intent" value="project"><input type="hidden" name="fund" value="reserve">
+    <div class="grid grid-3">
+      <div class="form-group"><label>Project</label><input class="form-control" name="name" required placeholder="Asphalt seal and stripe"></div>
+      <div class="form-group"><label>Cost</label><input class="form-control" name="cost_high" inputmode="decimal" required placeholder="18,500"></div>
+      <div class="form-group"><label>Year</label><input class="form-control" name="year" type="number" value="{{ this_year + 1 }}"></div>
     </div>
-    <form class="card" method="post" style="margin-top:.8rem">
-      <h4>Add a component</h4>
-      <div class="grid grid-4">
-        <div class="form-group"><label>Name</label><input class="form-control" name="name" required></div>
-        <div class="form-group"><label>Category</label><select class="form-control" name="category">{% for c in ['roofing','paving','pool','fencing','lighting','painting','mechanical','landscape','other'] %}<option>{{ c }}</option>{% endfor %}</select></div>
-        <div class="form-group"><label>Quantity</label><input class="form-control" name="quantity"></div>
-        <div class="form-group"><label>Replacement cost</label><input class="form-control" name="replacement_cost" type="number" step="1" required></div>
-        <div class="form-group"><label>Useful life (yrs)</label><input class="form-control" name="useful_life" type="number"></div>
-        <div class="form-group"><label>Remaining (yrs)</label><input class="form-control" name="remaining_life" type="number"></div>
-        <div class="form-group"><label>Next year</label><input class="form-control" name="next_year" type="number" value="{{ this_year + 1 }}"></div>
-        <div class="form-group"><label>Source</label><input class="form-control" name="source" placeholder="2026 study p.14"></div>
-      </div>
-      <button class="btn btn-primary btn-sm">Add</button>
-    </form>
-  </div>
-  <div class="card">
-    <h3>Next ten years</h3>
-    {% set mx = (horizon|map(attribute=1)|max) if horizon else 1 %}
-    <div class="bars">{% for yr, cost in horizon %}<div class="bar res" style="height:{{ (cost / mx * 100)|round }}%" title="{{ yr }} {{ cost|money0 }}"></div>{% endfor %}</div>
-    <div class="bars-labels">{% for yr, cost in horizon %}<span>{{ yr }}</span>{% endfor %}</div>
-    <ul class="checks" style="margin-top:.6rem">{% for yr, cost in horizon %}<li><span>{{ yr }}</span><span class="num">{{ cost|money0 }}</span></li>{% endfor %}</ul>
-    <p class="small muted" style="margin-top:.5rem">Projects link to decisions: when a component is due, hey requests bids and puts the award on the board's decision list. The 2027 budget draft carries the suggested contribution.</p>
-  </div>
+    <div class="form-group"><label>What it is</label><input class="form-control" name="description" placeholder="Crack fill, seal coat, restripe"></div>
+    <button class="btn btn-primary btn-sm">Add</button>
+  </form>
+  <form class="card" method="post">
+    <h4>Money in, per year</h4>
+    <input type="hidden" name="intent" value="funding">
+    <div class="grid grid-3">
+      <div class="form-group"><label>Year</label><select class="form-control" name="year">{% for y in grid.years %}<option>{{ y }}</option>{% endfor %}</select></div>
+      <div class="form-group"><label>Reserve contribution</label><input class="form-control" name="contribution" inputmode="decimal" placeholder="36,000"></div>
+      <div class="form-group"><label>Special assessment</label><input class="form-control" name="special_assessment" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <div class="form-group"><label>Note</label><input class="form-control" name="note" placeholder="$3,000/mo from dues · special: $175 × 12 payments × 48 units = $100,800 (needs an owner vote)"></div>
+    <button class="btn btn-primary btn-sm">Save</button>
+  </form>
 </div>
+
+{% if comps %}<div class="card" style="margin-top:.8rem">
+  <h4>From the reserve study, not in the plan yet</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Component</th><th class="num">Useful life</th><th class="num">Remaining</th><th class="num">Cost</th><th class="num">Year</th><th></th></tr></thead>
+    <tbody>{% for c in comps %}<tr><td>{{ c.name }} <span class="small muted">{{ c.quantity or '' }}</span></td><td class="num">{{ c.useful_life or '—' }}</td><td class="num">{{ c.remaining_life if c.remaining_life is not none else '—' }}</td><td class="num">{{ c.replacement_cost|money0 }}</td><td class="num">{{ c.next_year or '—' }}</td>
+      <td class="small"><form method="post" style="display:inline"><input type="hidden" name="intent" value="from_study"><input type="hidden" name="component_id" value="{{ c.id }}"><button class="btn btn-ghost btn-sm">Add to plan</button></form> <form method="post" action="{{ url_for('board.reserve_delete', comp_id=c.id) }}" style="display:inline"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small muted" style="margin-top:.5rem">Source: {% for s in studies %}{{ s.title }}{% if not loop.last %}, {% endif %}{% else %}no study on file{% endfor %}. When you upload a study, hey reads the components into this list for you to pull into the plan.</p>
+</div>{% endif %}
 {% endblock %}

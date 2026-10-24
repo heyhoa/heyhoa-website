@@ -51,6 +51,22 @@ def search_rules(item, query: str) -> dict:
     return {"query": query, "hits": hits[:8] or [ctx[:1200]]}
 
 
+def who_fixes_what(item, query: str = "") -> dict:
+    """The board's responsibility chart. Cite the note (resolution or CC&R section) when answering."""
+    from ..services import plans
+
+    cid = item.community_id or "1001"
+    rows = plans.who_fixes(cid, query) if query else plans.responsibilities(cid)
+    return {"query": query, "items": [{"item": r.item, "who": r.party, "note": r.note or ""} for r in rows[:20]], "published": bool(plans.responsibilities(cid))}
+
+
+def list_projects(item) -> dict:
+    """The board's project list and reserve plan, as owners see it."""
+    from ..services import plans
+
+    return {"projects": [{"name": p.name, "status": p.status, "year": p.year, "cost": p.cost, "fund": p.fund, "what": p.description or ""} for p in plans.projects(item.community_id or "1001")]}
+
+
 def list_invoices(item, status: str = "pending_board") -> dict:
     return {"invoices": [i.__dict__ for i in _p().list_invoices(item.community_id or "1001", status=status or None)]}
 
@@ -186,6 +202,8 @@ TOOLS: dict[str, Tool] = {t.name: t for t in [
     Tool("get_ledger", "Owner ledger lines and current balance.", {"type": "object", "properties": {"unit_account_id": S}, "required": ["unit_account_id"]}, get_ledger, RISK_READ),
     Tool("get_delinquencies", "All delinquent accounts with stage and days.", {"type": "object", "properties": {}}, get_delinquencies, RISK_READ),
     Tool("search_rules", "Search the community's governing documents, policies and board notes.", {"type": "object", "properties": {"query": S}, "required": ["query"]}, search_rules, RISK_READ),
+    Tool("who_fixes_what", "Who is responsible for a building part (owner or association) per the board's chart, with its source.", {"type": "object", "properties": {"query": S}}, who_fixes_what, RISK_READ),
+    Tool("list_projects", "The community's project list and reserve plan.", {"type": "object", "properties": {}}, list_projects, RISK_READ),
     Tool("list_invoices", "Vendor invoices by status (pending_board, approved, paid).", {"type": "object", "properties": {"status": S}}, list_invoices, RISK_READ),
     Tool("vendor_history", "Past invoices and average amount for a vendor.", {"type": "object", "properties": {"vendor": S}, "required": ["vendor"]}, vendor_history, RISK_READ),
     Tool("list_vendors", "Vendors with W-9 and COI status.", {"type": "object", "properties": {}}, list_vendors, RISK_READ),

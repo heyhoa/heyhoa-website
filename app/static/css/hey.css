@@ -358,9 +358,15 @@ footer .logo svg { height: 40px; width: auto; fill: var(--fg); }
 .bars-labels { display: flex; gap: 6px; font-size: 0.7rem; color: var(--fg-2); margin-top: 0.4rem; }
 .bars-labels span { flex: 1; text-align: center; }
 .mobile-nav { display: none; }
+.nav-btn { display: none; }
 @media (max-width: 900px) {
-  .shell { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; }
+  .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; align-content: start; }
+  .sidebar { position: sticky; top: 0; z-index: 20; height: auto; align-content: flex-start; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.6rem; padding: 0.55rem 0.9rem; }
+  .sidebar .logo { margin-right: auto; }
+  .sidebar .community, .sidebar nav, .sidebar .me { display: none; width: 100%; }
+  .nav-btn { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); border: 1px solid rgba(240,237,244,0.3); border-radius: 999px; padding: 0.35rem 0.8rem; cursor: pointer; }
+  .nav-toggle:checked ~ .community, .nav-toggle:checked ~ nav, .nav-toggle:checked ~ .me { display: block; }
+  .nav-toggle:checked ~ .nav-btn { background: var(--lime); color: var(--ink); border-color: var(--lime); }
   .sidebar nav ul { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; }
   .sidebar .me { margin-top: 0; }
 }
@@ -447,9 +453,21 @@ footer .logo svg { height: 40px; width: auto; fill: var(--fg); }
 .shell ol.small { margin: 0.25rem 0 0.75rem; }
 .shell .kbd { font-size: 0.72rem; }
 .demo-banner { font-size: 0.74rem; padding: 0.3rem 1rem; position: sticky; top: 0; z-index: 30; }
-.demo-banner + .shell .sidebar { top: 26px; height: calc(100vh - 26px); }
+.demo-banner + .shell .sidebar { top: 26px; }
+@media (min-width: 901px) { .demo-banner + .shell .sidebar { height: calc(100vh - 26px); } }
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }
   .shell .sidebar nav ul { grid-template-columns: 1fr 1fr 1fr; }
   .shell .row { grid-template-columns: 1fr; }
+}
+
+/* --- stacked tables on phones: one record per block, label before each value --- */
+@media (max-width: 640px) {
+  .shell table.stack thead { display: none; }
+  .shell table.stack tr { display: block; padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
+  .shell table.stack td { display: inline-block; border: 0; padding: 0.1rem 0.6rem 0.1rem 0; vertical-align: top; }
+  .shell table.stack td.lead { display: block; padding-right: 0; }
+  .shell table.stack td:empty { display: none; }
+  .shell table.stack td[data-label]:not(:empty)::before { content: attr(data-label) " "; color: var(--fg-2); font-size: 0.75rem; }
+  .shell table.stack td.num { text-align: left; }
 }

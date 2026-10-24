@@ -100,6 +100,25 @@ Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools w
 | Draft budget | actuals + reserve study + known increases | line-item draft | board votes |
 Live mode uses Claude via the Anthropic SDK (model from `HEY_AI_MODEL`, default Opus 5.5, server-side refusal fallbacks on). Demo mode is rule-based so every page works offline.
 
+## Projects, reserve plan, who fixes what
+
+Three board pages, each a copy of a sheet treasurers already keep, each editable under the table:
+
+- **Projects** (`/board/projects`): priority (1 now, 2 next, 3 someday), project, estimated cost
+  (a range is fine), year, status (planned, in progress, under review, scoping, completed), a
+  sentence on what it is, paid from (reserves, operating, special assessment).
+- **Reserve plan** (`/board/reserves`): the reserve-funded projects with cost and a sentence; the
+  same projects on a five-year grid; under it starting amount, reserve contributions, special
+  assessment, funds available, total expenditures, year end balance. Year one starts at today's
+  reserve cash; a red year end is the whole point of the page. Reserve study components extracted
+  by hey sit below until the board pulls them into the plan.
+- **Who fixes what** (`/board/who-fixes-what`): item, homeowner X or association X, a note with the
+  resolution or CC&R section.
+
+Owners see projects and who-fixes-what on one page (`/me/community`). Both are on the public
+community JSON, in the MCP (`who_fixes_what`, `community_projects`) and in the CS lane's tools, so
+"who fixes my patio gate" is answered from the board's own chart with its source.
+
 ## The monthly financial package (from the founders)
 Board package, in order: 1 branded cover sheet · 2 monthly update and change summary · 3 budget comparison / P&L · 4 balance sheet · 5 aged owner balance report · 6 collection report · 7 prepaid report · 8 check register / AP distributions · 9 bank reconciliation(s) · 10 bank statement(s), attached as received from First Citizens. Homeowner package: sections 1–4. Strict cash basis. Defined in `app/services/packet.py`; sample at `/sample-packet?audience=board|homeowner`.
 

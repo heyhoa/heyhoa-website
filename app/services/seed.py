@@ -31,3 +31,6 @@ def seed_demo():
             )
         )
     db.session.commit()
+    from . import plans
+
+    plans.seed_demo("1001")
