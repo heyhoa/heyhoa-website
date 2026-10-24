@@ -489,6 +489,10 @@ footer .logo svg { height: 40px; width: auto; fill: var(--fg); }
   .shell table.stack tr { display: block; padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
   .shell table.stack td { display: inline-block; border: 0; padding: 0.1rem 0.6rem 0.1rem 0; vertical-align: top; }
   .shell table.stack td.lead { display: block; padding-right: 0; }
+  .shell table.stack td.tag { display: inline-block; width: auto !important; padding: 0 0.4rem 0.2rem 0; }
+  .shell table.stack td.tag + td.lead { display: inline; }
+  .shell table.stack td.tag + td.lead .sub { display: block; }
+  .shell table.stack td.small.muted { white-space: nowrap; }
   .shell table.stack td:empty { display: none; }
   .shell table.stack td[data-label]:not(:empty)::before { content: attr(data-label) " "; color: var(--fg-2); font-size: 0.75rem; }
   .shell table.stack td.num { text-align: left; }
@@ -562,3 +566,10 @@ body.drawer-open .drawer-backdrop { display: block; }
 .shell .bulkbar form { display: inline-flex; gap: 0.35rem; }
 .shell .bulkbar .btn-ghost { color: var(--paper); border-color: rgba(240,237,244,0.3); }
 @media (max-width: 900px) { .shell .kv { grid-template-columns: 1fr 1fr; } .shell .stage-tabs { overflow-x: auto; } }
+
+/* ask hey, everywhere */
+.ask-fab { position: fixed; right: 1rem; bottom: 1rem; z-index: 35; display: inline-flex; align-items: center; gap: 0.35rem; background: var(--ink); color: var(--lime); border: 0; border-radius: 999px; padding: 0.45rem 0.85rem 0.45rem 0.7rem; cursor: pointer; box-shadow: 0 8px 24px rgba(18,18,18,0.25); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.ask-fab .hey { height: 18px; width: auto; fill: var(--lime); }
+.ask-fab:hover { transform: translateY(-1px); }
+body.drawer-open .ask-fab { display: none; }
+.shell .bubble.me { align-self: flex-end; background: var(--ink); color: var(--paper); }

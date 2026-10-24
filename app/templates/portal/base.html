@@ -22,6 +22,16 @@
     </div>
   </main>
 </div>
+<button class="ask-fab" data-open="ask-drawer" aria-label="Ask hey">{% include 'partials/hey-mark.html' %}<span>ask</span></button>
+<aside class="drawer" id="ask-drawer" data-autofocus="1">
+  <div class="drawer-head"><div><h3>Ask hey</h3><div class="small muted">About this page, a number, a rule, or what to do next.</div></div><button class="drawer-close" aria-label="Close">×</button></div>
+  <div class="drawer-body" style="display:flex;flex-direction:column;gap:.6rem">
+    <div class="chat ask-log" style="flex:1"><div class="bubble them"><span class="who">hey</span>You are on <strong>{{ (self.title()|striptags).split(' — ')[0] }}</strong>. Ask what a number means, why something is here, or what happens when you click.</div></div>
+    <form class="ask-form" action="{{ url_for('api.ask') }}" data-context="Page: {{ (self.title()|striptags).split(' — ')[0] }} ({{ request.path }}). Role: {{ role }}. Community: {{ community.name if community is defined and community else '' }}." style="display:flex;gap:.4rem">
+      <input class="form-control" name="q" placeholder="What is this?" autocomplete="off" required><button class="btn btn-primary btn-sm" type="submit">Ask</button></form>
+    <p class="help">Answers cite the ledger, the documents or the agreement. Nothing here changes anything.</p>
+  </div>
+</aside>
 <div class="drawer-backdrop"></div>
 <script src="{{ url_for('static', filename='js/portal.js') }}" defer></script>
 {% endblock %}

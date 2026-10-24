@@ -1,10 +1,10 @@
 {% extends "board/base.html" %}
 {% block title %}Decisions — {{ brand.name }}{% endblock %}
-{% block page_title %}Decisions{% endblock %}
+{% block page_title %}Votes{% endblock %}
 {% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.invoices', status='pending_board') }}">{{ invoices|length }} invoices to approve</a><button class="btn btn-primary btn-sm" data-open="new-decision">New decision</button>{% endblock %}
 {% block content %}
 <nav class="stage-tabs"><a class="active" href="#">Waiting on a vote <span class="n">{{ pending|length }}</span></a><a href="#recent">Decided <span class="n">{{ done|length }}</span></a></nav>
-<div class="toolbar"><span>Click a decision for the details and the votes. Money decisions are executed by a person at {{ config.BANK_NAME }} after the vote.</span><span><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve · <kbd>d</kbd> deny</span></div>
+<div class="toolbar"><span>Click a row for the details and the votes. Money decisions are carried out by a person at {{ config.BANK_NAME }} after the vote.</span><span><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve · <kbd>d</kbd> deny</span></div>
 <div class="table-wrap"><table class="data">
   <thead><tr><th>Decision</th><th>Type</th><th>Asked</th><th>Votes</th><th class="num">Amount</th></tr></thead>
   <tbody>{% for d in pending %}{% set s = spec(d.category) %}{% set votes = (d.remote_ids or {}).get('votes', []) %}{% set yes = votes|selectattr('vote','equalto','approve')|list|length %}{% set mine = votes|selectattr('member_id','equalto',me.id)|list %}
@@ -23,24 +23,7 @@
   <tbody>{% for d in done %}<tr data-drawer="dec-{{ d.id }}"><td><span class="primary">{{ d.subject }}</span></td><td class="small">{{ spec(d.category).label.split(' (')[0] }}</td><td class="small">{{ d.updated_at|datefmt('%b %d') }}</td><td><span class="pill {{ 'green' if d.state == 'done' else 'red' }}">{{ 'approved' if d.state == 'done' else 'denied' }}</span></td></tr>{% else %}<tr><td colspan="4" class="muted">No decisions yet.</td></tr>{% endfor %}</tbody>
 </table></div>
 
-{% for d in pending + done %}{% set s = spec(d.category) %}{% set votes = (d.remote_ids or {}).get('votes', []) %}{% set yes = votes|selectattr('vote','equalto','approve')|list|length %}{% set mine = votes|selectattr('member_id','equalto',me.id)|list %}
-<aside class="drawer" id="dec-{{ d.id }}">
-  <div class="drawer-head"><div><h3>{{ d.subject }}</h3><div class="small muted">{{ s.label }} · asked by {{ (d.remote_ids or {}).get('requested_by','hey') }} · {{ d.created_at|datefmt }}</div></div>
-    <div style="text-align:right">{% if (d.proposal.payload or {}).get('amount') %}<div class="amt">{{ d.proposal.payload.amount|money }}</div>{% endif %}<span class="pill {{ 'green' if d.state == 'done' else 'red' if d.state == 'rejected' else 'amber' }}">{{ 'approved' if d.state == 'done' else 'denied' if d.state == 'rejected' else (yes ~ '/' ~ s.approvals ~ ' votes') }}</span></div>
-    <button class="drawer-close" aria-label="Close">×</button></div>
-  {% if d.state == 'proposed' and not mine %}<form method="post" action="{{ url_for('board.decision_vote', item_id=d.id) }}" class="drawer-actions">
-    <button class="btn btn-primary btn-sm" name="vote" value="approve" data-key="a">Approve</button><button class="btn btn-ghost btn-sm" name="vote" value="deny" style="color:var(--red)" data-key="d">Deny</button><button class="btn btn-ghost btn-sm" name="vote" value="abstain">Abstain</button>
-    <input class="form-control" name="note" placeholder="Note or condition (optional)"></form>
-  {% elif mine %}<div class="drawer-actions small muted">You voted <strong>{{ mine[0].vote }}</strong>{% if mine[0].note %} · {{ mine[0].note }}{% endif %}. Waiting on the rest of the board.</div>{% endif %}
-  <div class="drawer-body">
-    <h4>Details</h4><p style="white-space:pre-wrap;margin:0">{{ d.summary }}</p>
-    {% if (d.proposal.payload or {}).get('attachments') %}<h4>Attachments</h4><ul class="chain">{% for a in d.proposal.payload.attachments %}<li>📎 {{ a }}</li>{% endfor %}</ul>{% endif %}
-    <h4>Votes · {{ s.approvals }} needed</h4>
-    <ul class="chain">{% for v in votes %}<li><span class="avatar done">{{ v.member.split(' ')|map('first')|join('')|upper }}</span><span class="who">{{ v.member }}{% if v.note %} <span class="muted">· {{ v.note }}</span>{% endif %}</span><span class="when">{{ v.vote }} · {{ v.at[:10] }}</span></li>{% else %}<li class="muted small">No votes yet.</li>{% endfor %}</ul>
-    <h4>Then</h4>
-    <p class="small muted" style="margin:0">{% if s.money %}Approved: a person executes it at {{ config.BANK_NAME }} {{ config.BANK_PORTAL_NAME }} with the board's signers, records it in Caliber and attaches the confirmation here.{% else %}Approved: the coordinator carries it out and notes it here.{% endif %} Every vote is in the activity log.</p>
-  </div>
-</aside>{% endfor %}
+{% from 'board/_decision_drawer.html' import decision_drawer %}{% for d in pending + done %}{{ decision_drawer(d, spec(d.category), me) }}{% endfor %}
 
 <aside class="drawer" id="new-decision" data-autofocus="1">
   <div class="drawer-head"><div><h3>Put something to the board</h3><div class="small muted">It goes on every member's list; votes are logged.</div></div><button class="drawer-close" aria-label="Close">×</button></div>

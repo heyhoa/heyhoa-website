@@ -1,47 +1,59 @@
 {% extends "board/base.html" %}
-{% block title %}Board dashboard — {{ brand.name }}{% endblock %}
+{% from 'board/_invoice_drawer.html' import invoice_drawer %}
+{% from 'board/_decision_drawer.html' import decision_drawer %}
+{% block title %}Needs you — {{ brand.name }}{% endblock %}
 {% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
-{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('board.invoices') }}">Approve {{ pending|length }} payments</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.decisions_page') }}">Decisions</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.inbox') }}">Owner inbox</a>{% endblock %}
+{% block page_actions %}<span class="small muted">{{ today|datefmt('%A, %B %d') }}</span>{% endblock %}
 {% block content %}
-<div class="grid grid-4">
-  <div class="card stat"><div class="label">Operating cash</div><div class="value">{{ snap.operating_cash|money0 }}</div><div class="delta">Reconciled through Sept 30</div></div>
-  <div class="card stat"><div class="label">Reserves</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">{{ ((snap.reserve_cash / 198000) * 100)|round|int }}% funded vs study</div></div>
-  <div class="card stat"><div class="label">Owed by owners (memo)</div><div class="value">{{ snap.ar_total|money0 }}</div><div class="delta">{{ snap.ar_over_60|money0 }} over 60 days</div></div>
-  <div class="card stat"><div class="label">Unpaid bills awaiting you (memo)</div><div class="value">{{ snap.ap_pending|money0 }}</div><div class="delta">{{ pending|length }} invoices</div></div>
+{% if show_firsts %}<div class="card" style="border-color:var(--lime);margin-bottom:.8rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+  <strong style="white-space:nowrap">Your first month</strong>
+  {% for label, ok, url in firsts %}<a href="{{ url }}" class="small" style="text-decoration:none;color:{{ 'var(--fg-2)' if ok else 'var(--fg)' }}"><span class="pill {{ 'green' if ok }}">{{ '✓' if ok else loop.index }}</span> {{ label }}</a>{% endfor %}
+  <form method="post" action="{{ url_for('board.hide_firsts') }}" style="margin-left:auto"><button class="btn btn-ghost btn-sm">Hide</button></form>
+</div>{% endif %}
+
+<div class="toolbar" style="margin-bottom:.4rem"><h3 style="margin:0">Needs you <span class="pill {{ 'lime' if n_needs else '' }}">{{ n_needs }}</span></h3><span class="small muted">Click a row. <kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve</span></div>
+{% if n_needs %}
+<div class="table-wrap"><table class="data stack">
+  <tbody>
+  {% for i in pending %}{% set ev = evidence[i.id] %}<tr data-drawer="inv-{{ i.id }}">
+    <td class="tag" style="width:6rem"><span class="pill amber">bill</span></td>
+    <td class="lead"><span class="primary">{{ i.vendor }} · {{ i.amount|money }}</span><span class="sub">{{ i.description[:60] }} · {{ (i.ai_note or ev.checks[0][1]).split(' ·')[0][:80] }}</span></td>
+    <td class="small muted" style="width:9rem">{{ i.approvals }}/{{ i.approvals_required }} approvals · due {{ i.due_date|datefmt('%b %d') }}</td>
+  </tr>{% endfor %}
+  {% for d in votes %}{% set s = spec(d.category) %}{% set yes = (d.remote_ids or {}).get('votes', [])|selectattr('vote','equalto','approve')|list|length %}<tr data-drawer="dec-{{ d.id }}">
+    <td class="tag"><span class="pill blue">vote</span></td>
+    <td class="lead"><span class="primary">{{ d.subject }}</span><span class="sub">{{ s.label.split(' (')[0] }} · {{ d.summary.split('\n')[0][:80] }}</span></td>
+    <td class="small muted">{{ yes }}/{{ s.approvals }} votes · asked {{ d.created_at|datefmt('%b %d') }}</td>
+  </tr>{% endfor %}
+  {% for a in arcs %}<tr onclick="location.href='{{ url_for('board.arc') }}'" style="cursor:pointer">
+    <td class="tag"><span class="pill blue">review</span></td>
+    <td class="lead"><span class="primary">{{ a.unit_label }} · {{ a.request_type }}</span><span class="sub">{{ a.notes[:80] }}</span></td>
+    <td class="small muted">{{ a.approvals }}/{{ a.approvals_required }} reviews</td>
+  </tr>{% endfor %}
+  {% for r in cal_rows %}<tr onclick="location.href='{{ url_for('board.calendar_page') }}#cal-{{ r.item.id }}'" style="cursor:pointer">
+    <td class="tag"><span class="pill {{ 'red' if r.status == 'overdue' else '' }}">{{ 'overdue' if r.status == 'overdue' else 'to do' }}</span></td>
+    <td class="lead"><span class="primary">{{ r.item.title }}</span><span class="sub">{{ (r.item.steps or ['Open the calendar for the steps'])[0] }}{% if r.item.source %} · {{ r.item.source }}{% endif %}</span></td>
+    <td class="small muted">due {{ r.due|datefmt('%b %d') }}</td>
+  </tr>{% endfor %}
+  {% for w in messages %}<tr onclick="location.href='{{ url_for('board.inbox_item', item_id=w.id) }}'" style="cursor:pointer">
+    <td class="tag"><span class="pill">message</span></td>
+    <td class="lead"><span class="primary">{{ w.subject }}</span><span class="sub">{{ w.counterpart_name or w.counterpart_email or 'owner' }} · {{ (w.summary or '')[:100] }}</span></td>
+    <td class="small muted">{{ w.updated_at|datefmt('%b %d') }}</td>
+  </tr>{% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+<div class="card" style="text-align:center;padding:1.6rem"><h3 style="margin:0 0 .3rem">Nothing needs you.</h3><p class="muted" style="margin:0">Bills, votes and calendar items land here, and in your email with one-click links. The numbers below are current as of last night.</p></div>
+{% endif %}
+
+<div class="grid grid-4" style="margin-top:1rem">
+  <div class="card stat"><div class="label">Operating cash</div><div class="value">{{ snap.operating_cash|money0 }}</div><div class="delta">at the bank, reconciled</div></div>
+  <div class="card stat"><div class="label">Reserves</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">{{ ((snap.reserve_cash / 198000) * 100)|round|int }}% of the study's target</div></div>
+  <div class="card stat"><div class="label">Owners owe</div><div class="value">{{ snap.ar_total|money0 }}</div><div class="delta">{{ delinquencies|length }} accounts · {{ snap.ar_over_60|money0 }} past 60 days</div></div>
+  <div class="card stat"><div class="label">Monthly package</div><div class="value" style="font-size:1.1rem;padding-top:.3rem">{{ snap.last_packet_date|datefmt('%b %d') if snap.last_packet_date else '—' }}</div><div class="delta"><a href="{{ url_for('board.package_open', audience='board') }}">Open the {{ 'September' }} package</a></div></div>
 </div>
-<div class="row" style="margin-top:1.25rem">
-  <div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Needs you</h3><span class="pill lime">{{ pending|length + arcs|length }}</span></div>
-      <div class="table-wrap"><table class="data">
-        <tbody>
-        {% for i in pending %}<tr onclick="location.href='{{ url_for('board.invoices', status='pending_board') }}#inv-{{ i.id }}'" style="cursor:pointer"><td><span class="primary">{{ i.vendor }}</span><span class="sub">{{ i.ai_note[:90] }}</span></td><td class="small muted">{{ i.approvals }}/{{ i.approvals_required }}</td><td class="amt num">{{ i.amount|money }}</td></tr>{% endfor %}
-        {% for a in arcs %}<tr onclick="location.href='{{ url_for('board.arc') }}'" style="cursor:pointer"><td><span class="primary">ARC · {{ a.unit_label }}</span><span class="sub">{{ a.request_type }} · {{ a.notes[:80] }}</span></td><td class="small muted">{{ a.approvals }}/{{ a.approvals_required }}</td><td class="amt num">—</td></tr>{% endfor %}
-        </tbody>
-      </table></div>
-    </div>
-    <div class="card" style="margin-top:1.25rem">
-      <h3>Cash, last six months</h3>
-      {% set mx = 170000 %}
-      <div class="bars">{% for m, op, res in snap.monthly_cash %}<div class="bar res" style="height:{{ (res / mx * 100)|round }}%" title="{{ m }} reserves {{ res|money0 }}"></div><div class="bar op" style="height:{{ (op / mx * 100)|round }}%" title="{{ m }} operating {{ op|money0 }}"></div>{% endfor %}</div>
-      <div class="bars-labels">{% for m, op, res in snap.monthly_cash %}<span style="flex:2">{{ m }}</span>{% endfor %}</div>
-      <p class="small muted" style="margin-top:.75rem"><span class="pill lime">reserves</span> <span class="pill" style="background:var(--ink);color:#fff">operating</span></p>
-    </div>
-  </div>
-  <div>
-    <div class="card">
-      <h3>Delinquencies</h3>
-      <ul class="checks">{% for d in delinquencies %}<li><span>{{ d.unit_label }} <span class="muted small">{{ d.days_late }}d · {{ d.stage|replace('_',' ') }}</span></span><span class="num">{{ d.balance|money0 }}</span></li>{% endfor %}</ul>
-      <p style="margin-top:1rem"><a href="{{ url_for('board.delinquencies') }}">Work the list →</a></p>
-    </div>
-    <div class="card" style="margin-top:1.25rem">
-      <h3>Open maintenance</h3>
-      <ul class="checks">{% for r in requests if r.status != 'closed' %}<li><span>{{ r.unit_label }} · {{ r.category }}</span><span class="pill {% if r.status == 'open' %}amber{% else %}blue{% endif %}">{{ r.status|replace('_',' ') }}</span></li>{% endfor %}</ul>
-    </div>
-    <div class="card" style="margin-top:1.25rem">
-      <p class="eyebrow">hey says</p>
-      <p class="small">October packet will close on time. Two items to watch: the pool invoice is 28% over trend, and Unit 3 has a lien recorded and is past 90 days, so attorney referral is on the Nov 12 agenda for a vote.</p>
-    </div>
-  </div>
-</div>
+<div class="card" style="margin-top:.8rem"><p class="eyebrow" style="margin-bottom:.3rem">hey says</p><p style="margin:0">October package will close on time. Two things to watch: the pool invoice is 28% over trend, and Unit 3 has a lien recorded and is past 90 days, so attorney referral is on the Nov 12 agenda for a vote.</p></div>
+
+{% for i in pending %}{{ invoice_drawer(i, evidence[i.id], flags.get(i.id), signers, me, initials) }}{% endfor %}
+{% for d in votes %}{{ decision_drawer(d, spec(d.category), me) }}{% endfor %}
 {% endblock %}

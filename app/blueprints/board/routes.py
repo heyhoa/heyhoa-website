@@ -34,14 +34,44 @@ def _audit(actor, action, target, detail=""):
 @bp.route("/dashboard")
 @role_required("board")
 def dashboard():
+    """Home is the inbox: everything waiting on this person, as rows. Then the numbers."""
     p, me, community = _ctx()
     snap = p.get_financial_snapshot(community.id)
     pending = p.list_invoices(community.id, status="pending_board")
-    return render_template(
-        "board/dashboard.html", community=community, snap=snap, pending=pending,
-        delinquencies=p.list_delinquencies(community.id), requests=p.list_service_requests(community.id)[:4],
-        arcs=[a for a in p.list_arc_requests(community.id) if a.status in ("submitted", "under_review")],
-    )
+    evidence = {i.id: _invoice_evidence(p, community.id, i, snap) for i in pending}
+    roster = board_calendar.roster(community.id)
+    signers = [{"id": m.contact_id or f"member-{m.id}", "name": m.name, "title": m.role.replace("_", " ").title(), "signer": True} for m in roster if m.signer] or [m for m in BOARD_MEMBERS if m["signer"]]
+    for s in signers:
+        if s["name"] == me["name"]:
+            s["id"] = me["id"]
+    flags = {f.invoice_id: f for f in InvoiceFlag.query.filter_by(community_id=community.id).all()}
+    votes = [d for d in decisions.pending(community.id) if not any(v.get("member_id") == me["id"] for v in (d.remote_ids or {}).get("votes", []))]
+    my_seat = next((m.role for m in roster if m.name == me["name"]), None)
+    cal_rows = [r for r in board_calendar.due_now(community.id) if r["item"].owner in ("board", my_seat) or (r["item"].owner != "hey" and not my_seat)]
+    messages = WorkItem.query.filter_by(community_id=community.id).filter(WorkItem.kind.in_(OWNER_FACING_KINDS), WorkItem.state.in_(["new", "working", "escalated"])).order_by(WorkItem.updated_at.desc()).limit(10).all()
+    arcs = [a for a in p.list_arc_requests(community.id) if a.status in ("submitted", "under_review")]
+    me_log = AuditLog.query.filter_by(actor=me["name"]).all()
+    firsts = [("Approve a bill", any(a.action.startswith("invoice.") for a in me_log), url_for("board.invoices")), ("Vote on a decision", any(a.action.startswith("decision.") for a in me_log), url_for("board.decisions_page")),
+              ("Read the monthly package", any(a.action == "package.open" for a in me_log), url_for("board.financials")), ("Check the board calendar", any(a.action.startswith("calendar.") for a in me_log), url_for("board.calendar_page"))]
+    show_firsts = not session.get("hide_firsts") and not all(ok for _, ok, _ in firsts)
+    n_needs = len(pending) + len(votes) + len(cal_rows) + len(messages) + len(arcs)
+    return render_template("board/dashboard.html", community=community, snap=snap, pending=pending, evidence=evidence, flags=flags, signers=signers, initials=_initials, votes=votes, spec=lambda k: decisions.spec(k, community.id),
+                           cal_rows=cal_rows, messages=messages, arcs=arcs, delinquencies=p.list_delinquencies(community.id), firsts=firsts, show_firsts=show_firsts, n_needs=n_needs, today=dt.date.today())
+
+
+@bp.route("/hide-firsts", methods=["POST"])
+@role_required("board")
+def hide_firsts():
+    session["hide_firsts"] = True
+    return redirect(url_for("board.dashboard"))
+
+
+@bp.route("/package/<audience>")
+@role_required("board")
+def package_open(audience):
+    p, me, community = _ctx()
+    _audit(me["name"], "package.open", audience, "")
+    return redirect(url_for("static", filename="docs/hey-sample-financial-packet.pdf" if audience == "board" else "docs/hey-sample-homeowner-package.pdf"))
 
 
 @bp.route("/financials")
@@ -421,11 +451,22 @@ def owners():
     return render_template("board/owners.html", community=community, owners=p.list_unit_accounts(community.id))
 
 
+def _request_tabs(p, community_id: str, me_path: str) -> list:
+    arcs = p.list_arc_requests(community_id)
+    viol = p.list_violations(community_id)
+    tabs = [("Maintenance", url_for("board.requests_list"), me_path == "/board/requests")]
+    if arcs or me_path.startswith("/board/arc"):
+        tabs.append(("Architectural", url_for("board.arc"), me_path.startswith("/board/arc")))
+    if viol or me_path == "/board/violations":
+        tabs.append(("Violations", url_for("board.violations"), me_path == "/board/violations"))
+    return tabs
+
+
 @bp.route("/requests")
 @role_required("board")
 def requests_list():
     p, me, community = _ctx()
-    return render_template("board/requests.html", community=community, requests=p.list_service_requests(community.id))
+    return render_template("board/requests.html", community=community, requests=p.list_service_requests(community.id), tab_items=_request_tabs(p, community.id, request.path))
 
 
 @bp.route("/requests/<sr_id>/work-order", methods=["POST"])
@@ -445,7 +486,7 @@ def request_work_order(sr_id):
 @role_required("board")
 def arc():
     p, me, community = _ctx()
-    return render_template("board/arc.html", community=community, arcs=p.list_arc_requests(community.id))
+    return render_template("board/arc.html", community=community, arcs=p.list_arc_requests(community.id), tab_items=_request_tabs(p, community.id, request.path))
 
 
 @bp.route("/arc/<arc_id>/<action>", methods=["POST"])
@@ -465,7 +506,7 @@ def arc_action(arc_id, action):
 @role_required("board")
 def violations():
     p, me, community = _ctx()
-    return render_template("board/violations.html", community=community, violations=p.list_violations(community.id))
+    return render_template("board/violations.html", community=community, violations=p.list_violations(community.id), tab_items=_request_tabs(p, community.id, request.path))
 
 
 @bp.route("/documents")

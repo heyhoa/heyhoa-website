@@ -63,6 +63,14 @@ def create(community_id: str, decision_type: str, title: str, body: str, *, amou
                     remote_ids={"votes": [], "requested_by": requested_by})
     db.session.add(item)
     db.session.commit()
+    try:
+        from . import board_mail
+        from ..integrations.registry import get_provider
+
+        name = get_provider().get_community(str(community_id)).name if str(community_id).isdigit() else ""
+        board_mail.notify_decision(item, spec(decision_type, community_id)["label"], spec(decision_type, community_id)["approvals"], name)
+    except Exception:  # noqa: BLE001 - mail must never block a decision
+        pass
     return item
 
 

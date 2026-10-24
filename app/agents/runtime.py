@@ -212,6 +212,12 @@ def daily(community_id: str | None = None) -> dict:
             if not WorkItem.query.filter_by(community_id=c.id, kind="invoice").filter(WorkItem.remote_ids["invoice_id"].as_string() == inv.id).first():
                 run(create_item(kind="invoice", lane="ap", subject=f"Invoice {inv.vendor} {inv.number} · ${inv.amount:,.2f}", summary=inv.description, community_id=c.id, remote_ids={"invoice_id": inv.id}))
                 counts["ap"] += 1
+                try:
+                    from ..services import board_mail
+
+                    board_mail.notify_invoice(c.id, inv, [("ok", f"Coded to {inv.gl_account}"), ("ok" if not inv.ai_note or "Recommend approve" in inv.ai_note else "warn", inv.ai_note or "No flags")], c.name)
+                except Exception:  # noqa: BLE001
+                    pass
         run(create_item(kind="close", lane="close", subject=f"Nightly close check · {dt.date.today():%b %d}", summary="Snapshot chart of accounts, verify cash and reconciliation status.", community_id=c.id))
         counts["close"] += 1
         if dt.date.today().weekday() == 4:

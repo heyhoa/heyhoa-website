@@ -14,7 +14,12 @@
       <a href="{{ url_for('marketing.contact') }}"><li>I'm a vendor</li></a>
       <a href="{{ url_for('auth.login_role', role='ops') }}"><li>I work at hey (ops)</li></a>
     </ul>
-    <p class="small muted" style="margin-top:1.5rem">Demo mode: no password needed. Production uses emailed magic links.</p>
+    <form method="post" action="{{ url_for('auth.login_email') }}" class="card" style="margin-top:1.5rem;padding:1rem">
+      <label for="le" style="font-weight:600">Board member? Email yourself a link.</label>
+      <div style="display:flex;gap:.5rem;margin-top:.4rem"><input class="form-control" id="le" name="email" type="email" placeholder="you@example.com" required><button class="btn btn-primary" type="submit">Send link</button></div>
+      <p class="small muted" style="margin:.5rem 0 0">No password. The link works for 7 days and only for you. Decisions also arrive by email with one-click approve.</p>
+    </form>
+    <p class="small muted" style="margin-top:1rem">Demo mode above: pick a role, no password needed.</p>
   </div>
 </section>
 {% endblock %}

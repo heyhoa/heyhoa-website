@@ -100,6 +100,26 @@ Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools w
 | Draft budget | actuals + reserve study + known increases | line-item draft | board votes |
 Live mode uses Claude via the Anthropic SDK (model from `HEY_AI_MODEL`, default Opus 5.5, server-side refusal fallbacks on). Demo mode is rule-based so every page works offline.
 
+## Nothing to learn
+
+The board's job is three verbs: approve a bill, decide a question, read the package. The product
+is built so those need no training:
+
+- **Home is the inbox.** `/board/` lists everything waiting on this person as rows: bills, votes,
+  reviews, calendar items for their seat, owner messages. Click a row, the drawer opens with what
+  it is, why it is here, what hey checked, and the buttons. Nothing waiting: it says so.
+- **Email is the UI.** When a bill or a vote appears, every signer or member gets an email with the
+  context and one-click Approve / Reject (or Deny) links signed to that person (`/go/<token>`,
+  14 days, idempotent, audited under their name). Login is a magic link (`/login/magic/<token>`,
+  7 days); "email me a link" on the login page; no passwords.
+- **Plain words.** Bills, Votes, Owners behind, Projects & reserves, Documents, Owner messages,
+  Meetings & mail. No GL, AP, AR, COA, quorum, memo.
+- **Defaults, not settings.** Standard calendar, rules, letters and package. Empty tabs are hidden
+  (Architectural and Violations appear when something exists).
+- **Ask hey on every page.** A floating button opens a drawer that knows the page and the role.
+- **First month strip.** Four tasks (approve a bill, vote, open the package, check the calendar)
+  tracked from the audit log, dismissible, gone when done.
+
 ## Self-serve signup and onboarding
 
 A board member can sign up at `/start`, sign the agreement and start onboarding without a call.

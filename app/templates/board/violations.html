@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Violations — {{ brand.name }}{% endblock %}
 {% block page_title %}Requests{% endblock %}
-{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Maintenance', url_for('board.requests_list'), request.path == '/board/requests'), ('ARC', url_for('board.arc'), request.path.startswith('/board/arc')), ('Violations', url_for('board.violations'), request.path == '/board/violations')]) }}{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs(tab_items) }}{% endblock %}
 {% block content %}
 <div class="table-wrap"><table>
   <thead><tr><th>Unit</th><th>Category</th><th>Opened</th><th>Stage</th><th>Status</th></tr></thead>

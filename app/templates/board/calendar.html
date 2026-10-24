@@ -1,6 +1,6 @@
 {% extends "board/base.html" %}
 {% block title %}Board calendar — {{ brand.name }}{% endblock %}
-{% block page_title %}Communications{% endblock %}
+{% block page_title %}Meetings &amp; mail{% endblock %}
 {% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Announcements', url_for('board.announcements'), false), ('Letters', url_for('board.letters_page'), false), ('Meetings', url_for('board.meetings_page'), false), ('Calendar', url_for('board.calendar_page'), true)]) }}<button class="btn btn-primary btn-sm" data-open="new-item">Add an item</button>{% if not items %}<form method="post"><input type="hidden" name="intent" value="seed"><button class="btn btn-ghost btn-sm">Load the standard calendar</button></form>{% endif %}{% endblock %}
 {% block content %}
 <div class="row" style="grid-template-columns:3fr 2fr">

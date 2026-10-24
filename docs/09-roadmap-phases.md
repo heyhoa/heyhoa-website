@@ -61,7 +61,8 @@ Goal: a signed community. Site live, proposals out, sequence running, books revi
 - [x] Data model written down (`docs/17-data-model.md`)
 - [x] Board calendar: recurring items with lead times, owners, steps and sources; standard Arizona year; reminders through the board lane; roster with seats, terms and time left
 - [ ] Legal: counsel review of `/terms`, `/privacy`, the agreement, the 5th-or-free clause, state manager-licensing language
-- [ ] Signup: email the signed agreement PDF to the signer; magic-link login for the signer into a pre-live board portal
+- [x] Magic-link login and one-click approve/deny from email; board home is the Needs-you inbox; plain-language labels; ask hey on every page; first-month strip
+- [ ] Signup: email the signed agreement PDF and a magic link to the signer; roster row created from the signup contact
 - [ ] Lob account + return address; letter PDF with the hey letterhead instead of HTML
 - [x] Deploy config: `render.yaml` (web + Postgres + two crons), `Procfile`, GitHub Actions CI, Postgres driver and URL normalisation
 - [ ] Deploy: connect the repo on Render, set secrets, custom domain, TLS, confirm CI green

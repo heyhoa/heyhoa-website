@@ -1,6 +1,6 @@
 {% extends "board/base.html" %}
 {% block title %}Owner inbox — {{ brand.name }}{% endblock %}
-{% block page_title %}Owner inbox{% endblock %}
+{% block page_title %}Owner messages{% endblock %}
 {% block page_actions %}{% for s in ['open','done','all'] %}<a class="btn btn-sm {% if s == state %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.inbox', state=s) }}">{{ s }}</a>{% endfor %}{% endblock %}
 {% block content %}
 <p class="small muted">Every call, text, email and portal request from an owner, with hey's answer when it sent one. Reply here when the board wants to speak for itself; it goes out under your name. hey and the hey team handle the rest.</p>

@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Vendors — {{ brand.name }}{% endblock %}
-{% block page_title %}Records{% endblock %}
-{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Documents', url_for('board.documents'), request.path == '/board/documents'), ('Insurance', url_for('board.insurance_page'), request.path == '/board/insurance'), ('Vendors', url_for('board.vendors'), request.path == '/board/vendors')]) }}{% endblock %}
+{% block page_title %}Documents{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Files', url_for('board.documents'), request.path == '/board/documents'), ('Insurance', url_for('board.insurance_page'), request.path == '/board/insurance'), ('Vendors', url_for('board.vendors'), request.path == '/board/vendors')]) }}{% endblock %}
 {% block content %}
 <div class="table-wrap"><table>
   <thead><tr><th>Vendor</th><th>Category</th><th>Contact</th><th>COI expires</th><th>W-9</th><th class="num">YTD paid</th></tr></thead>

@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Documents — {{ brand.name }}{% endblock %}
-{% block page_title %}Records{% endblock %}
-{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Documents', url_for('board.documents'), request.path == '/board/documents'), ('Insurance', url_for('board.insurance_page'), request.path == '/board/insurance'), ('Vendors', url_for('board.vendors'), request.path == '/board/vendors')]) }}{% endblock %}
+{% block page_title %}Documents{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Files', url_for('board.documents'), request.path == '/board/documents'), ('Insurance', url_for('board.insurance_page'), request.path == '/board/insurance'), ('Vendors', url_for('board.vendors'), request.path == '/board/vendors')]) }}{% endblock %}
 {% block content %}
 <p class="filters"><a class="{% if not cat %}on{% endif %}" href="{{ url_for('board.documents') }}">all</a>{% for c in categories %}<a class="{% if c == cat %}on{% endif %}" href="{{ url_for('board.documents', category=c) }}">{{ c|replace('_',' ') }}</a>{% endfor %}</p>
 {% if expiring %}<div class="flash">Expiring within 90 days: {% for d in expiring %}<strong>{{ d.title }}</strong> ({{ d.expires_on|datefmt }}){% if not loop.last %} · {% endif %}{% endfor %}. hey will remind the board and the vendor.</div>{% endif %}

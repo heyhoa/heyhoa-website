@@ -6,18 +6,18 @@
 <ul>
   <li><a href="{{ url_for('board.dashboard') }}" {% if p in ('/board/','/board/dashboard') %}aria-current="page"{% endif %}>Dashboard</a></li>
   <li><a href="{{ url_for('board.financials') }}" {% if p == '/board/financials' %}aria-current="page"{% endif %}>Financials</a></li>
-  <li><a href="{{ url_for('board.invoices') }}" {% if p.startswith('/board/invoices') %}aria-current="page"{% endif %}>Approve payments</a></li>
-  <li><a href="{{ url_for('board.decisions_page') }}" {% if p.startswith('/board/decisions') %}aria-current="page"{% endif %}>Decisions</a></li>
-  <li><a href="{{ url_for('board.delinquencies') }}" {% if p == '/board/delinquencies' %}aria-current="page"{% endif %}>Delinquencies</a></li>
+  <li><a href="{{ url_for('board.invoices') }}" {% if p.startswith('/board/invoices') %}aria-current="page"{% endif %}>Bills</a></li>
+  <li><a href="{{ url_for('board.decisions_page') }}" {% if p.startswith('/board/decisions') %}aria-current="page"{% endif %}>Votes</a></li>
+  <li><a href="{{ url_for('board.delinquencies') }}" {% if p == '/board/delinquencies' %}aria-current="page"{% endif %}>Owners behind</a></li>
 </ul>
 <div class="section-label">Community</div>
 <ul>
-  <li><a href="{{ url_for('board.reserves') }}" {% if p.startswith(('/board/reserves', '/board/projects', '/board/who-fixes-what', '/board/budget')) %}aria-current="page"{% endif %}>Plan</a></li>
-  <li><a href="{{ url_for('board.documents') }}" {% if p in ('/board/documents', '/board/insurance', '/board/vendors') %}aria-current="page"{% endif %}>Records</a></li>
+  <li><a href="{{ url_for('board.reserves') }}" {% if p.startswith(('/board/reserves', '/board/projects', '/board/who-fixes-what', '/board/budget')) %}aria-current="page"{% endif %}>Projects &amp; reserves</a></li>
+  <li><a href="{{ url_for('board.documents') }}" {% if p in ('/board/documents', '/board/insurance', '/board/vendors') %}aria-current="page"{% endif %}>Documents</a></li>
   <li><a href="{{ url_for('board.owners') }}" {% if p == '/board/owners' %}aria-current="page"{% endif %}>Owners &amp; units</a></li>
-  <li><a href="{{ url_for('board.inbox') }}" {% if p.startswith('/board/inbox') %}aria-current="page"{% endif %}>Owner inbox</a></li>
+  <li><a href="{{ url_for('board.inbox') }}" {% if p.startswith('/board/inbox') %}aria-current="page"{% endif %}>Owner messages</a></li>
   <li><a href="{{ url_for('board.requests_list') }}" {% if p.startswith(('/board/requests', '/board/arc', '/board/violations')) %}aria-current="page"{% endif %}>Requests</a></li>
-  <li><a href="{{ url_for('board.announcements') }}" {% if p.startswith(('/board/announcements', '/board/letters', '/board/meetings', '/board/calendar')) %}aria-current="page"{% endif %}>Communications</a></li>
+  <li><a href="{{ url_for('board.announcements') }}" {% if p.startswith(('/board/announcements', '/board/letters', '/board/meetings', '/board/calendar')) %}aria-current="page"{% endif %}>Meetings &amp; mail</a></li>
 </ul>
 <div class="section-label">hey</div>
 <ul>

@@ -1,6 +1,6 @@
 {% extends "board/base.html" %}
 {% block title %}Reserve plan — {{ brand.name }}{% endblock %}
-{% block page_title %}Plan{% endblock %}
+{% block page_title %}Projects &amp; reserves{% endblock %}
 {% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Reserve plan', url_for('board.reserves'), request.path.startswith('/board/reserves')), ('Projects', url_for('board.projects'), request.path.startswith('/board/projects')), ('Who fixes what', url_for('board.who_fixes_what'), request.path == '/board/who-fixes-what'), ('Budget', url_for('board.budget'), request.path == '/board/budget')]) }}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents', category='reserve_study') }}">Upload a study</a>{% if not grid.projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo plan</button></form>{% endif %}{% endblock %}
 {% block content %}
 <div class="card">

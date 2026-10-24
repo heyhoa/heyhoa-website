@@ -69,5 +69,21 @@
     if (e.target.classList.contains('checkall')) { document.querySelectorAll('.rowcheck').forEach(c => { c.checked = e.target.checked; }); refreshBulk(); }
   });
 
+  // page-aware ask hey
+  document.addEventListener('submit', e => {
+    const form = e.target.closest('.ask-form');
+    if (!form) return;
+    e.preventDefault();
+    const log = form.closest('.drawer-body').querySelector('.ask-log');
+    const q = form.q.value.trim();
+    if (!q) return;
+    const add = (who, text) => { const b = document.createElement('div'); b.className = 'bubble ' + (who === 'you' ? 'me' : 'them'); b.innerHTML = '<span class="who">' + who + '</span>'; b.appendChild(document.createTextNode(text)); log.appendChild(b); log.scrollTop = log.scrollHeight; return b; };
+    add('you', q); form.q.value = '';
+    const wait = add('hey', '…');
+    fetch(form.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: q, context: form.dataset.context }) })
+      .then(r => r.json()).then(j => { wait.lastChild.textContent = j.answer || j.error || 'No answer.'; })
+      .catch(() => { wait.lastChild.textContent = 'Could not reach hey. Try again.'; });
+  });
+
   if (location.hash && document.getElementById(location.hash.slice(1))) open(location.hash.slice(1));
 })();
