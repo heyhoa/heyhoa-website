@@ -1,38 +1,69 @@
 {% extends "board/base.html" %}
 {% block title %}Approve payments — {{ brand.name }}{% endblock %}
 {% block page_title %}Approve payments{% endblock %}
-{% block page_actions %}
-<a class="btn btn-sm {% if not status %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.invoices') }}">All</a>
-<a class="btn btn-sm {% if status == 'pending_board' %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.invoices', status='pending_board') }}">Pending</a>
-<a class="btn btn-sm {% if status == 'paid' %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.invoices', status='paid') }}">Paid</a>
-{% endblock %}
+{% block page_actions %}<span class="small muted">{{ invoices|length }} · {{ total|money }}</span>{% endblock %}
 {% block content %}
-<p class="help" style="margin:0 0 .6rem">Two board approvals release a payment. hey read each invoice and matched it to the contract and budget line.</p>
-{% for i in invoices %}
-<div class="card" style="margin-bottom:.6rem">
-  <div class="decision">
-    <div class="body">
-      <h4 style="margin:0">{{ i.vendor }} <span class="muted">#{{ i.number }}</span></h4>
-      <p class="small muted" style="margin:.25rem 0">{{ i.description }} · {{ i.gl_account }} · invoice {{ i.invoice_date|datefmt }} · due {{ i.due_date|datefmt }}</p>
-      {% if i.ai_note %}<p class="small" style="margin:.5rem 0 0;padding:.6rem .8rem;background:var(--bg-2);border-radius:8px;border-left:3px solid var(--lime)"><strong>hey:</strong> {{ i.ai_note }}</p>{% endif %}
-    </div>
-    <div class="amount">
-      <div class="price">{{ i.amount|money }}</div>
-      <span class="pill {% if i.status == 'paid' %}green{% elif i.status == 'approved' %}blue{% elif i.status == 'rejected' %}red{% else %}amber{% endif %}">{{ i.status|replace('_',' ') }} · {{ i.approvals }}/{{ i.approvals_required }}</span>
-    </div>
+<nav class="stage-tabs">
+  <a href="{{ url_for('board.invoices', status='pending_board') }}" class="{% if status == 'pending_board' %}active{% endif %}">For approval <span class="n">{{ counts.pending_board }}</span></a>
+  <a href="{{ url_for('board.invoices', status='approved') }}" class="{% if status == 'approved' %}active{% endif %}">Approved, paying <span class="n">{{ counts.approved }}</span></a>
+  <a href="{{ url_for('board.invoices', status='paid') }}" class="{% if status == 'paid' %}active{% endif %}">Paid <span class="n">{{ counts.paid }}</span></a>
+  <a href="{{ url_for('board.invoices', status='rejected') }}" class="{% if status == 'rejected' %}active{% endif %}">Rejected <span class="n">{{ counts.rejected }}</span></a>
+  <a href="{{ url_for('board.invoices', status='all') }}" class="{% if status == 'all' %}active{% endif %}">All</a>
+</nav>
+<div class="toolbar"><span>{% if status == 'pending_board' %}Two approvals release a payment. hey read each invoice, matched it to the contract, the budget line and the vendor's history.{% else %}Click a row for the invoice, the checks and the approval trail.{% endif %}</span><span><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve · <kbd>r</kbd> reject · <kbd>esc</kbd> close</span></div>
+<div class="table-wrap"><table class="data">
+  <thead><tr>{% if status == 'pending_board' %}<th class="check"><input type="checkbox" class="checkall" aria-label="Select all"></th>{% endif %}<th>Vendor</th><th>For</th><th>Due</th><th>hey checked</th><th>Approvals</th><th class="num">Amount</th></tr></thead>
+  <tbody>{% for i in invoices %}{% set ev = evidence[i.id] %}{% set worst = 'bad' if ev.checks|selectattr(0,'equalto','bad')|list else 'warn' if ev.checks|selectattr(0,'equalto','warn')|list else 'ok' %}
+    <tr data-drawer="inv-{{ i.id }}" id="row-{{ i.id }}">
+      {% if status == 'pending_board' %}<td class="check"><input type="checkbox" class="rowcheck" value="{{ i.id }}" data-amount="{{ i.amount }}" aria-label="Select"></td>{% endif %}
+      <td><span class="primary">{{ i.vendor }}</span><span class="sub">#{{ i.number }} · {{ i.invoice_date|datefmt('%b %d') }}</span></td>
+      <td>{{ i.description }}<span class="sub">{{ i.gl_account }}</span></td>
+      <td class="due {% if i.due_date < today %}late{% elif (i.due_date|string)[:7] == today[:7] %}soon{% endif %}">{{ i.due_date|datefmt('%b %d') }}</td>
+      <td><span class="check-mark {{ worst }}">{{ ev.checks[0][1].split(' ·')[0] }}</span></td>
+      <td>{% if i.status == 'pending_board' %}<span class="avatars">{% for s in signers %}<span class="avatar {% if loop.index <= i.approvals %}done{% endif %} {% if s.id == me.id %}me{% endif %}" title="{{ s.name }}">{{ initials(s.name) }}</span>{% endfor %}</span> <span class="small muted">{{ i.approvals }}/{{ i.approvals_required }}</span>{% elif i.status == 'paid' %}<span class="pill green">paid {{ i.paid_on|datefmt('%b %d') }}</span>{% elif i.status == 'approved' %}<span class="pill blue">approved · paying</span>{% else %}<span class="pill red">rejected</span>{% endif %}</td>
+      <td class="amt num">{{ i.amount|money }}</td>
+    </tr>{% else %}<tr><td colspan="7" class="muted" style="padding:1.5rem;text-align:center">Nothing here.</td></tr>{% endfor %}</tbody>
+</table></div>
+
+{% if status == 'pending_board' %}<div class="bulkbar"><span><strong class="bulk-count">0</strong> selected · <span class="bulk-sum">$0</span></span><form method="post" action="{{ url_for('board.invoices_bulk') }}"><button class="btn btn-primary btn-sm" name="action" value="approve">Approve selected</button><button class="btn btn-ghost btn-sm" name="action" value="hold">Hold</button></form></div>{% endif %}
+
+{% for i in invoices %}{% set ev = evidence[i.id] %}{% set f = flags.get(i.id) %}
+<aside class="drawer" id="inv-{{ i.id }}" aria-label="Invoice {{ i.number }}">
+  <div class="drawer-head">
+    <div><h3>{{ i.vendor }}</h3><div class="small muted">#{{ i.number }} · {{ i.description }}</div></div>
+    <div style="text-align:right"><div class="amt">{{ i.amount|money }}</div><span class="pill {% if i.status == 'paid' %}green{% elif i.status == 'approved' %}blue{% elif i.status == 'rejected' %}red{% else %}amber{% endif %}">{{ i.status|replace('_',' ') }}{% if i.status == 'pending_board' %} · {{ i.approvals }}/{{ i.approvals_required }}{% endif %}</span></div>
+    <button class="drawer-close" aria-label="Close">×</button>
   </div>
-  {% set f = flags.get(i.id) %}
-  <div class="actions" style="margin-top:.7rem;align-items:center">
-    {% if i.status == 'pending_board' %}<form method="post" style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
-      <button class="btn btn-primary btn-sm" formaction="{{ url_for('board.invoice_action', invoice_id=i.id, action='approve') }}">Approve</button>
-      <button class="btn btn-ghost btn-sm" formaction="{{ url_for('board.invoice_action', invoice_id=i.id, action='hold') }}">Hold</button>
-      <button class="btn btn-ghost btn-sm" style="color:var(--red)" formaction="{{ url_for('board.invoice_action', invoice_id=i.id, action='reject') }}">Reject</button>
-      <input class="form-control" name="note" placeholder="Note (optional)" style="width:220px">
-      <a class="small" href="#">Invoice PDF</a>
-    </form>{% endif %}
-    <details class="inline"><summary class="small muted">{% if f and f.confidential %}Hidden from owners{% else %}Owners see this once paid{% endif %}</summary>
-      <form method="post" action="{{ url_for('board.invoice_action', invoice_id=i.id, action='confidential') }}" style="display:flex;gap:.4rem;margin-top:.4rem"><input type="hidden" name="confidential" value="{{ '0' if f and f.confidential else '1' }}"><input class="form-control" name="reason" placeholder="Reason, e.g. legal bill" style="width:220px" value="{{ f.reason if f else '' }}"><button class="btn btn-ghost btn-sm">{{ 'Show to owners' if f and f.confidential else 'Hide from owners' }}</button></form></details>
+  {% if i.status == 'pending_board' %}<form method="post" class="drawer-actions">
+    <button class="btn btn-primary btn-sm" data-key="a" formaction="{{ url_for('board.invoice_action', invoice_id=i.id, action='approve') }}">Approve</button>
+    <button class="btn btn-ghost btn-sm" data-key="h" formaction="{{ url_for('board.invoice_action', invoice_id=i.id, action='hold') }}">Hold</button>
+    <button class="btn btn-ghost btn-sm" data-key="r" style="color:var(--red)" formaction="{{ url_for('board.invoice_action', invoice_id=i.id, action='reject') }}">Reject</button>
+    <input class="form-control" name="note" placeholder="Note (optional)">
+  </form>{% endif %}
+  <div class="drawer-body">
+    <div class="doc-preview">📄 {{ i.vendor }} invoice #{{ i.number }} · PDF <a href="#" style="margin-left:.3rem">open</a></div>
+    <h4>hey checked</h4>
+    <ul class="chain">{% for level, text in ev.checks %}<li><span class="check-mark {{ level }}"></span><span class="who">{{ text }}</span></li>{% endfor %}</ul>
+    {% if i.ai_note %}<p class="hint" style="margin-top:.5rem"><strong>hey:</strong> {{ i.ai_note }}</p>{% endif %}
+    <h4>Invoice</h4>
+    <div class="kv">
+      <div><span>Vendor</span>{{ i.vendor }}</div><div><span>Invoice #</span>{{ i.number }}</div>
+      <div><span>Invoice date</span>{{ i.invoice_date|datefmt }}</div><div><span>Due</span>{{ i.due_date|datefmt }}</div>
+      <div><span>GL account</span>{{ i.gl_account }}</div><div><span>Pays from</span>Operating ···4471</div>
+      {% if ev.avg %}<div><span>12-month average</span>{{ ev.avg|money }}</div><div><span>Paid this year</span>{{ ev.count }} invoices</div>{% endif %}
+      {% if i.paid_on %}<div><span>Paid</span>{{ i.paid_on|datefmt }}</div><div><span>Reference</span>{{ i.check_number }} ({{ i.payment_method }})</div>{% endif %}
+    </div>
+    <h4>Approvals</h4>
+    <ul class="chain">{% for s in signers %}<li><span class="avatar {% if loop.index <= i.approvals or i.status in ('approved','paid') %}done{% endif %}">{{ initials(s.name) }}</span><span class="who">{{ s.name }} <span class="muted">· {{ s.title }}</span></span><span class="when">{% if loop.index <= i.approvals or i.status in ('approved','paid') %}approved{% elif i.status == 'rejected' %}—{% elif s.id == me.id %}your turn{% else %}waiting{% endif %}</span></li>{% endfor %}</ul>
+    <h4>Activity</h4>
+    <ul class="tl">
+      <li>Invoice received and read by hey <span class="when">{{ i.invoice_date|datefmt('%b %d') }}</span></li>
+      <li>Coded to {{ i.gl_account }}, matched to vendor history <span class="when">{{ i.invoice_date|datefmt('%b %d') }}</span></li>
+      {% for n in range(i.approvals) %}<li>Approval {{ n + 1 }} of {{ i.approvals_required }} recorded</li>{% endfor %}
+      {% if i.status == 'pending_board' %}<li class="pending">{{ i.approvals_required - i.approvals }} more approval(s), then the accountant releases payment with positive pay</li>{% elif i.status == 'approved' %}<li class="pending">Payment release scheduled by the accountant</li>{% elif i.status == 'paid' %}<li>Paid {{ i.paid_on|datefmt('%b %d') }} · {{ i.check_number }}</li>{% elif i.status == 'rejected' %}<li>Rejected by the board</li>{% endif %}
+    </ul>
+    <h4>Owners</h4>
+    <form method="post" action="{{ url_for('board.invoice_action', invoice_id=i.id, action='confidential') }}" style="display:flex;gap:.4rem;align-items:center"><input type="hidden" name="confidential" value="{{ '0' if f and f.confidential else '1' }}"><span class="small">{% if f and f.confidential %}Hidden from owners{% if f.reason %} · {{ f.reason }}{% endif %}{% else %}Owners see this bill once paid{% endif %}</span><input class="form-control" name="reason" placeholder="Reason" style="width:150px" value="{{ f.reason if f else '' }}"><button class="btn btn-ghost btn-sm">{{ 'Show' if f and f.confidential else 'Hide' }}</button></form>
   </div>
-</div>
-{% else %}<p class="muted">Nothing here.</p>{% endfor %}
+</aside>{% endfor %}
 {% endblock %}

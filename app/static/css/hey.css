@@ -493,3 +493,72 @@ footer .logo svg { height: 40px; width: auto; fill: var(--fg); }
   .shell table.stack td[data-label]:not(:empty)::before { content: attr(data-label) " "; color: var(--fg-2); font-size: 0.75rem; }
   .shell table.stack td.num { text-align: left; }
 }
+
+/* ==========================================================================
+   Workflow surfaces: data table + detail drawer (Ramp-style list and inspector)
+   ========================================================================== */
+.shell table.data { width: 100%; font-variant-numeric: tabular-nums; }
+.shell table.data thead th { position: sticky; top: 0; background: var(--bg-2); z-index: 1; }
+.shell table.data tbody tr[data-drawer] { cursor: pointer; }
+.shell table.data tbody tr:hover { background: rgba(18,18,18,0.025); }
+.shell table.data tbody tr.selected { background: #F3FFB8; box-shadow: inset 3px 0 0 var(--lime); }
+.shell table.data td { vertical-align: middle; }
+.shell table.data td.check, .shell table.data th.check { width: 28px; padding-right: 0; }
+.shell table.data .primary { font-weight: 600; color: var(--fg); }
+.shell table.data .sub { display: block; font-size: 0.74rem; color: var(--fg-2); margin-top: 0.05rem; }
+.shell table.data td.amt { text-align: right; font-weight: 600; white-space: nowrap; }
+.shell table.data td.due.soon { color: #9a5b00; }
+.shell table.data td.due.late { color: var(--red); }
+.shell .stage-tabs { display: flex; gap: 0.15rem; border-bottom: 1px solid var(--line); margin: -0.3rem 0 0.8rem; }
+.shell .stage-tabs a { padding: 0.45rem 0.7rem; font-size: 0.82rem; color: var(--fg-2); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.shell .stage-tabs a .n { display: inline-block; min-width: 1.3em; padding: 0 0.35em; margin-left: 0.3em; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); font-size: 0.68rem; text-align: center; color: var(--fg-2); }
+.shell .stage-tabs a.active { color: var(--fg); border-bottom-color: var(--ink); font-weight: 600; }
+.shell .stage-tabs a.active .n { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.shell .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; font-size: 0.78rem; color: var(--fg-2); }
+.shell .toolbar kbd { font-family: var(--font-mono); font-size: 0.66rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 0.3em; background: #fff; color: var(--fg); }
+.shell .check-mark { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; }
+.shell .check-mark::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--fg-2); flex: none; }
+.shell .check-mark.ok::before { background: #2f9e44; }
+.shell .check-mark.warn::before { background: #e8a200; }
+.shell .check-mark.bad::before { background: var(--red); }
+.shell .avatars { display: inline-flex; }
+.shell .avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--bg-2); border: 1.5px solid #fff; color: var(--fg-2); font-size: 0.6rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-left: -6px; letter-spacing: 0; }
+.shell .avatar:first-child { margin-left: 0; }
+.shell .avatar.done { background: var(--ink); color: var(--lime); }
+.shell .avatar.me { outline: 2px solid var(--lime); }
+.shell .progress { display: inline-flex; gap: 2px; vertical-align: middle; }
+.shell .progress i { width: 14px; height: 5px; border-radius: 3px; background: var(--line); }
+.shell .progress i.on { background: var(--ink); }
+/* drawer */
+.drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(18,18,18,0.18); z-index: 40; }
+body.drawer-open .drawer-backdrop { display: block; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100vw); background: #fff; border-left: 1px solid var(--line); box-shadow: -12px 0 40px rgba(18,18,18,0.12); z-index: 50; transform: translateX(102%); transition: transform .18s ease; display: flex; flex-direction: column; overflow: hidden; }
+.drawer.open { transform: none; }
+.drawer-head { padding: 0.9rem 1.1rem 0.7rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 0.8rem; align-items: flex-start; }
+.drawer-head h3 { margin: 0; font-size: 1.02rem; }
+.drawer-head .amt { font-size: 1.35rem; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.drawer-close { background: none; border: 0; font-size: 1.1rem; color: var(--fg-2); cursor: pointer; padding: 0 0.2rem; line-height: 1; }
+.drawer-actions { padding: 0.6rem 1.1rem; border-bottom: 1px solid var(--line); background: var(--bg-2); display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+.drawer-actions .form-control { flex: 1 1 140px; }
+.drawer-body { padding: 0.9rem 1.1rem 1.4rem; overflow-y: auto; font-size: 0.84rem; }
+.drawer-body h4 { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-2); margin: 1rem 0 0.45rem; font-family: var(--font-mono); font-weight: 600; }
+.drawer-body h4:first-child { margin-top: 0; }
+.shell .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem 1rem; }
+.shell .kv div { font-size: 0.84rem; }
+.shell .kv span { display: block; font-size: 0.68rem; color: var(--fg-2); }
+.shell .doc-preview { background: var(--bg-2); border: 1px dashed var(--line); border-radius: 8px; height: 150px; display: flex; align-items: center; justify-content: center; color: var(--fg-2); font-size: 0.78rem; gap: 0.5rem; }
+.shell .chain { list-style: none; margin: 0; padding: 0; }
+.shell .chain li { display: flex; align-items: center; gap: 0.55rem; padding: 0.3rem 0; font-size: 0.82rem; }
+.shell .chain li .who { flex: 1; }
+.shell .chain li .when { color: var(--fg-2); font-size: 0.74rem; }
+.shell .tl { list-style: none; margin: 0; padding: 0 0 0 0.9rem; border-left: 2px solid var(--line); }
+.shell .tl li { position: relative; padding: 0.15rem 0 0.45rem; font-size: 0.8rem; }
+.shell .tl li::before { content: ""; position: absolute; left: calc(-0.9rem - 5px); top: 0.45rem; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+.shell .tl li.pending::before { background: #fff; border: 2px solid var(--line); }
+.shell .tl .when { color: var(--fg-2); font-size: 0.72rem; margin-left: 0.3rem; }
+.shell .hint { border-left: 3px solid var(--lime); background: #FBFFE6; padding: 0.55rem 0.75rem; border-radius: 6px; font-size: 0.83rem; }
+.shell .bulkbar { position: fixed; left: 50%; bottom: 1rem; transform: translate(-50%, 140%); transition: transform .18s ease; background: var(--ink); color: var(--paper); border-radius: 999px; padding: 0.45rem 0.6rem 0.45rem 1rem; display: flex; gap: 0.6rem; align-items: center; z-index: 45; box-shadow: 0 12px 40px rgba(18,18,18,0.25); font-size: 0.84rem; }
+.shell .bulkbar.show { transform: translate(-50%, 0); }
+.shell .bulkbar form { display: inline-flex; gap: 0.35rem; }
+.shell .bulkbar .btn-ghost { color: var(--paper); border-color: rgba(240,237,244,0.3); }
+@media (max-width: 900px) { .shell .kv { grid-template-columns: 1fr 1fr; } .shell .stage-tabs { overflow-x: auto; } }

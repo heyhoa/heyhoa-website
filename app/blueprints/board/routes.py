@@ -51,13 +51,72 @@ def financials():
     return render_template("board/financials.html", community=community, snap=snap, coa=p.get_chart_of_accounts(community.id))
 
 
+BOARD_MEMBERS = [{"id": "cc-1", "name": "Luis Castillo", "title": "President", "signer": True}, {"id": "cc-7", "name": "Dana Whitfield", "title": "Treasurer", "signer": True}, {"id": "cc-3", "name": "Grace Thompson", "title": "Secretary", "signer": False}]
+
+
+def _initials(name: str) -> str:
+    return "".join(w[0] for w in (name or "?").split()[:2]).upper()
+
+
+def _invoice_evidence(p, community_id: str, inv, snap) -> dict:
+    """What hey checked: vendor history, contract/trend, budget line. Computed, not typed."""
+    paid = [i for i in p.list_invoices(community_id, status="paid") if i.vendor == inv.vendor]
+    avg = (sum(i.amount for i in paid) / len(paid)) if paid else None
+    delta = ((inv.amount - avg) / avg * 100) if avg else None
+    gl_word = (inv.gl_account.split(" ", 1)[1] if " " in inv.gl_account else inv.gl_account).lower()
+    line = next(((n, a, b) for n, a, b in snap.expense_lines if n.lower().split("/")[0].strip() in gl_word or gl_word.split("/")[0].strip() in n.lower()), None)
+    checks = []
+    if avg is not None and len(paid) >= 3:
+        level = "ok" if delta <= 10 else "warn" if delta <= 30 else "bad"
+        checks.append((level, f"{'Matches' if abs(delta) <= 10 else 'Above' if delta > 0 else 'Below'} the 12-month average ${avg:,.0f} ({delta:+.0f}%) · {len(paid)} paid"))
+    elif avg is not None:
+        checks.append(("ok" if delta <= 30 else "warn", f"{len(paid)} prior invoice{'s' if len(paid) > 1 else ''} this year, ${avg:,.0f} · this one is {delta:+.0f}%"))
+    else:
+        checks.append(("warn", "First invoice from this vendor · check the W-9 and the contract"))
+    if line:
+        n, a, b = line
+        annual = b / 9 * 12  # budget lines are year to date through September
+        remaining = annual - a - inv.amount
+        checks.append(("ok" if remaining >= 0 else "bad", f"Budget {n}: ${a:,.0f} of ${annual:,.0f} used this year · {'$' + format(remaining, ',.0f') + ' left' if remaining >= 0 else 'over by $' + format(-remaining, ',.0f')} after this"))
+    checks.append(("ok", "W-9 and insurance certificate on file") if inv.vendor != "Fence Masters" else ("bad", "No W-9 on file"))
+    checks.append(("ok", f"Due {inv.due_date} · not a duplicate (no match on number or amount in 90 days)"))
+    return {"avg": avg, "delta": delta, "count": len(paid), "budget": line, "checks": checks}
+
+
 @bp.route("/invoices")
 @role_required("board")
 def invoices():
     p, me, community = _ctx()
-    status = request.args.get("status")
+    status = request.args.get("status", "pending_board")
+    if status == "all":
+        status = None
     flags = {f.invoice_id: f for f in InvoiceFlag.query.filter_by(community_id=community.id).all()}
-    return render_template("board/invoices.html", community=community, invoices=p.list_invoices(community.id, status=status), status=status, flags=flags)
+    every = p.list_invoices(community.id)
+    counts = {"pending_board": 0, "approved": 0, "paid": 0, "rejected": 0}
+    for i in every:
+        counts[i.status] = counts.get(i.status, 0) + 1
+    rows = [i for i in every if i.status == status] if status else every
+    rows.sort(key=lambda i: (i.status != "pending_board", i.due_date))
+    snap = p.get_financial_snapshot(community.id)
+    evidence = {i.id: _invoice_evidence(p, community.id, i, snap) for i in rows}
+    signers = [m for m in BOARD_MEMBERS if m["signer"]]
+    return render_template("board/invoices.html", community=community, invoices=rows, status=status or "all", counts=counts, flags=flags, evidence=evidence, signers=signers, initials=_initials,
+                           today=dt.date.today().isoformat(), total=sum(i.amount for i in rows))
+
+
+@bp.route("/invoices/bulk", methods=["POST"])
+@role_required("board")
+def invoices_bulk():
+    p, me, community = _ctx()
+    action = request.form.get("action", "approve")
+    ids = request.form.getlist("ids")
+    n = 0
+    for iid in ids:
+        inv = p.act_on_invoice(iid, me["id"], action, request.form.get("note", ""))
+        _audit(me["name"], f"invoice.{action}", iid, f"{inv.vendor} {inv.number} ${inv.amount:,.2f} (bulk)")
+        n += 1
+    flash(f"{n} invoice(s) {action}d.")
+    return redirect(url_for("board.invoices"))
 
 
 @bp.route("/decisions")

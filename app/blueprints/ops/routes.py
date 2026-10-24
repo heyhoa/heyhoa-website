@@ -57,7 +57,7 @@ def queue():
 @role_required("ops")
 def review():
     items = WorkItem.query.filter(WorkItem.state.in_(["proposed", "escalated"])).order_by(WorkItem.priority.desc(), WorkItem.sla_due).all()
-    return render_template("ops/review.html", items=items, communities=_communities())
+    return render_template("ops/review.html", items=items, communities=_communities(), now=dt.datetime.now(dt.timezone.utc).replace(tzinfo=None))
 
 
 @bp.route("/item/<int:item_id>")

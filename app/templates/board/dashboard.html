@@ -12,11 +12,13 @@
 <div class="row" style="margin-top:1.25rem">
   <div>
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Needs a decision</h3><span class="pill lime">{{ pending|length + arcs|length }} items</span></div>
-      <ul class="checks" style="margin-top:1rem">
-        {% for i in pending %}<li><span><strong>{{ i.vendor }}</strong> {{ i.number }} · {{ i.amount|money }}<br><span class="small muted">{{ i.ai_note }}</span></span><a href="{{ url_for('board.invoices') }}">Review</a></li>{% endfor %}
-        {% for a in arcs %}<li><span><strong>ARC</strong> {{ a.unit_label }} · {{ a.request_type }}<br><span class="small muted">{{ a.approvals }}/{{ a.approvals_required }} approvals · {{ a.notes }}</span></span><a href="{{ url_for('board.arc') }}">Review</a></li>{% endfor %}
-      </ul>
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Needs you</h3><span class="pill lime">{{ pending|length + arcs|length }}</span></div>
+      <div class="table-wrap"><table class="data">
+        <tbody>
+        {% for i in pending %}<tr onclick="location.href='{{ url_for('board.invoices', status='pending_board') }}#inv-{{ i.id }}'" style="cursor:pointer"><td><span class="primary">{{ i.vendor }}</span><span class="sub">{{ i.ai_note[:90] }}</span></td><td class="small muted">{{ i.approvals }}/{{ i.approvals_required }}</td><td class="amt num">{{ i.amount|money }}</td></tr>{% endfor %}
+        {% for a in arcs %}<tr onclick="location.href='{{ url_for('board.arc') }}'" style="cursor:pointer"><td><span class="primary">ARC · {{ a.unit_label }}</span><span class="sub">{{ a.request_type }} · {{ a.notes[:80] }}</span></td><td class="small muted">{{ a.approvals }}/{{ a.approvals_required }}</td><td class="amt num">—</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
     </div>
     <div class="card" style="margin-top:1.25rem">
       <h3>Cash, last six months</h3>
