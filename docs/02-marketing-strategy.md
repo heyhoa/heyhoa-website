@@ -17,7 +17,7 @@ Everything else, including the AI, is proof for these three. We do not lead with
 
 ## Channels, ranked by expected yield in year one
 1. **Founder-led outbound to treasurers** (doc 06). Highest-intent, lowest cost. Target 300 touches/month.
-2. **SEO on treasurer problems.** CSM wins on "HOA accounting services [state]"; we will not out-rank them there in year one. We win on long-tail intent: "HOA treasurer resigned what now", "HOA financials late", "resale certificate Texas HOA how long", "self managed HOA bookkeeping", "HOA bank reconciliation checklist". One post per week, written from real board questions `hey` sees.
+2. **SEO on treasurer problems.** CSM wins on "HOA accounting services [state]"; we will not out-rank them there in year one. We win on long-tail intent: "HOA treasurer resigned what now", "HOA financials late", "Arizona HOA resale disclosure fee how long", "self managed HOA bookkeeping", "HOA bank reconciliation checklist". One post per week, written from real board questions `hey` sees.
 3. **Public demo portal.** The board portal is a sales page. Every ad and email ends in "click around the board portal."
 4. **Comparison pages.** `/compare` and `/self-managed` target "[competitor] reviews", "HOA management company vs self managed", "Clark Simson Miller alternative".
 5. **Board-member communities.** Reddit r/HOA, r/fuckHOA (yes), Nextdoor, Facebook groups for HOA boards, CAI local chapters (as sponsor, not member). Answer questions; do not pitch; profile links to the site.
@@ -31,7 +31,7 @@ Everything else, including the AI, is proof for these three. We do not lead with
 | 2 | Why we promise financials by the 5th | hoa financial statements late |
 | 3 | 12 questions to ask before you switch accountants | hoa accounting services questions |
 | 4 | Treasurer just resigned: a 30-day plan | hoa treasurer resigned |
-| 5 | Resale certificates by state: who, how long, how much | hoa resale certificate texas |
+| 5 | Resale disclosures by state: who, how long, how much (AZ first) | arizona hoa resale disclosure |
 | 6 | What a bank reconciliation should look like (with sample) | hoa bank reconciliation |
 | 7 | Collections without losing your neighbors | hoa collections policy small community |
 | 8 | Reserve study basics for 50-door communities | hoa reserve study cost |
@@ -44,7 +44,7 @@ Everything else, including the AI, is proof for these three. We do not lead with
 - Sample financial packet (PDF, annotated, downloadable without email).
 - Public demo portals (board and homeowner).
 - Case study template: before/after on delivery date, cost, hours/month for the treasurer.
-- Guarantee page with the exact contract language.
+- Guarantee page with the exact contract language (the 5th-or-free clause from doc 11).
 - "What hey will not do" page: no legal advice, no funds held, no decisions without a human.
 
 ## Measurement

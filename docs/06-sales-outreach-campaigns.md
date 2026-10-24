@@ -3,8 +3,8 @@
 Founder-led, high-touch, low-volume. 300 touches a month is plenty. Every reply gets a human answer within an hour during business hours.
 
 ## Lists: where treasurers come from
-1. **County records.** HOA declarations are recorded; management certificates (Texas Property Code §209.004) list the association's contact and whether it is self-managed. Pull by county; filter where the contact is a person, not a management company.
-2. **State nonprofit registries.** Associations are nonprofits; officer names are on the annual report. Cross with (1).
+1. **Arizona Corporation Commission.** Every association is a nonprofit corporation; the annual report lists officers, directors and the statutory agent. Filter Maricopa and Pima County entities with "association", "condominium", "homeowners" in the name whose statutory agent is an individual or the association itself rather than a management company: that is the self-managed list.
+2. **Maricopa County Recorder.** Declarations and amendments are recorded; A.R.S. § 33-1807 / § 33-1256 lien recordings also reveal who is collecting (a law firm or manager vs the board). Cross with (1). For Texas (wave two): management certificates under Tex. Prop. Code § 209.004.
 3. **LinkedIn.** Search "HOA treasurer", "board treasurer homeowners association", "HOA president" by metro. Low volume, high quality.
 4. **Board forums.** Reddit r/HOA, Facebook HOA board groups, Nextdoor. Do not scrape; participate.
 5. **Partner referrals.** Title companies and HOA attorneys know which boards are struggling.
@@ -43,7 +43,7 @@ Trigger: public complaints, contract renewal season (Sept–Nov), or a referral.
 1. **Open (1 min):** "Thanks for the time. I want to understand how the books run today and tell you honestly whether we are a fit. If we are not, I will say so."
 2. **Discover (6 min):** Who does the books? When does the packet land? What does it cost (money and hours)? What broke last? Bank and software? Contract end date? Annual meeting date?
 3. **Show (5 min):** Board portal: approve-payments queue with `hey` notes, financials page, delinquencies with a drafted letter. Homeowner portal: ask `hey` a bylaw question.
-4. **Price (1 min):** "For {{doors}} doors on Back Office that is {{price}} a month, month to month, onboarding free, 5th or free."
+4. **Price (1 min):** "For {{doors}} doors on Back Office that is {{price}} a month, 30 days' notice, onboarding free, 5th or free."
 5. **Close (2 min):** "Two paths: send me three statements for the free review, or I send the proposal tonight and you take it to the board. Which?"
 
 ## Objections
@@ -56,7 +56,7 @@ Trigger: public complaints, contract renewal season (Sept–Nov), or a referral.
 | What if you miss the 5th | That month is free. It is in the contract. |
 | What happens to our data if you fail | Exports in standard formats any time; FrontSteps or our ledger, your name on the account. |
 | We are mid-year | We rebuild in parallel and go live at month end. Most boards switch in three weeks. |
-| Is this legal in our state | We provide bookkeeping and admin, not management; no license required. Counsel reviewed for TX, CO, AZ, NC, GA. FL/NV pending. |
+| Is this legal in our state | Arizona does not license community managers, and our agreement is expressly administrative, not property management. Other states on request; FL/NV pending counsel. |
 
 ## Cadence and hygiene
 - Send Tue–Thu, 8–10am local. Plain text, no images, one link.
@@ -66,4 +66,4 @@ Trigger: public complaints, contract renewal season (Sept–Nov), or a referral.
 - Weekly review: reply rate, meeting rate, which subject lines and pains got traction. Rewrite the weakest touch each week.
 
 ## Targets, month one
-300 touches → 25 replies (8%) → 10 calls → 4 free reviews → 2 proposals → 1 signed.
+300 touches (East Valley first) → 25 replies (8%) → 10 calls → 4 free reviews → 2 proposals → 1 signed.

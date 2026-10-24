@@ -34,8 +34,10 @@ SERVICES = {
         "eyebrow": "Collections",
         "lede": "Firm, fair and documented. Most balances clear before anyone needs an attorney.",
         "bullets": [
-            "Reminder text the day after the due date, not thirty days later",
-            "Notices mailed and emailed on your policy's schedule, with proof of delivery",
+            "Late notice the day after the due date, not thirty days later",
+            "A written collection policy the board adopts by resolution: rebill at 15 days, demand at 30, intent to lien at 60, lien at 75, further action at 90",
+            "No lien and no attorney until the balance is $400 or 75 days, whichever comes first",
+            "Collection fees charged to the late account, not spread across the neighbors",
             "Payment plans the owner can set up themselves in the portal",
             "Attorney handoff packet when the board votes to escalate",
             "Board sees stage, balance and next action for every late account on one screen",
@@ -45,14 +47,16 @@ SERVICES = {
 }
 
 FAQS = [
-    ("Do we have to switch banks?", "No. We work with the bank you have. If you want one that integrates better, we recommend a few and handle the paperwork."),
+    ("Do we have to switch banks?", "Operating and reserve accounts are opened at our partner bank, in the association's name and tax ID, with your board as signers. That is what makes daily bank feeds and same-day reconciliation possible. If the board wants to keep a different bank, it is $50 per account per month."),
+    ("Who holds the money?", "The association does. Accounts are in the association's name and tax ID at an FDIC-insured bank. We process payments from them only for bills the board has approved in the portal, insurance, taxes and our own invoice. Every disbursement is logged where the board can see it."),
     ("What does onboarding look like?", "Three weeks, typically. Week one we collect documents and bank access. Week two we rebuild your books in parallel. Week three we reconcile to your last statement and go live. You keep paying bills the old way until we say switch."),
-    ("Is there a contract?", "Month to month. Thirty days' notice. Your data exports in standard formats whenever you want it."),
+    ("Is there a contract?", "Yes, a plain-language services agreement with Arizona governing law. Thirty days' notice, a 60-day cure period on either side, and your data exports in standard formats whenever you want it. No multi-year lock-in."),
     ("Who answers the phone?", "A person, during business hours. hey handles the first pass on email and text around the clock and hands anything it cannot source to a teammate."),
     ("What if we already use QuickBooks?", "We will migrate it. If your board wants to keep the file, we can keep it current as a mirror."),
     ("Do you manage the property?", "No. We do not inspect, do not run vendors on site, and do not attend meetings in person. You run the community. We run the back office. That is why we cost a third of a management company."),
     ("What size community is a fit?", "Fifteen to about two hundred doors, self managed. Smaller works if you just want the books done. Larger works if you have an on-site manager and need the accounting."),
-    ("How is hey different from a remote management firm?", "Price, speed and transparency. Our pricing is public. Financials land on the 5th or that month is free. Every number in your packet links to its source document."),
+    ("How is hey different from a remote management firm?", "Price, speed and transparency. Our pricing and our fee schedule are public. Financials land on the 5th or that month is free. Every number in your packet links to its source document."),
+    ("Do you use AI on our data?", "Yes, and the agreement says so plainly. hey reads invoices, bank lines, documents and owner messages to draft and to check. A person reviews before any notice, letter or payment goes out. Model providers do not train on your data, and your records stay yours."),
 ]
 
 REVIEWS = [

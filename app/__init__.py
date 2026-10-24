@@ -2,7 +2,7 @@ import datetime as dt
 
 from flask import Flask, session
 
-from .brand import ADD_ONS, BRAND, PRICING
+from .brand import ADD_ONS, ASSOCIATION_FEES, BRAND, COLLECTION_STAGES, LIEN_THRESHOLD, OWNER_FEES, PRICING
 from .config import Config
 from .extensions import db
 
@@ -31,6 +31,10 @@ def create_app(config_object=None):
             "brand": BRAND,
             "pricing": PRICING,
             "add_ons": ADD_ONS,
+            "association_fees": ASSOCIATION_FEES,
+            "owner_fees": OWNER_FEES,
+            "collection_stages": COLLECTION_STAGES,
+            "lien_threshold": LIEN_THRESHOLD,
             "current_year": dt.date.today().year,
             "role": session.get("role"),
             "me": session.get("user"),

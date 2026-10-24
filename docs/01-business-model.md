@@ -7,11 +7,11 @@ AI-first accounting and back office for self-managed HOAs and condos, sold at a 
 - **Self-governed communities, 15–200 doors.** Townhomes, small condos, single-family HOAs. Big enough that the books matter, small enough that a management company is overkill.
 - **Buyer:** the treasurer (first) and the president (second). Volunteer, usually the most competent person on the board, usually tired.
 - **Trigger events:** treasurer resigns or moves; financials chronically late; a duplicate payment or missed reconciliation surfaces; a closing is delayed for lack of a resale certificate; management contract renewal with a price hike; annual meeting with no budget.
-- **Geography:** US-wide (remote by design). Beachhead states where self-management is common and HOA density is high: TX, FL, AZ, CO, NC, GA, TN, WA, UT, NV.
+- **Geography:** US-wide (remote by design). Beachhead is **Arizona** (Phoenix metro), where the operating entity, the services agreement and the first client already are. Second wave: TX, CO, NC, GA, UT, NV, WA; FL after CAM-licensing review.
 - **Not a fit (yet):** sub-10-door communities that want only tax filing; 300+ door communities with on-site staff; communities that want someone to walk the property.
 
 ## What we sell
-Three tiers, public, flat by door band, then per door. Month to month.
+Three tiers, public, flat by door band, then per door. Written agreement, 30 days' notice, no multi-year lock-in (term decision pending, doc 11).
 
 | Tier | Base (≤30 doors) | Per door after | What it is |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Three tiers, public, flat by door band, then per door. Month to month.
 | Back Office | $349/mo | $9 | Books + owner support, collections, ARC intake, resale docs, meeting admin |
 | Board+ | $549/mo | $12 | Back Office + named coordinator, budget/reserve, vendor sourcing, violations, insurance coordination |
 
-Add-ons priced to the party that benefits: resale certificates ($150–$350, seller pays), lender questionnaires ($125, lender pays), special assessment billing ($2/door/cycle), paper statements ($1.25). Onboarding is free; it is the biggest objection and the cheapest thing to give away.
+Add-ons priced to the party that benefits, following Exhibit A of the services agreement (doc 11): collections notices and payment-plan fees charged to the owner ledger, resale packages ($275) and lender questionnaires ($250–$350) paid by the requester, special assessment setup ($500 + $2/door per cycle), non-partner bank accounts ($50/account/month). Statements, 1099s, minutes, ARC admin and the portals are inside the flat fee. Onboarding is free; it is the biggest objection and the cheapest thing to give away.
 
 **The promise:** financial packet by the 5th business day or that month's base fee is waived. It is in the contract. It is also the entire marketing message.
 
@@ -62,8 +62,8 @@ That margin gap funds public pricing roughly 30% under the remote-firm range and
 - White-label back office for small management companies who want to be "AI-first" without building it.
 
 ## Risks and how we hold them
-- **Trust on money.** We never hold funds; association accounts stay in the association's name with board signers. Two board approvals on every payment. Everything logged.
+- **Trust on money.** Operating and reserve accounts are in the association's name and tax ID at an FDIC-insured partner bank; we process approved payments from them (PSA §2.6–2.7). Two board approvals on every payment in the portal. Everything logged.
 - **AI errors.** AI drafts; a person sends. Every automated action is sourced and logged in the board activity log.
 - **Platform dependence (FrontSteps).** Provider interface in code from day one; mock provider proves the UI does not care who the backend is.
-- **State regulation.** Some states license community managers (FL CAM, NV, etc.). We provide bookkeeping and admin, not management; copy and contracts say so. Counsel review before FL/NV launch.
+- **State regulation.** Arizona does not license community managers. Some states do (FL CAM, NV, etc.). The PSA already disclaims property management, legal and adjusting services; copy says the same. Counsel review before FL/NV launch.
 - **Seasonality.** Boards switch at fiscal year end (Jan 1 mostly). Sales pushes Sept–Nov and Mar–May.

@@ -5,9 +5,16 @@
 {% block content %}
 <div class="table-wrap"><table>
   <thead><tr><th>Unit</th><th>Owner</th><th class="num">Balance</th><th class="num">Days</th><th>Stage</th><th>Last action</th><th>Next</th><th></th></tr></thead>
-  <tbody>{% for d in rows %}<tr><td>{{ d.unit_label }}</td><td>{{ d.owner_name }}</td><td class="num">{{ d.balance|money }}</td><td class="num">{{ d.days_late }}</td><td><span class="pill {% if d.stage in ('demand','lien_warning','attorney') %}red{% elif d.stage == 'late_notice' %}amber{% else %}blue{% endif %}">{{ d.stage|replace('_',' ') }}</span></td><td class="small muted">{{ d.last_action }}</td><td class="small">{{ d.next_action }}</td><td><a class="small" href="{{ url_for('board.delinquencies', draft=d.unit_account_id) }}">Draft notice</a></td></tr>{% endfor %}</tbody>
+  <tbody>{% for d in rows %}<tr><td>{{ d.unit_label }}</td><td>{{ d.owner_name }}</td><td class="num">{{ d.balance|money }}</td><td class="num">{{ d.days_late }}</td><td><span class="pill {% if d.stage in ('lien','further_action','attorney') %}red{% elif d.stage in ('demand','intent_to_lien') %}amber{% else %}blue{% endif %}">{{ d.stage|replace('_',' ') }}</span></td><td class="small muted">{{ d.last_action }}</td><td class="small">{{ d.next_action }}</td><td><a class="small" href="{{ url_for('board.delinquencies', draft=d.unit_account_id) }}">Draft notice</a></td></tr>{% endfor %}</tbody>
 </table></div>
-<p class="small muted" style="margin-top:1rem">Stages follow the collections policy adopted 2025-05-10: reminder at 1 day, late notice at 30, demand at 60, lien warning at 120, attorney referral by board vote. hey drafts every letter; a person reviews before it is sent.</p>
+<div class="card" style="margin-top:1.25rem">
+  <h4>Assessment Collection Policy (Exhibit B)</h4>
+  <div class="table-wrap" style="margin-top:.75rem"><table>
+    <thead><tr><th>Days past due</th><th>Step</th><th class="num">Fee to owner</th></tr></thead>
+    <tbody>{% for key, days, label, fee in collection_stages %}<tr><td>{{ days if days > 1 else 'past due' }}{% if key == 'attorney' %}+ (board vote){% endif %}</td><td>{{ label }}</td><td class="num">{{ fee|money0 if fee else '—' }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small muted" style="margin-top:.75rem">No lien and no attorney until the balance is at least {{ lien_threshold.balance|money0 }} or the account is {{ lien_threshold.days }} days past due. hey drafts every notice; a person reviews before it is sent. Fees post to the owner ledger.</p>
+</div>
 {% if draft %}
 <div class="card" style="margin-top:1.25rem">
   <h3>Draft notice</h3>

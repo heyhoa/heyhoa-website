@@ -24,6 +24,11 @@ class Lead(db.Model):
     phone = db.Column(db.String(40))
     notes = db.Column(db.Text)
     source = db.Column(db.String(80))  # utm_source or referrer
+    plan = db.Column(db.String(30))  # books | back-office | board-plus
+    utm_source = db.Column(db.String(80))
+    utm_medium = db.Column(db.String(80))
+    utm_campaign = db.Column(db.String(120))
+    referrer = db.Column(db.String(300))
     score = db.Column(db.Integer, default=0)
     status = db.Column(db.String(30), default="new")  # new|contacted|proposal|won|lost
 

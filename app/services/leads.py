@@ -6,7 +6,7 @@ from ..models import Lead
 
 log = logging.getLogger(__name__)
 
-ICP_STATES = {"TX", "FL", "AZ", "CO", "NC", "GA", "TN", "WA", "UT", "NV"}
+ICP_STATES = {"AZ", "TX", "CO", "NC", "GA", "UT", "NV", "WA", "TN"}
 
 
 def score_lead(lead: Lead) -> int:
@@ -23,7 +23,9 @@ def score_lead(lead: Lead) -> int:
         score += 15
     if lead.contact_role in ("treasurer", "president"):
         score += 15
-    if (lead.state or "").upper() in ICP_STATES:
+    if (lead.state or "").upper() == "AZ":
+        score += 15
+    elif (lead.state or "").upper() in ICP_STATES:
         score += 10
     pains = (lead.pain_points or "").lower()
     for hot in ("late financials", "reconcil", "collections", "volunteer", "burnout", "quickbooks"):
@@ -49,6 +51,11 @@ def create_lead(data: dict, source: str | None = None) -> Lead:
         phone=data.get("phone"),
         notes=data.get("notes"),
         source=source,
+        plan=data.get("plan"),
+        utm_source=data.get("utm_source"),
+        utm_medium=data.get("utm_medium"),
+        utm_campaign=data.get("utm_campaign"),
+        referrer=(data.get("referrer") or "")[:300] or None,
     )
     lead.score = score_lead(lead)
     db.session.add(lead)

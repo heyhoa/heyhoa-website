@@ -4,6 +4,8 @@ BRAND = {
     "name": "hey hoa",
     "short": "hey",
     "domain": "heyhoa.com",
+    "legal_entity": "Heywood Realty & Investment, Inc.",
+    "legal_state": "Arizona",
     "email": "hello@heyhoa.com",
     "phone": "(800) 555-0199",
     "tagline": "You run the community. hey runs the books.",
@@ -75,11 +77,54 @@ PRICING = [
     },
 ]
 
-ADD_ONS = [
-    ("Resale / estoppel certificate", "$150–$350 per transaction (paid by seller)"),
-    ("Lender questionnaire", "$125 per request (paid by lender)"),
-    ("Transfer / setup fee", "$0 — we eat onboarding"),
-    ("Audit / review coordination", "Quoted per engagement"),
-    ("Special assessment billing", "$2/door per cycle"),
-    ("Paper statement mailing", "$1.25 per statement"),
+# Fee schedule. Mirrors Exhibit A of the services agreement (docs/11), with the
+# items Exhibit A bills to the association folded into the flat tier price.
+ASSOCIATION_FEES = [
+    ("Client setup / onboarding", "Included"),
+    ("Statements, e-statements, portal, document storage", "Included"),
+    ("1099 / 1096 filing and tax file prep", "Included (Books and up)"),
+    ("Online invoice approval, vendor insurance tracking", "Included"),
+    ("Meeting minutes drafts", "Included (Back Office and up)"),
+    ("ARC form administration", "Included (Back Office and up)"),
+    ("Compliance violation letters", "Included on Board+, otherwise $5 each"),
+    ("Board meeting attendance (video)", "$125 per hour, 1 week notice"),
+    ("Paper statement mailing", "$1.25 per statement + postage"),
+    ("Certified letter", "$45"),
+    ("Non-partner bank account", "$50 per account per month"),
+    ("Special assessment or loan setup", "$500 setup + $2 per door per cycle"),
+    ("Online voting setup and admin", "$300 per election"),
+    ("Registered agent / corporation report filing", "$135 per year / $75 per filing"),
+    ("Audits, records requests, litigation support, custom reports", "Quoted, billed monthly"),
 ]
+
+OWNER_FEES = [
+    ("Late notice (past due)", "$0"),
+    ("Rebill notice (15 days)", "$45"),
+    ("Pre-legal demand (30 days)", "$45"),
+    ("Intent to lien (60 days)", "$105"),
+    ("Lien recording and notice (75 days)", "$205"),
+    ("Lien release", "$95"),
+    ("Intent to further legal action (90 days)", "$45"),
+    ("Attorney referral and file turnover", "$215"),
+    ("Payment plan setup / breach notice", "$75 / $45"),
+    ("NSF or chargeback", "$49"),
+    ("Resale / disclosure package", "$275 (statutory cap applies) · rush $100"),
+    ("Lender questionnaire standard / custom", "$250 / $350"),
+    ("Lender refinance statement", "$150"),
+]
+
+# Backwards-compatible alias used by older templates.
+ADD_ONS = ASSOCIATION_FEES
+
+# Exhibit B collection ladder (days past due -> step). Lien or attorney only
+# once balance >= $400 or account >= 75 days past due.
+COLLECTION_STAGES = [
+    ("late_notice", 1, "Late notice", 0),
+    ("rebill", 15, "Rebill notice", 45),
+    ("demand", 30, "Pre-legal demand", 45),
+    ("intent_to_lien", 60, "Intent to lien", 105),
+    ("lien", 75, "Lien recorded", 205),
+    ("further_action", 90, "Intent to further legal action", 45),
+    ("attorney", 91, "Attorney referral", 215),
+]
+LIEN_THRESHOLD = {"balance": 400, "days": 75}

@@ -4,6 +4,13 @@ How to use this: each phase is a checklist. Work the unchecked boxes top to bott
 
 Status legend: `[x]` done · `[ ]` open · `[~]` in progress.
 
+## Now (next three boxes, in order)
+1. Phase 1 · Sample financial packet PDF (annotated) downloadable from `/pricing` and `/how-it-works`
+2. Phase 1 · Lead notification: email + Slack on new `Lead`
+3. Phase 1 · Decide the term question (doc 11 decision 1) and send the PSA to counsel
+
+Keep this list to three. When one is done, tick its box below and promote the next.
+
 ## Phase 0 — Foundation (this commit)
 Goal: plan, brand, mock-ups, scaffold. Everything renders with demo data.
 - [x] Business model, marketing, GTM, brand, launch, outreach, product, architecture docs
@@ -31,8 +38,10 @@ Goal: public site that converts; first customer signed by hand.
 - [ ] Legal: counsel review of `/terms`, `/privacy`, the 5th-or-free clause, state manager-licensing language
 - [ ] Deploy: Render/Fly with Postgres, custom domain, TLS, GitHub Actions running `pytest`
 - [ ] Portal sidebar collapses to a top bar on phones (currently a full-screen nav list)
-- [ ] Founding-customer one-pager PDF and agreement template
-- [ ] Outreach: list of 150 Texas treasurers, CRM set up, Sequence A loaded
+- [x] Services agreement template added to `legal/` and mapped to tiers, fees and collections (doc 11)
+- [ ] Tailor the PSA for hey hoa: entity/brand line, term decision, 5th-or-free clause, hey hoa Exhibit A, AI review clause; then counsel
+- [ ] Founding-customer one-pager PDF
+- [ ] Outreach: list of 150 East Valley (AZ) treasurers from ACC filings, CRM set up, Sequence A loaded
 
 ## Phase 2 — Real data, real logins (week 3–6)
 Goal: first community live on FrontSteps data; owners and board use the portals for real.
@@ -68,7 +77,7 @@ Goal: AI handles first pass on invoices, owner questions and letters at producti
 - [ ] Multi-community users (board member on two boards; staff)
 - [ ] Violations module (Board+), vendor bid requests, insurance renewal tracking
 - [ ] Second accounting backend or own ledger spike; decide by community #150
-- [ ] State expansion checklist (CO, AZ, NC, GA; FL/NV counsel)
+- [ ] State expansion checklist (TX governing-law PSA variant, CO, NC, GA, UT; FL/NV counsel)
 - [ ] Partner portal for title companies (order + status)
 - [ ] Case studies ×3, referral program, annual prepay option
 

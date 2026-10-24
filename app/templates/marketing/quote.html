@@ -12,9 +12,15 @@
 <section class="section tight">
   <div class="container narrow">
     <form class="multistep" id="quote-form" method="post" data-remember>
+      <div style="position:absolute;left:-9999px" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
       <fieldset>
         <progress value="0" max="100"></progress><span class="step-label">Step 1 of 3</span>
         <h3>Your community</h3>
+        <div class="form-group"><label for="q-plan">Plan you have in mind</label>
+          <select class="form-control" id="q-plan" name="plan">
+            <option value="" {% if not plan %}selected{% endif %}>Not sure yet, recommend one</option>
+            {% for tier in pricing %}<option value="{{ tier.slug }}" {% if plan == tier.slug %}selected{% endif %}>{{ tier.name }} — ${{ tier.price }}/mo {{ tier.unit_cap }}</option>{% endfor %}
+          </select></div>
         <div class="form-group"><label for="q-community">Community name</label><input class="form-control" id="q-community" name="community_name" required placeholder="Willow Creek Townhomes"></div>
         <div class="form-row">
           <div class="form-group"><label for="q-type">Type</label>
@@ -22,8 +28,8 @@
           <div class="form-group"><label for="q-units">Doors / units</label><input class="form-control" id="q-units" name="units" type="number" min="4" max="2000" required placeholder="48"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label for="q-city">City</label><input class="form-control" id="q-city" name="city" placeholder="Round Rock"></div>
-          <div class="form-group"><label for="q-state">State</label><input class="form-control" id="q-state" name="state" maxlength="2" placeholder="TX" required></div>
+          <div class="form-group"><label for="q-city">City</label><input class="form-control" id="q-city" name="city" placeholder="Mesa"></div>
+          <div class="form-group"><label for="q-state">State</label><input class="form-control" id="q-state" name="state" maxlength="2" placeholder="AZ" required></div>
         </div>
         <div class="step-nav"><span></span><a href="#" class="btn btn-primary next">Next</a></div>
       </fieldset>

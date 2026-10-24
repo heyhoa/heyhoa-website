@@ -14,6 +14,7 @@ Everything needed to start the company and the product, in reading order.
 | 08 | [Technical architecture](08-technical-architecture.md) | Flask structure, provider interface, FrontSteps mapping, deploy |
 | 09 | [Roadmap & phases](09-roadmap-phases.md) | Phased, checkbox-tracked plan; how to run it recursively |
 | 10 | [FrontSteps API reference](10-frontsteps-api-reference.md) | Generated from the sandbox Swagger (310 endpoints) |
+| 11 | [Services agreement](11-services-agreement.md) | The PSA we start from, Exhibit A fees mapped to tiers, Exhibit B collections, open decisions |
 | — | [Competitor analysis](competitor-analysis.md) | Clark Simson Miller and the rest of the field |
 
 The app itself: see the repo [README](../README.md) for running it.

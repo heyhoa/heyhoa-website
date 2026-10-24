@@ -1,10 +1,46 @@
-from flask import abort, current_app, flash, redirect, render_template, request, url_for
+import time
+from collections import defaultdict, deque
+
+from flask import Response, abort, current_app, flash, redirect, render_template, request, session, url_for
 
 from ...extensions import db
 from ...models import ContactMessage
 from ...services.leads import create_lead
 from . import bp
 from .content import FAQS, POSTS, REVIEWS, SERVICES
+
+_RATE: dict[str, deque] = defaultdict(deque)
+RATE_LIMIT = (5, 3600)  # 5 submissions per IP per hour
+
+UTM_KEYS = ("utm_source", "utm_medium", "utm_campaign")
+
+
+def _rate_limited(key: str) -> bool:
+    n, window = RATE_LIMIT
+    now = time.time()
+    q = _RATE[key]
+    while q and now - q[0] > window:
+        q.popleft()
+    if len(q) >= n:
+        return True
+    q.append(now)
+    return False
+
+
+def _is_bot(form) -> bool:
+    """Honeypot: real people never fill the hidden 'website' field."""
+    return bool(form.get("website"))
+
+
+@bp.before_app_request
+def remember_utm():
+    """First-touch attribution: stash UTM params and referrer in the session."""
+    if request.endpoint and request.endpoint.startswith("static"):
+        return
+    if any(k in request.args for k in UTM_KEYS) and "utm" not in session:
+        session["utm"] = {k: request.args.get(k, "")[:120] for k in UTM_KEYS}
+    if "referrer" not in session and request.referrer and request.host not in request.referrer:
+        session["referrer"] = request.referrer[:300]
 
 
 @bp.route("/")
@@ -87,9 +123,20 @@ def realtors():
 @bp.route("/quote", methods=["GET", "POST"])
 def quote():
     if request.method == "POST":
-        lead = create_lead(request.form, source=request.args.get("utm_source") or request.referrer)
+        if _is_bot(request.form):
+            return redirect(url_for("marketing.quote_thanks"))  # silently drop
+        if _rate_limited(request.remote_addr or "?"):
+            flash("Too many submissions from this network. Email us instead: " + current_app.config["LEAD_NOTIFY_EMAIL"], "error")
+            return redirect(url_for("marketing.quote"))
+        data = request.form.to_dict(flat=False)
+        data = {k: (v if k == "pain_points" else v[0]) for k, v in data.items()}
+        data["pain_points"] = ",".join(request.form.getlist("pain_points"))
+        utm = session.get("utm", {})
+        data.update({k: utm.get(k) for k in UTM_KEYS})
+        data["referrer"] = session.get("referrer")
+        lead = create_lead(data, source=utm.get("utm_source") or session.get("referrer") or "direct")
         return redirect(url_for("marketing.quote_thanks", lead_id=lead.id))
-    return render_template("marketing/quote.html")
+    return render_template("marketing/quote.html", plan=request.args.get("plan", ""))
 
 
 @bp.route("/quote/thanks")
@@ -100,6 +147,11 @@ def quote_thanks():
 @bp.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
+        if _is_bot(request.form):
+            return redirect(url_for("marketing.contact"))
+        if _rate_limited(request.remote_addr or "?"):
+            flash("Too many messages from this network. Email us instead: " + current_app.config["LEAD_NOTIFY_EMAIL"], "error")
+            return redirect(url_for("marketing.contact"))
         db.session.add(ContactMessage(name=request.form.get("name"), email=request.form.get("email"), topic=request.form.get("topic"), message=request.form.get("message")))
         db.session.commit()
         flash("Got it. A person will reply within one business day.")
@@ -120,3 +172,29 @@ def terms():
 @bp.route("/brand")
 def brand_page():
     return render_template("marketing/brand.html")
+
+
+PUBLIC_ENDPOINTS = [
+    ("marketing.index", {}, "weekly", "1.0"), ("marketing.pricing_page", {}, "weekly", "0.9"), ("marketing.services", {}, "monthly", "0.8"),
+    ("marketing.service_detail", {"slug": "accounting"}, "monthly", "0.8"), ("marketing.service_detail", {"slug": "back-office"}, "monthly", "0.8"),
+    ("marketing.service_detail", {"slug": "collections"}, "monthly", "0.8"), ("marketing.how_it_works", {}, "monthly", "0.8"),
+    ("marketing.self_managed", {}, "monthly", "0.8"), ("marketing.compare", {}, "monthly", "0.8"), ("marketing.reviews", {}, "monthly", "0.5"),
+    ("marketing.about", {}, "monthly", "0.5"), ("marketing.faq", {}, "monthly", "0.6"), ("marketing.blog", {}, "weekly", "0.6"),
+    ("marketing.homeowners", {}, "monthly", "0.6"), ("marketing.realtors", {}, "monthly", "0.6"), ("marketing.quote", {}, "monthly", "0.9"),
+    ("marketing.contact", {}, "yearly", "0.3"), ("marketing.privacy", {}, "yearly", "0.1"), ("marketing.terms", {}, "yearly", "0.1"),
+]
+
+
+@bp.route("/sitemap.xml")
+def sitemap():
+    urls = [(url_for(ep, _external=True, **kw), freq, pri) for ep, kw, freq, pri in PUBLIC_ENDPOINTS]
+    urls += [(url_for("marketing.post", slug=s, _external=True), "monthly", "0.6") for s in POSTS]
+    body = "".join(f"<url><loc>{u}</loc><changefreq>{f}</changefreq><priority>{p}</priority></url>" for u, f, p in urls)
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>'
+    return Response(xml, mimetype="application/xml")
+
+
+@bp.route("/robots.txt")
+def robots():
+    txt = f"User-agent: *\nAllow: /\nDisallow: /me/\nDisallow: /board/\nDisallow: /api/\nDisallow: /login\nDisallow: /brand\nSitemap: {url_for('marketing.sitemap', _external=True)}\n"
+    return Response(txt, mimetype="text/plain")

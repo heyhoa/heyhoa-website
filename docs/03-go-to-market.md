@@ -1,12 +1,12 @@
 # 03 · Go-to-market
 
 ## Beachhead
-**Texas townhome and small condo communities, 20–120 doors, self-managed, fiscal year Jan 1.** Why: dense HOA market, strong self-management culture, Texas Property Code is well documented (resale certificates §207, solar §202.010), no CAM licensing hurdle, and the founding story is a Texas community. Round Rock / Austin / San Antonio / DFW suburbs first.
+**Arizona condo and townhome communities, 20–120 doors, self-managed, fiscal year Jan 1.** Why: the operating entity (Heywood Realty & Investment, Inc.), the services agreement and the first client are already in Arizona; Maricopa County has one of the densest HOA markets in the country; Arizona does not license community managers; A.R.S. Title 33 (planned communities ch. 16, condominiums ch. 9) is well documented, including statutory resale disclosure fees and solar protections (§ 33-1816). Mesa, Gilbert, Chandler, Tempe, Scottsdale and the East Valley first, then Tucson.
 
-Second wave: CO, AZ, NC, GA (same profile, no licensing). FL and NV after counsel review of CAM rules.
+Second wave: TX, CO, NC, GA, UT (same profile, no licensing; TX needs a governing-law variant of the PSA). FL and NV after counsel review of CAM rules.
 
 ## Sequencing
-1. **Month 1: first customer.** One community, onboarded by hand, every page of the portal used for real. (Doc 05.)
+1. **Month 1: first customer.** One community, onboarded by hand, every page of the portal used for real. (Doc 05.) The existing Heywood client is the obvious candidate: migrate it onto the portals first.
 2. **Months 2–3: ten communities.** Outbound to treasurers (doc 06) + the first customer's referrals + partner intros. Prove the 5th three months in a row.
 3. **Months 4–6: fifty.** Hire an HOA accountant. Turn on paid search. Publish case studies. Second accounting backend if FrontSteps is a constraint.
 4. **Months 7–12: 150.** State expansion, Board+ tier, partner channel (title, reserve studies, CPAs), white-label pilots.
@@ -14,7 +14,7 @@ Second wave: CO, AZ, NC, GA (same profile, no licensing). FL and NV after counse
 ## Offer ladder
 - **Free:** sample packet, 12-question checklist, "treasurer resigned" plan, public demo portals.
 - **Low-commitment:** free books review: send us 3 months of bank statements and your last packet; `hey` finds duplicates and miscodes; we send a one-page findings memo. Converts because it finds money.
-- **Core:** Books / Back Office / Board+.
+- **Core:** Books / Back Office / Board+ on the services agreement (doc 11).
 - **Expansion:** add-ons, Board+ upgrade, resale volume, special assessments.
 
 ## Launch plan (public)

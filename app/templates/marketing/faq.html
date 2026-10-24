@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}FAQ — {{ brand.name }}{% endblock %}
+{% block jsonld %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{% for q, a in faqs %}{"@type":"Question","name":{{ q|tojson }},"acceptedAnswer":{"@type":"Answer","text":{{ a|tojson }}}}{% if not loop.last %},{% endif %}{% endfor %}]}</script>{% endblock %}
 {% block content %}
 <section class="hero" style="padding-bottom:2rem">
   <div class="container"><p class="eyebrow">FAQ</p><h1>Questions boards ask.</h1></div>

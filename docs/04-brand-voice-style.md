@@ -51,8 +51,8 @@ Everything is light by default: white page, ink type, soft grey (`#F6F5F8`) card
 |---|---|
 | "Financials by the 5th. Or the month is free." | "Timely, accurate financial reporting you can count on!" |
 | "hey read the invoice and matched it to the contract." | "Our AI-powered platform leverages machine learning to…" |
-| "We never hold your money." | "Bank-grade security." |
-| "Public pricing. Month to month." | "Contact us for a customized quote." |
+| "Your money stays in your name and your tax ID." | "Bank-grade security." |
+| "Public pricing. Public fee schedule." | "Contact us for a customized quote." |
 | "I'm not finding that in your documents, so I won't guess." | "Great question! I'd be happy to help with that!" |
 
 ## `hey` as a character (in the portals)
@@ -65,7 +65,7 @@ Everything is light by default: white page, ink type, soft grey (`#F6F5F8`) card
 ## Copy bank
 Taglines: "You run the community. hey runs the books." · "Say hey to your new back office." · "The treasurer finally gets a night off." · "Books, back office, and a promise with a penalty."
 CTAs: "Get a quote in 3 minutes" · "See the board portal" · "Download a sample packet" · "Ask hey".
-Trust lines: "We never hold funds." · "Two board approvals on every payment." · "Your data exports any time." · "Month to month."
+Trust lines: "Accounts in the association's name and tax ID." · "Two board approvals on every payment." · "Your data exports any time." · "No multi-year lock-in."
 
 ## Imagery
 Real communities: townhome rows, small condo courtyards, a pool gate, a mailbox bank. Daylight, no drone shots, no stock handshake. Existing stock images are placeholders until we shoot the first customer's community (with permission).

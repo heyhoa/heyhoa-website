@@ -8,7 +8,7 @@ MARKETING = [
     "/", "/pricing", "/services", "/services/accounting", "/services/back-office", "/services/collections",
     "/how-it-works", "/self-managed", "/compare", "/reviews", "/about", "/faq", "/blog",
     "/blog/myth-of-full-service-management", "/homeowners", "/realtors", "/quote", "/contact", "/privacy", "/terms", "/brand", "/login",
-    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping",
+    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office",
 ]
 HOMEOWNER = ["/me/dashboard", "/me/pay", "/me/ledger", "/me/requests", "/me/requests/new", "/me/arc", "/me/arc/new", "/me/documents", "/me/directory", "/me/profile", "/me/ask"]
 BOARD = ["/board/dashboard", "/board/financials", "/board/invoices", "/board/invoices?status=pending_board", "/board/delinquencies", "/board/delinquencies?draft=ua-1003",
@@ -50,12 +50,38 @@ def test_role_isolation(client):
 
 
 def test_quote_creates_lead(client):
-    r = client.post("/quote", data={"community_name": "Test HOA", "community_type": "hoa", "units": "48", "state": "tx", "current_setup": "self",
-                                    "pain_points": ["late financials"], "contact_name": "A", "contact_role": "treasurer", "email": "a@b.co"})
+    client.get("/?utm_source=reddit&utm_medium=post&utm_campaign=launch")
+    r = client.post("/quote", data={"community_name": "Test HOA", "community_type": "hoa", "units": "48", "state": "az", "current_setup": "self",
+                                    "pain_points": ["late financials"], "contact_name": "A", "contact_role": "treasurer", "email": "a@b.co", "plan": "back-office"})
     assert r.status_code == 302
     from app.models import Lead
     lead = Lead.query.filter_by(community_name="Test HOA").first()
-    assert lead and lead.score >= 70
+    assert lead and lead.score >= 75 and lead.plan == "back-office" and lead.utm_source == "reddit" and lead.source == "reddit"
+
+
+def test_quote_honeypot_drops_bots(client):
+    from app.models import Lead
+    client.get("/quote")
+    before = Lead.query.count()
+    r = client.post("/quote", data={"community_name": "Bot HOA", "website": "http://spam", "email": "x@y.z"})
+    assert r.status_code == 302 and Lead.query.count() == before
+
+
+def test_quote_rate_limit(client):
+    from app.blueprints.marketing import routes
+    routes._RATE.clear()
+    for i in range(5):
+        client.post("/quote", data={"community_name": f"HOA {i}", "email": "a@b.co"})
+    r = client.post("/quote", data={"community_name": "HOA 6", "email": "a@b.co"}, follow_redirects=True)
+    assert b"Too many submissions" in r.data
+    routes._RATE.clear()
+
+
+def test_sitemap_and_robots(client):
+    s = client.get("/sitemap.xml")
+    assert s.status_code == 200 and b"/pricing" in s.data and b"/blog/" in s.data
+    r = client.get("/robots.txt")
+    assert b"Disallow: /board/" in r.data and b"Sitemap:" in r.data
 
 
 def test_invoice_approval_flow(client):

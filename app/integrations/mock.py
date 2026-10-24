@@ -30,8 +30,8 @@ def _d(days_ago: int) -> str:
 
 
 COMMUNITIES = {
-    "1001": Community(id="1001", name="Willow Creek Townhomes", kind="townhome", units=48, city="Round Rock", state="TX", dues_frequency="monthly"),
-    "1002": Community(id="1002", name="Maple Court Condominiums", kind="condo", units=24, city="Fort Collins", state="CO", fiscal_year_end="06/30", dues_frequency="quarterly"),
+    "1001": Community(id="1001", name="Willow Creek Townhomes", kind="townhome", units=48, city="Mesa", state="AZ", dues_frequency="monthly"),
+    "1002": Community(id="1002", name="Apache Wells Condominiums", kind="condo", units=28, city="Mesa", state="AZ", fiscal_year_end="12/31", dues_frequency="monthly"),
 }
 
 _OWNERS = [
@@ -58,7 +58,7 @@ for i, (name, unit) in enumerate(_OWNERS):
         balance = 0.0
     UNIT_ACCOUNTS[uid] = UnitAccount(
         id=uid, community_id="1001", unit_label=f"Unit {unit}", address=f"{1200 + int(unit) * 2} Willow Creek Dr",
-        owner_name=name, email=f"{name.split(',')[0].lower()}@example.com", phone="(512) 555-01" + unit.zfill(2),
+        owner_name=name, email=f"{name.split(',')[0].lower()}@example.com", phone="(480) 555-01" + unit.zfill(2),
         balance=balance, autopay=(i % 3 != 0), next_due_date="2026-11-01", next_due_amount=310.00, status=status,
     )
 
@@ -82,19 +82,19 @@ LEDGER = {
 
 INVOICES: dict[str, Invoice] = {
     "inv-5101": Invoice("inv-5101", "1001", "GreenScape Lawn Co", "GS-20412", 1850.00, _d(6), _d(-24), "6210 Landscaping", "October landscape maintenance", "pending_board", ai_note="Matches contract rate ($1,850/mo). Coded to 6210 Landscaping. 12 of 12 invoices this year matched.", approvals=1),
-    "inv-5102": Invoice("inv-5102", "1001", "Austin Pool Service", "AP-889", 640.00, _d(4), _d(-26), "6240 Pool", "Weekly service Oct + chemical balance", "pending_board", ai_note="Amount is 28% above the 12-month average ($498). Line item: chlorine shock treatment $142. Flagged for board review.", approvals=0),
-    "inv-5103": Invoice("inv-5103", "1001", "City of Round Rock Utilities", "77-10-2026", 412.37, _d(9), _d(-5), "6310 Water/Irrigation", "Irrigation meter Sept", "pending_board", ai_note="Utility bill. Within 5% of same month last year. Recommend approve.", approvals=1),
-    "inv-5104": Invoice("inv-5104", "1001", "Lone Star Insurance Agency", "LS-2026-Q4", 3975.00, _d(12), _d(-10), "6510 Insurance", "Q4 master policy premium", "pending_board", ai_note="Quarterly premium per policy #MP-44129. Unchanged from Q3. Recommend approve.", approvals=0),
+    "inv-5102": Invoice("inv-5102", "1001", "Desert Pool Service", "AP-889", 640.00, _d(4), _d(-26), "6240 Pool", "Weekly service Oct + chemical balance", "pending_board", ai_note="Amount is 28% above the 12-month average ($498). Line item: chlorine shock treatment $142. Flagged for board review.", approvals=0),
+    "inv-5103": Invoice("inv-5103", "1001", "City of Mesa Utilities", "77-10-2026", 412.37, _d(9), _d(-5), "6310 Water/Irrigation", "Irrigation meter Sept", "pending_board", ai_note="Utility bill. Within 5% of same month last year. Recommend approve.", approvals=1),
+    "inv-5104": Invoice("inv-5104", "1001", "Saguaro Insurance Agency", "LS-2026-Q4", 3975.00, _d(12), _d(-10), "6510 Insurance", "Q4 master policy premium", "pending_board", ai_note="Quarterly premium per policy #MP-44129. Unchanged from Q3. Recommend approve.", approvals=0),
     "inv-5105": Invoice("inv-5105", "1001", "GreenScape Lawn Co", "GS-20387", 1850.00, _d(36), _d(-2), "6210 Landscaping", "September landscape maintenance", "paid", approvals=2),
     "inv-5106": Invoice("inv-5106", "1001", "Bright Light Electric", "BL-1120", 285.00, _d(40), _d(-1), "6410 Repairs & Maintenance", "Replace entry monument lights", "paid", approvals=2),
-    "inv-5107": Invoice("inv-5107", "1001", "Hill Country Reserve Studies", "HC-301", 2400.00, _d(60), _d(30), "7100 Reserve Study", "Level II reserve study update", "paid", approvals=2),
+    "inv-5107": Invoice("inv-5107", "1001", "Sonoran Reserve Studies", "HC-301", 2400.00, _d(60), _d(30), "7100 Reserve Study", "Level II reserve study update", "paid", approvals=2),
 }
 
 DELINQUENCIES = [
-    Delinquency("ua-1003", "Unit 3", "Okafor, Chidi", 1240.00, 124, "demand", "Demand letter mailed " + _d(14), "Lien warning due " + _d(-16)),
-    Delinquency("ua-1040", "Unit 40", "Fischer, Lena", 930.00, 93, "late_notice", "Second notice emailed " + _d(7), "Demand letter " + _d(-7)),
-    Delinquency("ua-1014", "Unit 14", "Bauer, Hannah", 620.00, 62, "late_notice", "First notice emailed " + _d(31), "Second notice " + _d(-1)),
-    Delinquency("ua-1031", "Unit 31", "Yamada, Ken", 310.00, 23, "reminder", "Friendly reminder text " + _d(8), "Late fee posts " + _d(-7)),
+    Delinquency("ua-1003", "Unit 3", "Okafor, Chidi", 1240.00, 94, "further_action", "Lien recorded " + _d(19), "Attorney referral needs board vote"),
+    Delinquency("ua-1040", "Unit 40", "Fischer, Lena", 930.00, 63, "intent_to_lien", "Intent to lien mailed " + _d(3), "Lien recording " + _d(-12) + " (over $400)"),
+    Delinquency("ua-1014", "Unit 14", "Bauer, Hannah", 620.00, 32, "demand", "Pre-legal demand emailed " + _d(2), "Intent to lien " + _d(-28)),
+    Delinquency("ua-1031", "Unit 31", "Yamada, Ken", 310.00, 16, "rebill", "Rebill notice sent " + _d(1), "Pre-legal demand " + _d(-14)),
 ]
 
 SERVICE_REQUESTS: dict[str, ServiceRequest] = {
@@ -127,12 +127,12 @@ DOCUMENTS = [
 ]
 
 VENDORS = [
-    Vendor("v-1", "GreenScape Lawn Co", "Landscaping", "(512) 555-0142", "ar@greenscape.example", "2027-03-01", True, 18500.00),
-    Vendor("v-2", "Austin Pool Service", "Pool", "(512) 555-0177", "billing@austinpool.example", "2026-12-15", True, 5120.00),
-    Vendor("v-3", "Bright Light Electric", "Electrical", "(512) 555-0110", "jobs@brightlight.example", "2026-11-02", True, 1385.00),
-    Vendor("v-4", "Fence Masters", "Fencing", "(512) 555-0156", "quotes@fencemasters.example", "2026-10-30", False, 0.00),
-    Vendor("v-5", "Lone Star Insurance Agency", "Insurance", "(512) 555-0199", "service@lonestarins.example", "2027-07-01", True, 15900.00),
-    Vendor("v-6", "Hill Country Reserve Studies", "Consulting", "(512) 555-0188", "hello@hcrs.example", "2027-01-20", True, 2400.00),
+    Vendor("v-1", "GreenScape Lawn Co", "Landscaping", "(480) 555-0142", "ar@greenscape.example", "2027-03-01", True, 18500.00),
+    Vendor("v-2", "Desert Pool Service", "Pool", "(480) 555-0177", "billing@desertpool.example", "2026-12-15", True, 5120.00),
+    Vendor("v-3", "Bright Light Electric", "Electrical", "(480) 555-0110", "jobs@brightlight.example", "2026-11-02", True, 1385.00),
+    Vendor("v-4", "Fence Masters", "Fencing", "(480) 555-0156", "quotes@fencemasters.example", "2026-10-30", False, 0.00),
+    Vendor("v-5", "Saguaro Insurance Agency", "Insurance", "(480) 555-0199", "service@saguaroins.example", "2027-07-01", True, 15900.00),
+    Vendor("v-6", "Sonoran Reserve Studies", "Consulting", "(480) 555-0188", "hello@sonoranrs.example", "2027-01-20", True, 2400.00),
 ]
 
 VIOLATIONS = [
@@ -142,8 +142,8 @@ VIOLATIONS = [
 ]
 
 CHART_OF_ACCOUNTS = [
-    {"number": "1010", "name": "Operating cash — Frost Bank", "type": "Asset", "balance": 48210.55},
-    {"number": "1020", "name": "Reserve cash — Frost MM", "type": "Asset", "balance": 162480.00},
+    {"number": "1010", "name": "Operating cash — partner bank", "type": "Asset", "balance": 48210.55},
+    {"number": "1020", "name": "Reserve cash — partner bank MM", "type": "Asset", "balance": 162480.00},
     {"number": "1200", "name": "Assessments receivable", "type": "Asset", "balance": 3100.00},
     {"number": "2010", "name": "Accounts payable", "type": "Liability", "balance": 6877.37},
     {"number": "2100", "name": "Prepaid assessments", "type": "Liability", "balance": 1860.00},

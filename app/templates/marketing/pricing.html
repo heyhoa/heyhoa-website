@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Pricing — {{ brand.name }}{% endblock %}
+{% block jsonld %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"HOA accounting and back office","provider":{"@type":"Organization","name":"{{ brand.name }}"},"offers":[{% for t in pricing %}{"@type":"Offer","name":{{ t.name|tojson }},"price":"{{ t.price }}","priceCurrency":"USD","description":{{ (t.tagline ~ ' ' ~ t.unit_cap ~ ', ' ~ t.per_door)|tojson }}}{% if not loop.last %},{% endif %}{% endfor %}]}</script>{% endblock %}
 {% block content %}
 <section class="hero" style="padding-bottom:2rem">
   <div class="container">
@@ -43,11 +44,33 @@
         <p class="small muted" style="margin-top:1rem">A full-service manager for the 48-unit example typically quotes $1,200 to $1,900 a month plus fees.</p>
       </div>
       <div class="card">
-        <h3>Pass-through and add-ons</h3>
+        <h3>What the association pays for</h3>
+        <p class="small muted">Everything a remote firm itemizes is inside the flat fee. The few things outside it:</p>
         <ul class="checks" style="margin-top:1rem">
-          {% for name, price in add_ons %}<li><span>{{ name }}</span><span class="muted">{{ price }}</span></li>{% endfor %}
+          {% for name, price in association_fees %}<li><span>{{ name }}</span><span class="muted">{{ price }}</span></li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="grid grid-2" style="margin-top:1.25rem">
+      <div class="card">
+        <h3>Charged to the owner or requester, not the association</h3>
+        <p class="small muted">Per the board-adopted collection policy and the services agreement. The party that causes the cost pays it; dues stay flat for everyone else.</p>
+        <ul class="checks" style="margin-top:1rem">
+          {% for name, price in owner_fees %}<li><span>{{ name }}</span><span class="muted">{{ price }}</span></li>{% endfor %}
         </ul>
         <p class="small muted" style="margin-top:1rem">Card processing is charged to the payer at cost (2.9% + 30¢). ACH is free to owners.</p>
+      </div>
+      <div class="card">
+        <h3>The agreement, in plain words</h3>
+        <ul class="iconlist">
+          <li>Written services agreement, Arizona law, 30 days' notice, 60-day cure</li>
+          <li>Accounts in the association's name and tax ID at an FDIC-insured partner bank</li>
+          <li>We act in an administrative and advisory capacity; the board decides</li>
+          <li>Not legal, tax, insurance or property management services</li>
+          <li>AI reads and drafts; a person reviews before anything is sent or paid</li>
+          <li>Financials by the 5th business day or that month's fee is waived</li>
+        </ul>
+        <p class="small muted">Full agreement available on request before you sign anything.</p>
       </div>
     </div>
   </div>

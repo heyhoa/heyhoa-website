@@ -69,7 +69,8 @@ def _context_for(role: str, user: dict) -> str:
     if community:
         parts.append(f"Community: {community.name}, {community.units} units, {community.city} {community.state}, dues {community.dues_frequency}.")
     parts.append("Governing docs on file: CC&Rs (2004), Bylaws (2019), Rules & Regulations (2024). Relevant sections: §7.2 ARC 30-day review; Rules §4 exterior modifications; Rules §6 parking (no trailers overnight on streets); Rules §9 rentals (min 30 days, register tenant). Pool season: May 1 – Oct 31, heated to 82°F.")
-    parts.append("Collections policy (2025): reminder day 1, late notice day 30 ($25 fee), demand day 60, lien warning day 120, attorney by board vote. Payment plans up to 6 months without board vote.")
+    parts.append("Collections policy (Exhibit B, adopted by board resolution): late notice when past due; rebill notice 15 days ($45); pre-legal demand 30 days ($45); intent to lien 60 days ($105); lien recorded 75 days ($205); intent to further legal action 90 days ($45); attorney referral by board vote ($215). Lien or attorney only once balance >= $400 or 75+ days past due. Fees are charged to the owner ledger. Payments apply per A.R.S.: assessments, then current assessments, late fees, collection costs, attorney fees, other. Payment plans up to 6 months ($75 setup), hard costs never waived.")
+    parts.append("State law: Arizona. Solar: A.R.S. § 33-1816 limits restrictions to placement and appearance. Resale disclosure: A.R.S. § 33-1260 (condo) / § 33-1806 (planned community) with statutory fee caps. Open meetings and records: § 33-1248 / § 33-1804.")
     if role == "homeowner" and user.get("unit_account_id"):
         ua = mock.UNIT_ACCOUNTS.get(user["unit_account_id"])
         if ua:
@@ -120,7 +121,8 @@ def classify_request(text: str) -> dict:
 
 def draft_delinquency_notice(d, community) -> str:
     stage_text = {
-        "reminder": "friendly reminder", "late_notice": "late notice", "demand": "demand for payment", "lien_warning": "notice of intent to lien", "attorney": "attorney referral notice",
+        "late_notice": "late notice", "rebill": "rebill notice", "demand": "pre-legal demand notice", "intent_to_lien": "notice of intent to lien",
+        "lien": "notice of lien", "further_action": "notice of intent to pursue further legal action", "attorney": "notice of attorney referral",
     }.get(d.stage, "notice")
     live = _complete(HEY_SYSTEM, f"Draft a {stage_text} letter from the {community.name} board to the owner of {d.unit_label}, {d.owner_name}, balance ${d.balance:,.2f}, {d.days_late} days past due. Offer a payment plan (up to 6 months). Under 180 words. Label it DRAFT.")
     if live:
@@ -129,8 +131,9 @@ def draft_delinquency_notice(d, community) -> str:
         f"DRAFT — {stage_text.title()}\n\n"
         f"{d.owner_name}\n{d.unit_label}, {community.name}\n\n"
         f"Hi,\n\nYour account shows a balance of ${d.balance:,.2f}, now {d.days_late} days past due. "
-        f"Under the association's collections policy this is the {stage_text} stage"
-        f"{'; the next step is a lien warning' if d.stage == 'demand' else ''}.\n\n"
+        f"Under the association's Assessment Collection Policy this is the {stage_text} stage"
+        f"{'; the next step is a notice of intent to lien' if d.stage == 'demand' else '; the next step is recording a lien' if d.stage == 'intent_to_lien' else ''}. "
+        f"Collection fees under the policy's fee schedule are charged to your account.\n\n"
         f"You can pay online at any time, or set up a payment plan of up to six months in the portal with no board vote required. "
         f"If you believe this is in error, reply to this letter and we will review the ledger with you.\n\n"
         f"Thank you,\n{community.name} Board of Directors\n(sent on the board's behalf by hey hoa)"
@@ -167,9 +170,9 @@ def _demo_answer(q: str, role: str, user: dict) -> str:
         if "trailer" in t or "park" in t:
             return "Trailers and RVs cannot be parked on the street overnight (Rules §6.2). Inside a closed garage is fine. For a one-night exception, message the board here and they usually say yes."
         if "payment plan" in t or "plan" in t:
-            return "You can set up a plan of up to six months with no board vote needed (Collections policy §3). Pick the number of months on the Pay page and the first installment is due in 7 days. Late fees pause while the plan is current."
+            return "You can set up a plan of up to six months with no board vote needed (Collections policy, payment plans). There is a $75 setup fee charged to your ledger (Exhibit A). Pick the number of months on the Pay page and the first installment is due in 7 days. Collection steps pause while the plan is current."
         if "gate" in t:
-            return "For a stuck gate call Gate Pros, 24 hours, (512) 555-0133. For a code or fob, reply here with your unit and I will reissue it today."
+            return "For a stuck gate call Gate Pros, 24 hours, (480) 555-0133. For a code or fob, reply here with your unit and I will reissue it today."
         return "I am not finding that in the documents or your ledger, so I will not guess. I have sent it to a person on the hey team; you will get an email reply, usually within one business day."
     if role == "board":
         if "landscap" in t:
@@ -183,6 +186,6 @@ def _demo_answer(q: str, role: str, user: dict) -> str:
         if "rental" in t or "declaration" in t:
             return "The Declaration (CC&Rs §11.4) allows leasing of whole units only, for a minimum of 30 days, with the lease subject to the governing documents. Rules & Regulations §9 adds tenant registration within 10 days. There is no rental cap."
         if "invoice" in t or "pool" in t:
-            return "Austin Pool Service #AP-889 is $640.00, 28% above the 12-month average of $498. The difference is a $142 chlorine shock treatment line. It sits in the AP queue with 0 of 2 approvals and the PDF attached."
+            return "Desert Pool Service #AP-889 is $640.00, 28% above the 12-month average of $498. The difference is a $142 chlorine shock treatment line. It sits in the AP queue with 0 of 2 approvals and the PDF attached."
         return "I can give you numbers from the GL, owner ledgers, invoices and the governing documents. I did not find that one, so I have not guessed. Rephrase, or I can route it to your coordinator."
     return "hey answers questions for owners and boards of communities it serves. Log in to ask about your community, or request a quote if you are a board looking to switch."

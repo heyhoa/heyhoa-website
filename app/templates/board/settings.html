@@ -13,7 +13,7 @@
     <h3>Integrations</h3>
     <ul class="checks">
       <li><span>Accounting platform<br><span class="small muted">FrontSteps / Caliber API (CAPI2)</span></span><span class="pill {% if provider_name == 'frontsteps' %}green{% else %}amber{% endif %}">{{ 'connected' if provider_name == 'frontsteps' else 'demo data' }}</span></li>
-      <li><span>Bank feed<br><span class="small muted">Frost Bank · read-only</span></span><span class="pill green">daily</span></li>
+      <li><span>Bank feed<br><span class="small muted">Partner bank · operating + reserve, association's name and TIN</span></span><span class="pill green">daily</span></li>
       <li><span>Payments<br><span class="small muted">ACH + cards via processor</span></span><span class="pill green">live</span></li>
       <li><span>Lockbox / mail scanning</span><span class="pill green">live</span></li>
       <li><span>Email &amp; SMS</span><span class="pill green">live</span></li>
@@ -26,7 +26,7 @@
   </div>
   <div class="card">
     <h3>Plan</h3>
-    <p><strong>Back Office</strong> · 48 doors · <span class="mono">$511/mo</span><br><span class="small muted">Month to month. Next invoice Nov 1. Financials-by-the-5th promise: 9 of 9 months met.</span></p>
+    <p><strong>Back Office</strong> · 48 doors · <span class="mono">$511/mo</span><br><span class="small muted">Services agreement dated Jan 1, 2026. Next invoice Nov 1. Financials-by-the-5th promise: 9 of 9 months met.</span></p>
     <a class="btn btn-ghost btn-sm" href="{{ url_for('marketing.pricing_page') }}">Change plan</a>
   </div>
 </div>
