@@ -29,9 +29,9 @@ Keep headlines under 12 words. Period at the end. No exclamation marks anywhere 
 Everything is light by default: white page, ink type, soft grey (`#F6F5F8`) cards, lime only on buttons and the CTA card. `theme-dark` exists as an opt-in for a single section or a launch page; the portal sidebar is always ink.
 
 ## Type
-- **One family: Figtree** (Google Fonts). It is the closest free match to Cash Sans, the face Dessa uses: friendly rounded grotesque, single-story g, slanted terminals.
-- **Headlines:** Figtree 500 (medium, not bold), letter-spacing −0.035em at h1, −0.03em below, line-height 1.0–1.04. h1 is `clamp(2.75rem, 11vw, 5.75rem)`, so about 43px on a phone and 92px on a desktop.
-- **Body:** Figtree 400, 18px, line-height 1.5. Lede paragraphs `clamp(1.2rem, 4.8vw, 1.45rem)`. Nothing on a phone is smaller than 16px except table labels.
+- **One family: Manrope** (Google Fonts). A clean geometric grotesque with the same airy, friendly feel as Cash Sans, the face Dessa uses. Chosen over Figtree and Inter Tight side by side.
+- **Headlines:** Manrope 500 (medium, not bold), letter-spacing −0.035em at h1, −0.03em below, line-height 1.0–1.04. h1 is `clamp(2.75rem, 11vw, 5.75rem)`, so about 43px on a phone and 92px on a desktop.
+- **Body:** Manrope 400, 18px, line-height 1.5. Lede paragraphs `clamp(1.2rem, 4.8vw, 1.45rem)`. Nothing on a phone is smaller than 16px except table labels.
 - **Mono (labels, numbers, eyebrows):** Space Grotesk, uppercase eyebrows at 0.78rem with 0.08em tracking.
 - Numbers in tables use tabular figures, right-aligned.
 
