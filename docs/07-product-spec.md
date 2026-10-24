@@ -47,7 +47,7 @@ Light theme, sidebar grouped Money / Community / hey. Goal: decide fast with the
 | Page | Route | Key content |
 |---|---|---|
 | Dashboard | `/board/dashboard` | Cash, reserves, AR, AP pending; needs-a-decision list; cash chart; delinquencies; open maintenance; `hey says` |
-| Financials | `/board/financials` | Strict cash basis: YTD income/expense vs budget, cash-basis balance sheet, recon status, packet downloads |
+| Financials | `/board/financials` | Strict cash basis: YTD income/expense vs budget, cash-basis balance sheet, recon status, board and homeowner package downloads, bank card (Client Connect for statements and signature cards; money moves only there) |
 | Approve payments | `/board/invoices` | Queue with `hey` notes (contract match, trend variance); approve / hold / reject; 2-approval rule; hide-from-owners flag for protected bills |
 | Decisions | `/board/decisions` | Everything else that needs a vote: bank transfers, CDs/yield vehicles, bids, work orders, ARC when assigned, special assessments, budget, policies, collections steps, fee waivers, vendors, insurance, meetings; quorum per type; votes logged; approved → execution item for the accountant/coordinator |
 | Owner inbox | `/board/inbox` | Every call, text, email and portal request from owners with hey's answer and state; board replies under its own name |
@@ -99,6 +99,12 @@ Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools w
 | Draft announcement / agenda / minutes | brief or month's activity | text | board edits, sends |
 | Draft budget | actuals + reserve study + known increases | line-item draft | board votes |
 Live mode uses Claude via the Anthropic SDK (model from `HEY_AI_MODEL`, default Opus 5.5, server-side refusal fallbacks on). Demo mode is rule-based so every page works offline.
+
+## The monthly financial package (from the founders)
+Board package, in order: 1 branded cover sheet · 2 monthly update and change summary · 3 budget comparison / P&L · 4 balance sheet · 5 aged owner balance report · 6 collection report · 7 prepaid report · 8 check register / AP distributions · 9 bank reconciliation(s) · 10 bank statement(s), attached as received from First Citizens. Homeowner package: sections 1–4. Strict cash basis. Defined in `app/services/packet.py`; sample at `/sample-packet?audience=board|homeowner`.
+
+## Money movement
+Transfers, CD purchases and redemptions are never done by software. Board decision → accountant executes in First Citizens Client Connect with the board's signers → confirmation on the decision → recorded in Caliber. Boards use Client Connect for signature cards and statements.
 
 ## Visibility rules (from the founders)
 | Who | Sees | Never sees |

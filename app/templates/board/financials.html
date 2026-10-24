@@ -30,8 +30,17 @@
       <ul class="checks">{% for a in coa if a.type in ('Asset','Liability','Equity') %}<li><span>{{ a.number }} {{ a.name }}</span><span class="num">{{ a.balance|money }}</span></li>{% endfor %}</ul>
     </div>
     <div class="card" style="margin-top:1.25rem">
-      <h3>Packets</h3>
-      <ul class="checks">{% for m in ['September 2026','August 2026','July 2026','June 2026'] %}<li><span>{{ m }} <span class="small muted">delivered on the {{ ['5th','4th','5th','3rd'][loop.index0] }}</span></span><a href="#">PDF</a></li>{% endfor %}</ul>
+      <h3>Financial packages</h3>
+      <ul class="checks">{% for m in ['September 2026','August 2026','July 2026','June 2026'] %}<li><span>{{ m }} <span class="small muted">delivered on the {{ ['5th','4th','5th','3rd'][loop.index0] }}</span></span><span class="small"><a href="{{ url_for('static', filename='docs/hey-sample-financial-packet.pdf') }}">board</a> · <a href="{{ url_for('static', filename='docs/hey-sample-homeowner-package.pdf') }}">owners</a></span></li>{% endfor %}</ul>
+      <p class="small muted" style="margin-top:.5rem">Board package: cover, monthly update, budget comparison, balance sheet, aged owner balances, collection report, prepaid report, check register, bank reconciliations, bank statements. Owners get the first four.</p>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3>Bank · {{ config.BANK_NAME }}</h3>
+      <ul class="checks">
+        <li><span>Statements, signature cards, signer changes</span><a href="{{ config.BANK_PORTAL_URL }}" target="_blank" rel="noopener">{{ config.BANK_PORTAL_NAME }} ↗</a></li>
+        <li><span>Transfers, CDs, redemptions</span><span class="small muted">board decision → executed in {{ config.BANK_PORTAL_NAME }} by a person</span></li>
+        <li><span>Software moving money</span><span class="pill red">never</span></li>
+      </ul>
     </div>
   </div>
 </div>

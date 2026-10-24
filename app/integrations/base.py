@@ -63,6 +63,9 @@ class Invoice:
     ai_note: str | None = None
     approvals: int = 0
     approvals_required: int = 2
+    paid_on: str | None = None
+    check_number: str | None = None
+    payment_method: str | None = None  # check | ach
 
 
 @dataclass

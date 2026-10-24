@@ -30,7 +30,7 @@
       <div class="form-group"><label for="damount">Amount (if money)</label><input class="form-control" id="damount" name="amount" type="number" step="0.01"></div>
       <div class="form-group"><label for="dbody">Details</label><textarea class="form-control" id="dbody" name="body" rows="4" placeholder="Why, what it costs, what hey found, attachments in Documents"></textarea></div>
       <button class="btn btn-primary btn-sm">Add to the list</button>
-      <span class="form-help-text">Approved money decisions go to the accountant to execute at the bank and record in Caliber. Everything else goes to the coordinator. Every vote is logged.</span>
+      <span class="form-help-text">Approved transfers, CD purchases and redemptions are executed by a person in {{ config.BANK_NAME }} {{ config.BANK_PORTAL_NAME }} with the board's signers, then recorded in Caliber. Software never moves money. Everything else goes to the coordinator. Every vote is logged.</span>
     </form>
     <div class="card" style="margin-top:.8rem"><h4>What needs a vote</h4><ul class="checks">{% for k, t in types.items() %}<li><span>{{ t.label }}</span><span class="muted small">{{ t.approvals }}</span></li>{% endfor %}</ul><p class="small muted" style="margin-top:.5rem">Quorums are defaults from your bylaws; change them in Settings.</p></div>
   </div>

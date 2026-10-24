@@ -56,6 +56,10 @@ for i, (name, unit) in enumerate(_OWNERS):
         balance, status = 930.00, "late"
     elif unit == "12":
         balance = 0.0
+    elif unit == "7":
+        balance, status = -310.00, "prepaid"
+    elif unit == "22":
+        balance, status = -930.00, "prepaid"
     UNIT_ACCOUNTS[uid] = UnitAccount(
         id=uid, community_id="1001", unit_label=f"Unit {unit}", address=f"{1200 + int(unit) * 2} Willow Creek Dr",
         owner_name=name, email=f"{name.split(',')[0].lower()}@example.com", phone="(480) 555-01" + unit.zfill(2),
@@ -86,9 +90,11 @@ INVOICES: dict[str, Invoice] = {
     "inv-5102": Invoice("inv-5102", "1001", "Desert Pool Service", "AP-889", 640.00, _d(4), _d(-26), "6240 Pool", "Weekly service Oct + chemical balance", "pending_board", ai_note="Amount is 28% above the 12-month average ($498). Line item: chlorine shock treatment $142. Flagged for board review.", approvals=0),
     "inv-5103": Invoice("inv-5103", "1001", "City of Mesa Utilities", "77-10-2026", 412.37, _d(9), _d(-5), "6310 Water/Irrigation", "Irrigation meter Sept", "pending_board", ai_note="Utility bill. Within 5% of same month last year. Recommend approve.", approvals=1),
     "inv-5104": Invoice("inv-5104", "1001", "Saguaro Insurance Agency", "LS-2026-Q4", 3975.00, _d(12), _d(-10), "6510 Insurance", "Q4 master policy premium", "pending_board", ai_note="Quarterly premium per policy #MP-44129. Unchanged from Q3. Recommend approve.", approvals=0),
-    "inv-5105": Invoice("inv-5105", "1001", "GreenScape Lawn Co", "GS-20387", 1850.00, _d(36), _d(-2), "6210 Landscaping", "September landscape maintenance", "paid", approvals=2),
-    "inv-5106": Invoice("inv-5106", "1001", "Bright Light Electric", "BL-1120", 285.00, _d(40), _d(-1), "6410 Repairs & Maintenance", "Replace entry monument lights", "paid", approvals=2),
-    "inv-5107": Invoice("inv-5107", "1001", "Sonoran Reserve Studies", "HC-301", 2400.00, _d(60), _d(30), "7100 Reserve Study", "Level II reserve study update", "paid", approvals=2),
+    "inv-5105": Invoice("inv-5105", "1001", "GreenScape Lawn Co", "GS-20387", 1850.00, _d(36), _d(-2), "6210 Landscaping", "September landscape maintenance", "paid", approvals=2, paid_on=_d(21), check_number="ACH-0912", payment_method="ach"),
+    "inv-5106": Invoice("inv-5106", "1001", "Bright Light Electric", "BL-1120", 285.00, _d(40), _d(-1), "6410 Repairs & Maintenance", "Replace entry monument lights", "paid", approvals=2, paid_on=_d(28), check_number="2231", payment_method="check"),
+    "inv-5107": Invoice("inv-5107", "1001", "Sonoran Reserve Studies", "HC-301", 2400.00, _d(60), _d(30), "7100 Reserve Study", "Level II reserve study update", "paid", approvals=2, paid_on=_d(45), check_number="2228", payment_method="check"),
+    "inv-5108": Invoice("inv-5108", "1001", "Desert Pool Service", "AP-871", 498.00, _d(38), _d(-8), "6240 Pool", "September weekly service", "paid", approvals=2, paid_on=_d(24), check_number="ACH-0913", payment_method="ach"),
+    "inv-5109": Invoice("inv-5109", "1001", "City of Mesa Utilities", "77-09-2026", 1231.40, _d(41), _d(-11), "6310 Water/Irrigation", "Irrigation meter Aug", "paid", approvals=2, paid_on=_d(25), check_number="2232", payment_method="check"),
 }
 
 DELINQUENCIES = [

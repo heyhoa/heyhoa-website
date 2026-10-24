@@ -14,6 +14,9 @@
     <h4>Statements</h4>
     <ul class="checks">{% for s in statements %}<li><span>{{ s.title }}</span><a href="{{ s.url }}">PDF</a></li>{% endfor %}</ul>
     <p class="small muted" style="margin-top:1rem">Need a statement for a specific date range (closing, taxes)? <a href="{{ url_for('homeowner.ask') }}">Ask hey</a> and it is generated on the spot.</p>
+    <h4 style="margin-top:1rem">Community financial package</h4>
+    <ul class="checks">{% for m in ['September 2026','August 2026','July 2026'] %}<li><span>{{ m }}</span><a href="{{ url_for('static', filename='docs/hey-sample-homeowner-package.pdf') }}">PDF</a></li>{% endfor %}</ul>
+    <p class="small muted">Cover, monthly update, budget comparison and balance sheet: the first four sections of the board's package.</p>
   </div>
 </div>
 {% endblock %}

@@ -7,3 +7,4 @@ instance/*.sqlite*
 .pytest_cache/
 node_modules/
 .DS_Store
+instance/uploads/

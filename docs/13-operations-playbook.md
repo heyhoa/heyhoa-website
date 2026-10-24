@@ -108,11 +108,15 @@ Onboarding is where most of hey's later accuracy is decided. We run a structured
 | 1–3 | Bank reconciliation in Caliber (bank integration); accountant clears exceptions; hey verifies cash GL vs statement balance | UI + A verify |
 | 2–3 | Adjustments and late-fee review in Caliber (cash basis: no accruals, ever) | UI |
 | 3–4 | hey re-renders packet, writes the board summary, flags variances > 10% or > $500 | A |
-| 4–5 | Accountant review and sign-off in our portal; packet delivered; board notified; "5th" SLA timer closes | D |
+| 4–5 | Accountant review and sign-off in our portal; board package (10 sections) and homeowner package (first 4) delivered; board notified; "5th" SLA timer closes | D |
+| any | **Money movement.** Board decision (transfer, CD purchase/redemption, wire) → accountant executes in First Citizens Client Connect with the board's signers → confirmation attached to the decision → recorded in Caliber. Never automated. | UI, always |
 | 5+ | Board meeting agenda drafted from the month | A |
 
 ### Collections (Exhibit B as data)
 hey computes stage daily; drafts the notice from the ledger and policy; coordinator sends (email + mail where required) and the fee posts to the owner ledger; `addnote` records it; at the $400/75-day threshold hey prepares the lien packet for the accountant; attorney referral only after a board vote recorded in the portal. Payment plans: owner self-service in portal within policy; hey creates the ACH plan via API; breaches detected from missed ACH and re-staged.
+
+### Bank (First Citizens Client Connect)
+The only place money moves. Accountant executes approved transfers and CD actions there; boards submit signature cards and download statements there; statements for the package are downloaded there and attached unchanged. hey verifies balances against statements and never touches the portal.
 
 ### Accounts payable
 Intake → code → match → board approves in portal (API action) → accountant releases the batch in Caliber with the bank module (positive pay) → hey reads payments back, attaches check images, notifies the vendor if asked, updates 1099 totals.

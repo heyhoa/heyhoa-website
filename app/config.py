@@ -45,6 +45,10 @@ class Config:
     LIVE_COMMUNITIES = [c for c in os.environ.get("LIVE_COMMUNITIES", "").split(",") if c]
     AUTO_CONFIDENCE = float(os.environ.get("AUTO_CONFIDENCE", "0.8"))
     MCP_PUBLIC_URL = os.environ.get("MCP_PUBLIC_URL", "https://mcp.heyhoa.com/mcp")
+    # Partner bank. Money moves ONLY here, by a person. Boards use it for signature cards and statements.
+    BANK_NAME = os.environ.get("BANK_NAME", "First Citizens Bank")
+    BANK_PORTAL_NAME = os.environ.get("BANK_PORTAL_NAME", "Client Connect")
+    BANK_PORTAL_URL = os.environ.get("BANK_PORTAL_URL", "https://www.firstcitizens.com/cab")
     # "alias@heyhoa.com=1001,other@heyhoa.com=1002"
     COMMUNITY_ALIASES = dict(p.split("=", 1) for p in os.environ.get("COMMUNITY_ALIASES", "").split(",") if "=" in p)
 

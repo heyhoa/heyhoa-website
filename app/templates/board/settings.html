@@ -13,7 +13,7 @@
     <h3>Integrations</h3>
     <ul class="checks">
       <li><span>Accounting platform<br><span class="small muted">FrontSteps / Caliber API (CAPI2)</span></span><span class="pill {% if provider_name == 'frontsteps' %}green{% else %}amber{% endif %}">{{ 'connected' if provider_name == 'frontsteps' else 'demo data' }}</span></li>
-      <li><span>Bank feed<br><span class="small muted">Partner bank · operating + reserve, association's name and TIN</span></span><span class="pill green">daily</span></li>
+      <li><span>Bank feed<br><span class="small muted">{{ config.BANK_NAME }} · operating + reserve, association's name and TIN · statements and signature cards in <a href="{{ config.BANK_PORTAL_URL }}" target="_blank" rel="noopener">{{ config.BANK_PORTAL_NAME }}</a></span></span><span class="pill green">daily</span></li>
       <li><span>Payments<br><span class="small muted">ACH + cards via processor</span></span><span class="pill green">live</span></li>
       <li><span>Lockbox / mail scanning</span><span class="pill green">live</span></li>
       <li><span>Email &amp; SMS</span><span class="pill green">live</span></li>

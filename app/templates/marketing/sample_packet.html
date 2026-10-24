@@ -37,56 +37,69 @@
 </style>
 </head>
 <body class="theme-light">
-{% set snap = snap %}
+{% set pages = sections %}
+{% macro hdr(n) %}<div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · {{ 'board' if audience == 'board' else 'homeowner' }} package · page {{ n }}</div></div>{% endmacro %}
 <!-- 1 cover -->
 <section class="page cover">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">Monthly financial packet<br>Delivered Oct 5, 2026 · 2nd business day</div></div>
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">Monthly financial package · {{ 'Board of Directors' if audience == 'board' else 'Homeowners' }}<br>Delivered Oct 5, 2026 · 2nd business day</div></div>
   <div class="big">
-    <p class="eyebrow">Sample · demo data</p>
+    <p class="eyebrow">Sample · demo data · strict cash basis</p>
     <h1>{{ community.name }}<br><span class="muted" style="font-weight:400">September 2026 financials</span></h1>
-    <p class="lede" style="font-size:14px;max-width:60ch">This is the packet your board gets by the 5th business day, every month, on a strict cash basis: income when the money arrives, expense when it leaves. Lime boxes are annotations explaining what to look at; they are not in the real thing. Every number in the real packet is a link to the general ledger line and the document behind it.</p>
+    <p class="lede" style="font-size:14px;max-width:60ch">{% if audience == 'board' %}The board package: ten sections, every month, by the 5th business day. Cash basis: income when received, expense when paid.{% else %}The homeowner package: the first four sections of the board package, so every owner sees how the money is doing without seeing anyone's account.{% endif %} Lime boxes are annotations; they are not in the real thing.</p>
     <div class="kpis">
       <div class="kpi"><div class="l">Operating cash</div><div class="v">{{ snap.operating_cash|money0 }}</div></div>
       <div class="kpi"><div class="l">Reserve cash</div><div class="v">{{ snap.reserve_cash|money0 }}</div></div>
-      <div class="kpi"><div class="l">Receivable</div><div class="v">{{ snap.ar_total|money0 }}</div></div>
-      <div class="kpi"><div class="l">YTD net vs budget</div><div class="v pos">+{{ ((snap.ytd_income - snap.ytd_expense) - (snap.ytd_budget_income - snap.ytd_budget_expense))|money0 }}</div></div>
+      <div class="kpi"><div class="l">YTD income</div><div class="v">{{ snap.ytd_income|money0 }}</div></div>
+      <div class="kpi"><div class="l">YTD expense</div><div class="v">{{ snap.ytd_expense|money0 }}</div></div>
     </div>
     <h3>Contents</h3>
-    <ol style="margin:0;padding-left:18px;columns:2">
-      <li>hey's summary for the board</li><li>Balance sheet (cash basis)</li><li>Income and expense vs budget</li><li>Bank reconciliation</li><li>Delinquent owner accounts (memo)</li><li>Unpaid bills and approvals (memo)</li><li>General ledger detail (excerpt)</li><li>Reserve funding</li>
-    </ol>
+    <ol style="margin:0;padding-left:18px;columns:2">{% for key, label in pages %}<li>{{ label }}</li>{% endfor %}</ol>
   </div>
-  <p class="foot">Prepared by {{ brand.name }} on a cash basis from the association's bank feed, invoices and owner ledger. Not audited. Questions: {{ brand.email }} · {{ brand.phone }}</p>
+  <p class="foot">Prepared by {{ brand.name }} on a cash basis from the association's bank activity, invoices and owner ledger. Not audited. Bank statements are from {{ bank.BANK_NAME }} as received. Questions: {{ brand.email }} · {{ brand.phone }}</p>
 </section>
 
-<!-- 2 summary -->
+<!-- 2 monthly update and change summary -->
 <section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 2</div></div>
-  <h2>hey's summary for the board</h2>
-  <p>September closed on time. Cash is up {{ (snap.monthly_cash[-2][1] - snap.monthly_cash[-3][1])|money0 }} month over month. Expenses are {{ (snap.ytd_budget_expense - snap.ytd_expense)|money0 }} under budget year to date, mostly repairs and irrigation. Three things need a decision:</p>
-  <ol>
-    <li><strong>Pool service invoice AP-889 ($640)</strong> is 28% above the 12-month average. The difference is a $142 chlorine shock treatment. It sits in the approval queue with the PDF attached.</li>
-    <li><strong>Unit 3 ($1,240, 94 days)</strong> has a lien recorded and crossed 90 days. Attorney referral needs a board vote under the collection policy; it is on the November agenda.</li>
-    <li><strong>Asphalt seal and stripe ($18,500)</strong> is due in 2027 per the reserve study. hey will request three bids in March so the board can vote in April.</li>
-  </ol>
-  <div class="note"><strong>Annotation</strong>The summary is written by hey from the ledger and the month's activity, then reviewed by your coordinator. It is the page most boards read first, and often the only one they need to.</div>
-  <h3>Month at a glance</h3>
+  {{ hdr(2) }}
+  <h2>Monthly update and change summary</h2>
+  <p>September closed on time. Operating cash is up {{ (snap.monthly_cash[-2][1] - snap.monthly_cash[-3][1])|money0 }} month over month; reserves grew by the $3,000 contribution. Expenses are {{ (snap.ytd_budget_expense - snap.ytd_expense)|money0 }} under budget year to date, mostly repairs and irrigation.</p>
+  <h3>What changed this month</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Item</th><th class="num">September</th><th class="num">August</th><th class="num">Change</th></tr></thead>
+    <thead><tr><th>Area</th><th>Change</th></tr></thead>
     <tbody>
-      <tr><td>Assessments billed</td><td class="num">$14,880.00</td><td class="num">$14,880.00</td><td class="num">—</td></tr>
-      <tr><td>Assessments collected</td><td class="num">$14,570.00</td><td class="num">$14,260.00</td><td class="num pos">+$310.00</td></tr>
-      <tr><td>Operating expenses paid</td><td class="num">$9,214.37</td><td class="num">$10,102.80</td><td class="num pos">−$888.43</td></tr>
-      <tr><td>Reserve contribution</td><td class="num">$3,000.00</td><td class="num">$3,000.00</td><td class="num">—</td></tr>
-      <tr><td>Owners on autopay</td><td class="num">31 of 48</td><td class="num">29 of 48</td><td class="num pos">+2</td></tr>
-      <tr><td>Owner questions answered by hey</td><td class="num">41</td><td class="num">37</td><td class="num">+4 (0 escalated)</td></tr>
+      <tr><td>Owners</td><td>Unit 44 sold (closing Sep 18); new owner on file, resale package delivered in 2 days. 31 of 48 owners on autopay (+2).</td></tr>
+      <tr><td>Dues and fees</td><td>No change. 2027 budget draft proposes $320/mo (+3.2%) to fund the reserve study contribution.</td></tr>
+      <tr><td>Vendors and contracts</td><td>Pool service invoice AP-889 is 28% above trend (chlorine shock treatment); held for board review. Fence Masters still missing a W-9; no payments released.</td></tr>
+      <tr><td>Collections</td><td>{% if audience == 'board' %}Unit 3 lien recorded Oct 5 (over 90 days, over $400). Unit 40 intent-to-lien mailed. Two accounts moved to earlier stages after payment.{% else %}Four accounts are in the collection process under the board's policy; one lien was recorded this month.{% endif %}</td></tr>
+      <tr><td>Decisions pending</td><td>{{ invoices|selectattr('status','equalto','pending_board')|list|length }} invoices; {% if audience == 'board' %}attorney referral vote on Unit 3; {% endif %}asphalt seal and stripe bids requested for spring.</td></tr>
+      <tr><td>Reserves</td><td>82% funded vs the 2026 Level II study. Asphalt seal and stripe ($18,500) due 2027.</td></tr>
     </tbody>
   </table></div>
+  <div class="note"><strong>Annotation</strong>Written by hey from the month's ledger activity, owner changes, vendor activity and decisions, then reviewed by your coordinator. It is the page most boards read first. In the homeowner package the collections line is summarised without unit numbers.</div>
 </section>
 
-<!-- 3 balance sheet -->
+<!-- 3 budget comparison / P&L -->
 <section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 3</div></div>
+  {{ hdr(3) }}
+  <h2>Budget comparison / P&L <span class="muted" style="font-weight:400">cash basis · year to date</span></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Line</th><th class="num">Sept actual</th><th class="num">YTD actual</th><th class="num">YTD budget</th><th class="num">Variance</th><th class="num">Annual budget</th></tr></thead>
+    <tbody>
+      <tr><td colspan="6"><strong>Income (received)</strong></td></tr>
+      {% for n, a, b in snap.income_lines %}<tr><td>{{ n }}</td><td class="num">{{ (a/9)|money }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num {{ 'pos' if a >= b else 'neg' }}">{{ (a - b)|money }}</td><td class="num">{{ (b/9*12)|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td>Total income</td><td class="num">{{ (snap.ytd_income/9)|money }}</td><td class="num">{{ snap.ytd_income|money }}</td><td class="num">{{ snap.ytd_budget_income|money }}</td><td class="num pos">{{ (snap.ytd_income - snap.ytd_budget_income)|money }}</td><td class="num">{{ (snap.ytd_budget_income/9*12)|money }}</td></tr>
+      <tr><td colspan="6"><strong>Expense (paid)</strong></td></tr>
+      {% for n, a, b in snap.expense_lines %}<tr><td>{{ n }}</td><td class="num">{{ (a/9)|money }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num {{ 'pos' if a <= b else 'neg' }}">{{ (a - b)|money }}</td><td class="num">{{ (b/9*12)|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td>Total expense</td><td class="num">{{ (snap.ytd_expense/9)|money }}</td><td class="num">{{ snap.ytd_expense|money }}</td><td class="num">{{ snap.ytd_budget_expense|money }}</td><td class="num pos">{{ (snap.ytd_expense - snap.ytd_budget_expense)|money }}</td><td class="num">{{ (snap.ytd_budget_expense/9*12)|money }}</td></tr>
+      <tr class="tot"><td>Net cash change</td><td class="num">{{ ((snap.ytd_income - snap.ytd_expense)/9)|money }}</td><td class="num">{{ (snap.ytd_income - snap.ytd_expense)|money }}</td><td class="num">{{ (snap.ytd_budget_income - snap.ytd_budget_expense)|money }}</td><td class="num pos">{{ ((snap.ytd_income - snap.ytd_expense) - (snap.ytd_budget_income - snap.ytd_budget_expense))|money }}</td><td class="num"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>Cash basis: income is what arrived in the bank, expense is what left. Variance is actual minus budget; green is good in both directions. Pool is red because of the September shock treatment, which hey flagged before it was paid.</div>
+</section>
+
+<!-- 4 balance sheet -->
+<section class="page">
+  {{ hdr(4) }}
   <h2>Balance sheet <span class="muted" style="font-weight:400">cash basis · as of Sep 30, 2026</span></h2>
   <div class="two">
     <div class="table-wrap"><table>
@@ -97,142 +110,118 @@
       </tbody>
     </table></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Liabilities and equity</th><th class="num">Balance</th></tr></thead>
+      <thead><tr><th>Fund balances</th><th class="num">Balance</th></tr></thead>
       <tbody>
-        {% for a in coa if a.type in ('Liability', 'Equity') %}<tr><td>{{ a.number }} {{ a.name }}</td><td class="num">{{ a.balance|money }}</td></tr>{% endfor %}
-        <tr class="tot"><td>Total liabilities and equity</td><td class="num">{{ coa|selectattr('type','equalto','Asset')|sum(attribute='balance')|money }}</td></tr>
+        {% for a in coa if a.type == 'Equity' %}<tr><td>{{ a.number }} {{ a.name }}</td><td class="num">{{ a.balance|money }}</td></tr>{% endfor %}
+        <tr class="tot"><td>Total fund balances</td><td class="num">{{ coa|selectattr('type','equalto','Equity')|sum(attribute='balance')|money }}</td></tr>
       </tbody>
     </table></div>
   </div>
-  <div class="note"><strong>Annotation</strong>Cash basis: assets are the bank balances, nothing else. No receivables, no payables, no prepaid liabilities. What owners owe and what the association owes vendors are memo schedules (pages 6 and 7), not balance-sheet lines. Operating and reserve funds are shown separately because your governing documents and most state statutes require it.</div>
+  <div class="note"><strong>Annotation</strong>Cash basis: assets are the bank balances, nothing else. No receivables, payables or prepaid liabilities. What owners owe, what owners have paid ahead and what is owed to vendors are the memo reports that follow in the board package. Operating and reserve funds are shown separately because the governing documents and state statutes require it.</div>
 </section>
 
-<!-- 4 income vs budget -->
+{% if audience == 'board' %}
+<!-- 5 aged owner balance report -->
 <section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 4</div></div>
-  <h2>Income and expense vs budget <span class="muted" style="font-weight:400">year to date</span></h2>
+  {{ hdr(5) }}
+  <h2>Aged owner balance report <span class="muted" style="font-weight:400">memo · as of Sep 30, 2026</span></h2>
   <div class="table-wrap"><table>
-    <thead><tr><th>Line</th><th class="num">Sept actual</th><th class="num">YTD actual</th><th class="num">YTD budget</th><th class="num">Variance</th><th class="num">Annual budget</th></tr></thead>
+    <thead><tr><th>Unit</th><th>Owner</th><th class="num">Current</th><th class="num">31–60</th><th class="num">61–90</th><th class="num">Over 90</th><th class="num">Balance</th></tr></thead>
     <tbody>
-      <tr><td colspan="6"><strong>Income</strong></td></tr>
-      {% for n, a, b in snap.income_lines %}<tr><td>{{ n }}</td><td class="num">{{ (a/9)|money }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num {{ 'pos' if a >= b else 'neg' }}">{{ (a - b)|money }}</td><td class="num">{{ (b/9*12)|money }}</td></tr>{% endfor %}
-      <tr class="tot"><td>Total income</td><td class="num">{{ (snap.ytd_income/9)|money }}</td><td class="num">{{ snap.ytd_income|money }}</td><td class="num">{{ snap.ytd_budget_income|money }}</td><td class="num pos">{{ (snap.ytd_income - snap.ytd_budget_income)|money }}</td><td class="num">{{ (snap.ytd_budget_income/9*12)|money }}</td></tr>
-      <tr><td colspan="6"><strong>Expense</strong></td></tr>
-      {% for n, a, b in snap.expense_lines %}<tr><td>{{ n }}</td><td class="num">{{ (a/9)|money }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num {{ 'pos' if a <= b else 'neg' }}">{{ (a - b)|money }}</td><td class="num">{{ (b/9*12)|money }}</td></tr>{% endfor %}
-      <tr class="tot"><td>Total expense</td><td class="num">{{ (snap.ytd_expense/9)|money }}</td><td class="num">{{ snap.ytd_expense|money }}</td><td class="num">{{ snap.ytd_budget_expense|money }}</td><td class="num pos">{{ (snap.ytd_expense - snap.ytd_budget_expense)|money }}</td><td class="num">{{ (snap.ytd_budget_expense/9*12)|money }}</td></tr>
-      <tr class="tot"><td>Net</td><td class="num">{{ ((snap.ytd_income - snap.ytd_expense)/9)|money }}</td><td class="num">{{ (snap.ytd_income - snap.ytd_expense)|money }}</td><td class="num">{{ (snap.ytd_budget_income - snap.ytd_budget_expense)|money }}</td><td class="num pos">{{ ((snap.ytd_income - snap.ytd_expense) - (snap.ytd_budget_income - snap.ytd_budget_expense))|money }}</td><td class="num"></td></tr>
+      {% for d in delinquencies|sort(attribute='unit_label') %}<tr><td>{{ d.unit_label }}</td><td>{{ d.owner_name }}</td><td class="num">{{ (d.balance if d.days_late <= 30 else 0)|money }}</td><td class="num">{{ (d.balance if 30 < d.days_late <= 60 else 0)|money }}</td><td class="num">{{ (d.balance if 60 < d.days_late <= 90 else 0)|money }}</td><td class="num">{{ (d.balance if d.days_late > 90 else 0)|money }}</td><td class="num">{{ d.balance|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td colspan="2">Total owed by owners ({{ delinquencies|length }} of {{ community.units }} accounts)</td><td class="num">{{ delinquencies|selectattr('days_late','le',30)|sum(attribute='balance')|money }}</td><td class="num">{{ (delinquencies|selectattr('days_late','gt',30)|selectattr('days_late','le',60)|sum(attribute='balance'))|money }}</td><td class="num">{{ (delinquencies|selectattr('days_late','gt',60)|selectattr('days_late','le',90)|sum(attribute='balance'))|money }}</td><td class="num">{{ delinquencies|selectattr('days_late','gt',90)|sum(attribute='balance')|money }}</td><td class="num">{{ delinquencies|sum(attribute='balance')|money }}</td></tr>
     </tbody>
   </table></div>
-  <div class="note"><strong>Annotation</strong>Variance is actual minus budget. Green is good in both directions: income above budget, expense below. Pool is red because of the September shock treatment; hey flagged the invoice before it was paid, not after. The monthly column is shown as an average here; the real packet shows the actual month.</div>
+  <div class="note"><strong>Annotation</strong>Every owner with a balance, aged by days past due. Board package only; the homeowner package never shows another owner's account. {{ (delinquencies|sum(attribute='balance') / (community.units * 310 * 12) * 100)|round(1) }}% of annual assessments is outstanding.</div>
 </section>
 
-<!-- 5 bank rec -->
+<!-- 6 collection report -->
 <section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 5</div></div>
-  <h2>Bank reconciliation <span class="muted" style="font-weight:400">operating account, Sep 30, 2026</span></h2>
+  {{ hdr(6) }}
+  <h2>Collection report <span class="muted" style="font-weight:400">accounts in the collection process</span></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Unit</th><th>Owner</th><th class="num">Balance</th><th class="num">Days</th><th>Stage (policy)</th><th>Last action</th><th>Next action</th></tr></thead>
+    <tbody>{% for d in delinquencies %}<tr><td>{{ d.unit_label }}</td><td>{{ d.owner_name }}</td><td class="num">{{ d.balance|money }}</td><td class="num">{{ d.days_late }}</td><td>{{ d.stage|replace('_',' ') }}</td><td>{{ d.last_action }}</td><td>{{ d.next_action }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <h3>Policy ladder (Exhibit B)</h3>
+  <p class="small">Late notice when past due · rebill 15 days ($45) · pre-legal demand 30 ($45) · intent to lien 60 ($105) · lien 75 ($205) · further action 90 ($45) · attorney by board vote ($215). No lien or attorney below $400 or 75 days. Fees post to the owner ledger.</p>
+  <div class="note"><strong>Annotation</strong>Stage, last action and next action for every account in the process, so the board can see the policy being followed without running it. Attorney referral always needs a vote; it is on the decisions list, not in this report.</div>
+</section>
+
+<!-- 7 prepaid report -->
+<section class="page">
+  {{ hdr(7) }}
+  <h2>Prepaid report <span class="muted" style="font-weight:400">owners paid ahead · as of Sep 30, 2026</span></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Unit</th><th>Owner</th><th class="num">Prepaid</th><th>Covers through</th></tr></thead>
+    <tbody>{% for u in prepaid %}<tr><td>{{ u.unit_label }}</td><td>{{ u.owner_name }}</td><td class="num">{{ (-u.balance)|money }}</td><td>{{ ['Nov 2026','Jan 2027'][loop.index0 % 2] }}</td></tr>{% else %}<tr><td colspan="4" class="muted">No prepaid balances.</td></tr>{% endfor %}
+      <tr class="tot"><td colspan="2">Total prepaid ({{ prepaid|length }} accounts)</td><td class="num">{{ (prepaid|sum(attribute='balance') * -1)|money }}</td><td></td></tr></tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>Cash basis means prepaid dues are already in the bank and already counted as income. This report tells the board how much of the cash is owed back in service, so it is not mistaken for surplus.</div>
+</section>
+
+<!-- 8 check register / AP distributions -->
+<section class="page">
+  {{ hdr(8) }}
+  <h2>Check register / AP distributions <span class="muted" style="font-weight:400">September 2026</span></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Paid</th><th>Check / ACH</th><th>Payee</th><th>Invoice</th><th>GL account</th><th>Approved by</th><th class="num">Amount</th></tr></thead>
+    <tbody>{% for i in invoices|selectattr('status','equalto','paid')|sort(attribute='paid_on') %}<tr><td>{{ i.paid_on|datefmt }}</td><td class="src">{{ i.check_number }}</td><td>{{ i.vendor }}</td><td class="src">{{ i.number }}</td><td>{{ i.gl_account }}</td><td class="small">2 of 2 · portal</td><td class="num">{{ i.amount|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td colspan="6">Total disbursements</td><td class="num">{{ invoices|selectattr('status','equalto','paid')|sum(attribute='amount')|money }}</td></tr></tbody>
+  </table></div>
+  <h3>Awaiting board approval (memo, not paid)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Payee</th><th>Invoice</th><th>GL account</th><th>hey's note</th><th class="num">Amount</th></tr></thead>
+    <tbody>{% for i in invoices if i.status == 'pending_board' %}<tr><td>{{ i.vendor }}</td><td class="src">{{ i.number }} · due {{ i.due_date|datefmt }}</td><td>{{ i.gl_account }}</td><td style="max-width:240px">{{ i.ai_note }}</td><td class="num">{{ i.amount|money }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>Every disbursement with its check or ACH reference, the invoice, the GL account and who approved it. Payments are released by the accountant in Caliber with the bank's positive pay after two board approvals; nothing is ever moved by software.</div>
+</section>
+
+<!-- 9 bank reconciliations -->
+<section class="page">
+  {{ hdr(9) }}
+  <h2>Bank reconciliation(s) <span class="muted" style="font-weight:400">Sep 30, 2026</span></h2>
+  <h3>Operating account · {{ bank.BANK_NAME }} ···4471</h3>
   <div class="two">
-    <div class="table-wrap"><table>
-      <tbody>
+    <div class="table-wrap"><table><tbody>
         <tr><td>Balance per bank statement</td><td class="num">$49,106.95</td></tr>
         <tr><td>Add: deposits in transit (lockbox 9/30)</td><td class="num">$620.00</td></tr>
         <tr><td>Less: outstanding checks (2)</td><td class="num">−$1,516.40</td></tr>
         <tr class="tot"><td>Adjusted bank balance</td><td class="num">$48,210.55</td></tr>
         <tr><td>Balance per general ledger (1010)</td><td class="num">$48,210.55</td></tr>
         <tr class="tot"><td>Difference</td><td class="num">$0.00 <span class="ok">✓</span></td></tr>
-      </tbody>
-    </table></div>
-    <div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Outstanding checks</th><th class="num">Amount</th></tr></thead>
-        <tbody>
-          <tr><td>#2231 Bright Light Electric · 9/26</td><td class="num">$285.00</td></tr>
-          <tr><td>#2232 City of Mesa Utilities · 9/29</td><td class="num">$1,231.40</td></tr>
-        </tbody>
-      </table></div>
-      <p class="src" style="margin-top:8px">Reconciled Oct 3, 2026 by hey · reviewed by D. Alvarez, CPA · 212 of 212 bank lines matched to a document</p>
-    </div>
+    </tbody></table></div>
+    <div><div class="table-wrap"><table><thead><tr><th>Outstanding checks</th><th class="num">Amount</th></tr></thead><tbody><tr><td>#2231 Bright Light Electric · 9/26</td><td class="num">$285.00</td></tr><tr><td>#2232 City of Mesa Utilities · 9/29</td><td class="num">$1,231.40</td></tr></tbody></table></div>
+      <p class="src" style="margin-top:8px">Reconciled Oct 3, 2026 in Caliber by D. Alvarez · 212 of 212 bank lines matched to a document · verified by hey against the statement balance</p></div>
   </div>
-  <div class="note"><strong>Annotation</strong>A reconciliation that ends in zero, with the outstanding items listed, is the single best test of whether anyone is actually watching the money. Ask your current provider for last month's. The reserve account reconciliation follows the same format.</div>
-  <h3>Reserve account</h3>
+  <h3>Reserve account · {{ bank.BANK_NAME }} money market ···4489</h3>
   <div class="table-wrap"><table><tbody>
-    <tr><td>Balance per bank (money market)</td><td class="num">$162,480.00</td></tr>
+    <tr><td>Balance per bank statement</td><td class="num">$162,480.00</td></tr>
     <tr><td>Balance per general ledger (1020)</td><td class="num">$162,480.00</td></tr>
     <tr class="tot"><td>Difference</td><td class="num">$0.00 <span class="ok">✓</span></td></tr>
   </tbody></table></div>
+  <div class="note"><strong>Annotation</strong>A reconciliation that ends in zero, with outstanding items listed, is the single best test of whether anyone is watching the money. One per bank account, every month.</div>
 </section>
 
-<!-- 6 AR aging -->
+<!-- 10 bank statements -->
 <section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 6</div></div>
-  <h2>Delinquent owner accounts <span class="muted" style="font-weight:400">memo schedule, not on the balance sheet</span></h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Bucket</th><th class="num">Accounts</th><th class="num">Balance</th><th class="num">% of AR</th></tr></thead>
-    <tbody>
-      <tr><td>Current (0–15 days)</td><td class="num">1</td><td class="num">$310.00</td><td class="num">10%</td></tr>
-      <tr><td>16–30 days</td><td class="num">0</td><td class="num">$0.00</td><td class="num">0%</td></tr>
-      <tr><td>31–60 days</td><td class="num">1</td><td class="num">$620.00</td><td class="num">20%</td></tr>
-      <tr><td>61–90 days</td><td class="num">1</td><td class="num">$930.00</td><td class="num">30%</td></tr>
-      <tr><td>Over 90 days</td><td class="num">1</td><td class="num">$1,240.00</td><td class="num">40%</td></tr>
-      <tr class="tot"><td>Total receivable</td><td class="num">4</td><td class="num">$3,100.00</td><td class="num">2.1% of annual assessments</td></tr>
-    </tbody>
-  </table></div>
-  <h3>Delinquent accounts and collection stage</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Unit</th><th class="num">Balance</th><th class="num">Days</th><th>Stage (Exhibit B)</th><th>Last action</th><th>Next action</th></tr></thead>
-    <tbody>{% for d in delinquencies %}<tr><td>{{ d.unit_label }}</td><td class="num">{{ d.balance|money }}</td><td class="num">{{ d.days_late }}</td><td>{{ d.stage|replace('_',' ') }}</td><td>{{ d.last_action }}</td><td>{{ d.next_action }}</td></tr>{% endfor %}</tbody>
-  </table></div>
-  <div class="note"><strong>Annotation</strong>Owner names are on the board version, not this sample. Every stage follows the collection policy your board adopted; hey drafts the notice, a person reviews and sends it, and the fee posts to the owner's ledger, not the association's expense line.</div>
-</section>
-
-<!-- 7 AP -->
-<section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 7</div></div>
-  <h2>Unpaid bills and approvals <span class="muted" style="font-weight:400">memo schedule, not on the balance sheet</span></h2>
-  <h3>Paid in September</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Vendor</th><th>Invoice</th><th>GL account</th><th>Approved by</th><th class="num">Amount</th></tr></thead>
-    <tbody>{% for i in invoices if i.status == 'paid' %}<tr><td>{{ i.vendor }}</td><td>{{ i.number }} · {{ i.invoice_date|datefmt }}</td><td>{{ i.gl_account }}</td><td>2 of 2 · portal</td><td class="num">{{ i.amount|money }}</td></tr>{% endfor %}</tbody>
-  </table></div>
-  <h3>Awaiting board approval (as of Oct 5)</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Vendor</th><th>Invoice</th><th>GL account</th><th>hey's note</th><th class="num">Amount</th></tr></thead>
-    <tbody>{% for i in invoices if i.status == 'pending_board' %}<tr><td>{{ i.vendor }}</td><td>{{ i.number }} · due {{ i.due_date|datefmt }}</td><td>{{ i.gl_account }}</td><td style="max-width:260px">{{ i.ai_note }}</td><td class="num">{{ i.amount|money }}</td></tr>{% endfor %}
-      <tr class="tot"><td colspan="4">Total pending</td><td class="num">{{ invoices|selectattr('status','equalto','pending_board')|sum(attribute='amount')|money }}</td></tr></tbody>
-  </table></div>
-  <div class="note"><strong>Annotation</strong>Nothing is paid without two board approvals in the portal. hey reads each invoice, codes it, checks it against the contract and the 12-month trend, and writes the note you see. The board decides in about a minute per invoice.</div>
-</section>
-
-<!-- 8 GL excerpt -->
-<section class="page">
-  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 8</div></div>
-  <h2>General ledger detail <span class="muted" style="font-weight:400">excerpt: 6210 Landscaping</span></h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Date</th><th>Ref</th><th>Description</th><th>Source</th><th class="num">Debit</th><th class="num">Balance</th></tr></thead>
-    <tbody>
-      <tr><td>Jan 5</td><td>GS-20102</td><td>GreenScape Lawn Co · January maintenance</td><td class="src">invoice.pdf · chk 2201</td><td class="num">$1,850.00</td><td class="num">$1,850.00</td></tr>
-      <tr><td>Feb 4</td><td>GS-20148</td><td>GreenScape Lawn Co · February maintenance</td><td class="src">invoice.pdf · chk 2206</td><td class="num">$1,850.00</td><td class="num">$3,700.00</td></tr>
-      <tr><td>Mar 5</td><td>GS-20190</td><td>GreenScape Lawn Co · March maintenance (contract +3%)</td><td class="src">invoice.pdf · ach</td><td class="num">$1,850.00</td><td class="num">$5,550.00</td></tr>
-      <tr><td colspan="4" class="muted">… April through August, 5 entries, all matched to contract …</td><td class="num"></td><td class="num">$14,800.00</td></tr>
-      <tr><td>Sep 3</td><td>GS-20387</td><td>GreenScape Lawn Co · September maintenance</td><td class="src">invoice.pdf · ach</td><td class="num">$1,850.00</td><td class="num">$16,650.00</td></tr>
-      <tr><td>Sep 18</td><td>GS-20401</td><td>GreenScape Lawn Co · storm cleanup (board-approved extra)</td><td class="src">invoice.pdf · bid.pdf · ach</td><td class="num">$1,850.00</td><td class="num">$18,500.00</td></tr>
-    </tbody>
-  </table></div>
-  <div class="note"><strong>Annotation</strong>In the real packet the "Source" column is clickable: invoice PDF, bank line, approval record. This is what "every number links to its source" means. The full GL for all accounts is attached as a spreadsheet, every month.</div>
-  <h3>Reserve funding <span class="muted" style="font-weight:400">vs 2026 Level II study</span></h3>
+  {{ hdr(10) }}
+  <h2>Bank statement(s) <span class="muted" style="font-weight:400">September 2026 · as received from {{ bank.BANK_NAME }}</span></h2>
   <div class="two">
-    <div class="table-wrap"><table><tbody>
-      <tr><td>Reserve balance, Sep 30</td><td class="num">$162,480.00</td></tr>
-      <tr><td>Fully funded balance per study</td><td class="num">$198,000.00</td></tr>
-      <tr class="tot"><td>Percent funded</td><td class="num">82%</td></tr>
-      <tr><td>2026 contribution (YTD / annual)</td><td class="num">$27,000 / $36,000</td></tr>
-      <tr><td>Study's recommended 2027 contribution</td><td class="num">$39,000</td></tr>
-    </tbody></table></div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Next expenditures</th><th>Year</th><th class="num">Cost</th></tr></thead>
-      <tbody><tr><td>Asphalt seal and stripe</td><td>2027</td><td class="num">$18,500</td></tr><tr><td>Entry monument and lighting</td><td>2028</td><td class="num">$14,000</td></tr><tr><td>Pool resurface</td><td>2030</td><td class="num">$46,000</td></tr></tbody>
-    </table></div>
+    <div class="card" style="background:#F6F5F8;border:1px dashed #cfcdd6;padding:18px;min-height:280px"><p class="src">{{ bank.BANK_NAME }} · operating ···4471 · statement period 09/01–09/30/2026 · 6 pages</p><p class="small muted">The bank's own PDF is attached here unchanged, downloaded from {{ bank.BANK_PORTAL_NAME }}.</p></div>
+    <div class="card" style="background:#F6F5F8;border:1px dashed #cfcdd6;padding:18px;min-height:280px"><p class="src">{{ bank.BANK_NAME }} · reserve money market ···4489 · statement period 09/01–09/30/2026 · 2 pages</p><p class="small muted">The bank's own PDF is attached here unchanged, downloaded from {{ bank.BANK_PORTAL_NAME }}.</p></div>
   </div>
-  <p class="src" style="margin-top:14px">Sample packet with demo data, strict cash basis. Prepared by hey hoa. Real packets are delivered by the 5th business day or that month's fee is waived.</p>
+  <div class="note"><strong>Annotation</strong>Statements come straight from the bank, never from us. Board members can also download them any time, and submit signature cards, in {{ bank.BANK_NAME }} {{ bank.BANK_PORTAL_NAME }}. Transfers between accounts and CD purchases or redemptions are done there by a person after a board decision; software never moves money.</div>
+  <p class="src" style="margin-top:14px">Sample board package with demo data, strict cash basis. Prepared by hey hoa. Real packages are delivered by the 5th business day or that month's fee is waived.</p>
 </section>
+{% else %}
+<section class="page">
+  {{ hdr(5) }}
+  <h2>About this package</h2>
+  <p>Owners receive the first four sections of the board's monthly package: the cover, the monthly update, the budget comparison and the balance sheet. The board's package continues with the aged owner balance report, the collection report, the prepaid report, the check register, the bank reconciliations and the bank statements.</p>
+  <p>Owners can see every paid bill in the portal (except bills the board marks confidential) and can ask hey any question about these numbers. Owner balances, collection matters and other owners' accounts are never shown to owners.</p>
+  <p class="src" style="margin-top:14px">Sample homeowner package with demo data, strict cash basis. Prepared by hey hoa.</p>
+</section>
+{% endif %}
 </body>
 </html>

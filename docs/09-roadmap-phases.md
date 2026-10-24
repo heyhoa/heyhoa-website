@@ -78,6 +78,7 @@ Goal: the first community onboarded end to end (interview, documents, Caliber se
 - [ ] Announcements: email (Postmark) + SMS (Twilio) delivery with opt-in tracking
 - [x] hey ops: work items, six agent lanes with risk-tiered tools, review queue, shadow mode, Postmark inbound, scheduled daily agents (`app/agents/`, `/ops`)
 - [x] Strict cash basis everywhere: COA, packet, balance sheet, docs
+- [x] Financial package restructured to the founders' ten sections (board) and four (homeowners); both sample PDFs; money movement only in First Citizens Client Connect by a person
 - [x] Board decisions queue with quorums per type (transfers, CDs, bids, work orders, ARC, assessments, budget, policies, collections, waivers, vendors, insurance, meetings); votes logged; approved → execution item
 - [x] Board owner inbox: calls, texts, emails, portal requests with hey's answer; board replies under its own name
 - [x] Board documents as system of record: upload with category, vendor, effective/expiry, owner visibility; 90-day expiry warnings

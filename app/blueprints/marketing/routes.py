@@ -230,13 +230,17 @@ def brand_page():
 
 @bp.route("/sample-packet")
 def sample_packet():
-    """HTML source of the sample financial packet; scripts/build_sample_packet.js prints it to PDF."""
+    """HTML source of the sample financial package (board or homeowner); scripts/build_sample_packet.js prints both to PDF."""
     from ...integrations.mock import MockProvider
+    from ...services.packet import sections
 
+    audience = "homeowner" if request.args.get("audience") == "homeowner" else "board"
     p = MockProvider()
+    owners = p.list_unit_accounts("1001")
     return render_template(
-        "marketing/sample_packet.html", community=p.get_community("1001"), snap=p.get_financial_snapshot("1001"),
+        "marketing/sample_packet.html", audience=audience, sections=sections(audience), community=p.get_community("1001"), snap=p.get_financial_snapshot("1001"),
         coa=p.get_chart_of_accounts("1001"), invoices=p.list_invoices("1001"), delinquencies=p.list_delinquencies("1001"),
+        prepaid=[u for u in owners if u.balance < 0], owners=owners, bank=current_app.config,
     )
 
 

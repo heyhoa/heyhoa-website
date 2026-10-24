@@ -1,7 +1,7 @@
 """The six agent lanes. Each has a prompt, a tool set and a demo planner."""
 from __future__ import annotations
 
-from flask import url_for
+from flask import current_app, url_for
 
 from .. import brand
 from ..ai import assistant
@@ -133,7 +133,7 @@ class CloseAgent(Agent):
     def plan(self, item):
         if item.kind == "board_approved":
             amt = (item.remote_ids or {}).get("amount")
-            return Proposal(action="escalate", payload={"lane": "accountant", "note": f"Board approved money movement: {item.subject}{f' · ${amt:,.2f}' if amt else ''}. Execute at the bank with two signers, record in Caliber, attach confirmation."}, preview=f"Board approved. Accountant executes at the bank and records in Caliber: {item.summary[:300]}", confidence=0.95, reason="board decision")
+            return Proposal(action="escalate", payload={"lane": "accountant", "note": f"Board approved money movement: {item.subject}{f' · ${amt:,.2f}' if amt else ''}. A person executes it in {current_app.config.get('BANK_NAME', 'the bank')} {current_app.config.get('BANK_PORTAL_NAME', 'Client Connect')} with the board's signers, records it in Caliber and attaches the confirmation to the decision. Software never moves money."}, preview=f"Board approved. Accountant executes in {current_app.config.get('BANK_PORTAL_NAME', 'Client Connect')} and records in Caliber: {item.summary[:300]}", confidence=0.95, reason="board decision")
         return Proposal(action="snapshot_and_verify", payload={}, preview="Snapshot the chart of accounts and verify cash and reconciliation status.", confidence=0.95, reason="nightly")
 
 
