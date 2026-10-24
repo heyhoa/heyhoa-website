@@ -1,0 +1,30 @@
+{% extends "ops/base.html" %}
+{% from "ops/_macros.html" import state_pill %}
+{% block title %}Review — hey ops{% endblock %}
+{% block page_title %}Review queue{% endblock %}
+{% block content %}
+{% for w in items %}
+<div class="card" style="margin-bottom:1rem">
+  <div class="decision">
+    <div class="body">
+      <h4 style="margin:0"><a class="nostyle" href="{{ url_for('ops.item', item_id=w.id) }}">#{{ w.id }} · {{ w.subject }}</a></h4>
+      <p class="small muted" style="margin:.25rem 0">{{ w.lane }} · {{ w.kind }} · {{ communities[w.community_id].name if w.community_id in communities else 'unknown community' }}{% if w.counterpart_email %} · {{ w.counterpart_name or '' }} &lt;{{ w.counterpart_email }}&gt;{% endif %} · priority {{ w.priority }} · due {{ w.sla_due|datefmt('%b %d %H:%M') if w.sla_due else '—' }}</p>
+      {% set pr = w.proposal or {} %}
+      <p class="small" style="margin:.5rem 0 0;padding:.6rem .8rem;background:var(--bg-2);border-radius:8px;border-left:3px solid var(--lime)"><strong>hey proposes · {{ pr.get('action') }}</strong> <span class="muted">({{ (pr.get('confidence', 0) * 100)|round|int }}% · {{ pr.get('reason','') }}{% if pr.get('sources') %} · sources: {{ pr.get('sources')|join(', ') }}{% endif %})</span><br><span style="white-space:pre-wrap">{{ pr.get('preview','')[:900] }}</span></p>
+    </div>
+    <div class="amount">{{ state_pill(w.state) }}</div>
+  </div>
+  {% if w.state in ('proposed','escalated') %}
+  <form method="post" action="{{ url_for('ops.approve', item_id=w.id) }}" style="margin-top:1rem">
+    {% if (w.proposal or {}).get('payload', {}).get('body') %}<textarea class="form-control" name="body" rows="5">{{ (w.proposal or {}).get('payload', {}).get('body') }}</textarea><span class="form-help-text">Edit before approving if needed. What you approve is what goes out.</span>{% endif %}
+    <div class="actions" style="margin-top:.75rem">
+      {% if w.state == 'proposed' %}<button class="btn btn-primary btn-sm">Approve &amp; execute</button>{% endif %}
+      <input class="form-control" name="note" placeholder="Note (optional)" style="width:260px;padding:.45rem .7rem">
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('ops.item', item_id=w.id) }}">Open thread</a>
+    </div>
+  </form>
+  <form method="post" action="{{ url_for('ops.reject', item_id=w.id) }}" style="display:flex;gap:.5rem;margin-top:.5rem"><input class="form-control" name="note" placeholder="Why reject?" style="width:260px;padding:.45rem .7rem"><button class="btn btn-ghost btn-sm" style="color:var(--red)">Reject</button></form>
+  {% endif %}
+</div>
+{% else %}<p class="muted">Nothing to review.</p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "ops/base.html" %}
+{% block title %}Log an item — hey ops{% endblock %}
+{% block page_title %}Log a call or item{% endblock %}
+{% block content %}
+<form class="card" method="post" style="max-width:760px">
+  <div class="form-row">
+    <div class="form-group"><label for="community_id">Community</label><select class="form-control" id="community_id" name="community_id">{% for id, c in communities.items() %}<option value="{{ id }}">{{ c.name }}</option>{% endfor %}</select></div>
+    <div class="form-group"><label for="kind">Channel</label><select class="form-control" id="kind" name="kind"><option value="call">Phone call</option><option value="email">Email (manual)</option><option value="sms">Text</option><option value="walk_in">In person</option><option value="other">Other</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label for="name">Who</label><input class="form-control" id="name" name="name" placeholder="Owner, vendor or board member"></div>
+    <div class="form-group"><label for="email">Their email</label><input class="form-control" id="email" name="email" type="email"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label for="unit_account_id">Unit account id (if known)</label><input class="form-control" id="unit_account_id" name="unit_account_id" placeholder="ua-1012"></div>
+    <div class="form-group"><label for="lane">Lane</label><select class="form-control" id="lane" name="lane">{% for l in lanes %}<option value="{{ l }}">{{ l }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="form-group"><label for="subject">Subject</label><input class="form-control" id="subject" name="subject" required></div>
+  <div class="form-group"><label for="body">What they said / what happened</label><textarea class="form-control" id="body" name="body" rows="5" required></textarea></div>
+  <button class="btn btn-primary">Log and run the agent</button>
+</form>
+{% endblock %}

@@ -62,9 +62,27 @@ Light theme, sidebar grouped Money / Community / hey. Goal: decide fast with the
 | Activity log | `/board/activity` | Every human and `hey` action with inputs |
 | Settings | `/board/settings` | Approval rules, integrations status, board members, plan |
 
+## 4. hey ops (`/ops`)
+Light theme, sidebar. The admin console. Humans review what the agents propose; nobody works out of an inbox.
+
+| Page | Route | Key content |
+|---|---|---|
+| Dashboard | `/ops/dashboard` | Waiting-for-a-person count by lane, SLA breaches, done today, percent closed by agents alone, needs-a-person list, lane summary |
+| Review queue | `/ops/review` | Proposed and escalated items with the proposal preview, editable body, approve/reject |
+| All work | `/ops/queue` | Filter by lane, state, community |
+| Item | `/ops/item/<id>` | Thread (all channels), evidence, proposal with payload, approve/reject, internal notes, agent runs, re-run in another lane |
+| Log a call / item | `/ops/new` | Manual intake for calls and walk-ins; runs the lane's agent |
+| Lanes & policy | `/ops/agents` | Each agent's description, tools by risk, what it may execute alone, stats, system prompt |
+| Messages | `/ops/threads` | Every inbound and outbound message with delivery status |
+| Runs & audit | `/ops/activity` | Agent runs with tokens and timing; audit log |
+| Settings | `/ops/settings` | Shadow mode, live communities, confidence floor, transports, aliases |
+
 ## Data model (local, `app/models.py`)
-`Lead` (quote requests, scored) · `ContactMessage` · `PortalRequest` (maintenance/ARC submissions mirrored to the provider; mirrors tickets) · `Announcement` · `AuditLog` · `CoaSnapshot` (nightly chart of accounts, the basis for monthly statements) · `BudgetLine` (we are the system of record for budgets).
+`WorkItem` (the unit of work for hey ops) · `Message` (thread entries, any channel) · `AgentRun` (every agent step with tokens and timing) · `Lead` (quote requests, scored) · `ContactMessage` · `PortalRequest` (maintenance/ARC submissions mirrored to the provider) · `Announcement` · `AuditLog` · `CoaSnapshot` (nightly chart of accounts, the basis for monthly statements) · `BudgetLine` (we are the system of record for budgets).
 Live accounting data (communities, units, ledgers, invoices, delinquencies, ARC, documents, vendors, violations) comes from the **provider interface** (`app/integrations/base.py`). Period financials are *derived* in `app/services/financials.py` from snapshots, because Caliber exposes balances but not activity by period (doc 12). Bank reconciliation is done in Caliber; we verify and present it.
+
+## Agents (`app/agents/`)
+Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools with risk levels, demo planners and a live Claude tool-use loop, a review policy with shadow mode. See doc 13 §3. The assistant functions below are what the lanes call for drafting and classification.
 
 ## AI jobs (`app/ai/assistant.py`)
 | Job | Input | Output | Human in loop |

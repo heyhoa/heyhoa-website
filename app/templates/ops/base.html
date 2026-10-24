@@ -1,0 +1,25 @@
+{% extends "portal/base.html" %}
+{% block portal_name %}ops{% endblock %}
+{% block sidenav %}
+{% set p = request.path %}
+<div class="section-label">Work</div>
+<ul>
+  <li><a href="{{ url_for('ops.dashboard') }}" {% if p in ('/ops/','/ops/dashboard') %}aria-current="page"{% endif %}>Dashboard</a></li>
+  <li><a href="{{ url_for('ops.review') }}" {% if p == '/ops/review' %}aria-current="page"{% endif %}>Review queue</a></li>
+  <li><a href="{{ url_for('ops.queue', state='open') }}" {% if p == '/ops/queue' %}aria-current="page"{% endif %}>All work</a></li>
+  <li><a href="{{ url_for('ops.threads') }}" {% if p == '/ops/threads' %}aria-current="page"{% endif %}>Messages</a></li>
+  <li><a href="{{ url_for('ops.new_item') }}" {% if p == '/ops/new' %}aria-current="page"{% endif %}>Log a call / item</a></li>
+</ul>
+<div class="section-label">Agents</div>
+<ul>
+  <li><a href="{{ url_for('ops.agents') }}" {% if p == '/ops/agents' %}aria-current="page"{% endif %}>Lanes &amp; policy</a></li>
+  <li><a href="{{ url_for('ops.activity') }}" {% if p == '/ops/activity' %}aria-current="page"{% endif %}>Runs &amp; audit</a></li>
+  <li><a href="{{ url_for('ops.settings') }}" {% if p == '/ops/settings' %}aria-current="page"{% endif %}>Settings</a></li>
+</ul>
+<div class="section-label">Portals</div>
+<ul>
+  <li><a href="{{ url_for('board.dashboard') }}">Board portal ↗</a></li>
+  <li><a href="{{ url_for('homeowner.dashboard') }}">Homeowner portal ↗</a></li>
+</ul>
+{% endblock %}
+{% block crumbs %}hey ops · all communities{% endblock %}

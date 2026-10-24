@@ -1,0 +1,30 @@
+{% extends "ops/base.html" %}
+{% block title %}Settings — hey ops{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div class="grid grid-2">
+  <div class="card"><h3>Policy</h3>
+    <ul class="checks">
+      <li><span>Shadow mode (all proposals reviewed)</span><span class="pill {{ 'lime' if cfg.SHADOW_MODE else 'green' }}">{{ 'on' if cfg.SHADOW_MODE else 'off' }}</span></li>
+      <li><span>Communities out of shadow</span><span class="muted small">{{ cfg.LIVE_COMMUNITIES|join(', ') or 'none' }}</span></li>
+      <li><span>Auto-execute confidence floor</span><span class="mono">{{ cfg.AUTO_CONFIDENCE }}</span></li>
+      <li><span>Money actions</span><span class="muted small">always reviewed</span></li>
+    </ul>
+    <p class="small muted" style="margin-top:.75rem">Set via env: <span class="mono">SHADOW_MODE</span>, <span class="mono">LIVE_COMMUNITIES=1001,1002</span>, <span class="mono">AUTO_CONFIDENCE</span>. A settings UI replaces this once there is more than one operator.</p>
+  </div>
+  <div class="card"><h3>Transports</h3>
+    <ul class="checks">
+      <li><span>Email (Postmark)</span><span class="pill {{ 'green' if cfg.POSTMARK_SERVER_TOKEN else 'amber' }}">{{ 'live' if cfg.POSTMARK_SERVER_TOKEN else 'simulated' }}</span></li>
+      <li><span>Inbound email webhook</span><span class="mono small">/api/webhooks/postmark?token=…</span></li>
+      <li><span>Text (Twilio)</span><span class="pill {{ 'green' if cfg.TWILIO_ACCOUNT_SID else 'amber' }}">{{ 'live' if cfg.TWILIO_ACCOUNT_SID else 'simulated' }}</span></li>
+      <li><span>Voice</span><span class="pill">phase 3</span></li>
+      <li><span>Print &amp; mail</span><span class="pill">phase 3</span></li>
+      <li><span>Accounting (Caliber)</span><span class="pill {{ 'green' if cfg.ACCOUNTING_PROVIDER == 'frontsteps' else 'amber' }}">{{ cfg.ACCOUNTING_PROVIDER }}</span></li>
+      <li><span>Model</span><span class="mono small">{{ cfg.HEY_AI_MODEL if cfg.ANTHROPIC_API_KEY else 'demo planners' }}</span></li>
+      <li><span>Slack pings</span><span class="pill {{ 'green' if cfg.SLACK_WEBHOOK_URL else 'amber' }}">{{ 'on' if cfg.SLACK_WEBHOOK_URL else 'off' }}</span></li>
+    </ul>
+  </div>
+  <div class="card"><h3>Community aliases</h3><ul class="checks">{% for alias, cid in cfg.COMMUNITY_ALIASES.items() %}<li><span class="mono small">{{ alias }}</span><span>{{ communities[cid].name if cid in communities else cid }}</span></li>{% else %}<li class="muted small">None. Set <span class="mono">COMMUNITY_ALIASES=willowcreek@heyhoa.com=1001</span>.</li>{% endfor %}</ul></div>
+  <div class="card"><h3>Lanes</h3><ul class="checks">{% for lane, a in lanes.items() %}<li><span>{{ a.name }}</span><span class="muted small">{{ a.tools|length }} tools</span></li>{% endfor %}</ul></div>
+</div>
+{% endblock %}

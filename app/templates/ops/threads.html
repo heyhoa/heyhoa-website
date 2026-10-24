@@ -1,0 +1,9 @@
+{% extends "ops/base.html" %}
+{% block title %}Messages — hey ops{% endblock %}
+{% block page_title %}Messages{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>When</th><th>Dir</th><th>Channel</th><th>From → To</th><th>Subject / body</th><th>Item</th><th>Status</th></tr></thead>
+  <tbody>{% for m in msgs %}<tr><td class="small">{{ m.created_at|datefmt('%b %d %H:%M') }}</td><td>{{ m.direction }}</td><td>{{ m.channel }}</td><td class="small">{{ m.sender or '' }} → {{ m.recipient or '' }}</td><td class="small">{% if m.subject %}<strong>{{ m.subject }}</strong><br>{% endif %}{{ (m.body or '')[:140] }}</td><td><a href="{{ url_for('ops.item', item_id=m.work_item_id) }}">#{{ m.work_item_id }}</a></td><td>{% if m.direction == 'out' %}{% if m.delivered %}<span class="pill green">sent</span>{% elif (m.meta or {}).get('simulated') %}<span class="pill amber">simulated</span>{% else %}<span class="pill red">failed</span>{% endif %}{% else %}<span class="pill">received</span>{% endif %}</td></tr>{% else %}<tr><td colspan="7" class="muted">No messages yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

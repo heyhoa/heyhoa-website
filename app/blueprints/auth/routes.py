@@ -6,10 +6,11 @@ let a visitor pick a role and sign in as a demo persona.
 """
 from flask import abort, redirect, render_template, request, session, url_for
 
-from ...integrations.mock import DEMO_BOARD, DEMO_HOMEOWNER
+from ...integrations.mock import DEMO_BOARD, DEMO_HOMEOWNER, DEMO_OPS
 from . import bp
 
-PERSONAS = {"homeowner": DEMO_HOMEOWNER, "board": DEMO_BOARD}
+PERSONAS = {"homeowner": DEMO_HOMEOWNER, "board": DEMO_BOARD, "ops": DEMO_OPS}
+HOME = {"homeowner": "homeowner.dashboard", "board": "board.dashboard", "ops": "ops.dashboard"}
 
 
 @bp.route("/login")
@@ -24,7 +25,7 @@ def login_role(role):
     if request.method == "POST" or request.args.get("demo"):
         session["role"] = role
         session["user"] = PERSONAS[role]
-        return redirect(url_for("homeowner.dashboard" if role == "homeowner" else "board.dashboard"))
+        return redirect(url_for(HOME[role]))
     return render_template("auth/login_role.html", role=role, persona=PERSONAS[role])
 
 

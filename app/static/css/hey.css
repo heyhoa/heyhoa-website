@@ -224,7 +224,8 @@ body:not(.theme-dark) .shell .card { background: #fff; border-color: var(--line)
 .picklist a:hover { border-color: var(--fg-2); }
 
 .checks { list-style: none; padding: 0; margin: 0; }
-.checks li { padding: 0.5rem 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 1rem; }
+.checks li { padding: 0.5rem 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.checks li > .pill { flex: none; margin-top: 0.15rem; }
 .checks li:last-child { border-bottom: 0; }
 
 /* --- tables ------------------------------------------------------------- */

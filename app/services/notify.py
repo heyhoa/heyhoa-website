@@ -1,8 +1,6 @@
-"""Outbound notifications: new leads and contact messages to Help Scout and Slack.
-
-Everything here is best-effort. A failure logs and returns False; it never
-breaks the web request that triggered it.
-"""
+"""Outbound notifications for leads and website messages: Slack ping and an
+email to the ops inbox. Website messages also become work items so hey ops
+handles them like any other inbound. Best-effort; never raises."""
 from __future__ import annotations
 
 import logging
@@ -10,25 +8,17 @@ import logging
 import requests
 from flask import current_app
 
-from ..integrations.helpscout import HelpScoutClient, HelpScoutError
+from ..channels import email as email_channel
 
 log = logging.getLogger(__name__)
 
 
-def _hs() -> HelpScoutClient | None:
-    cfg = current_app.config
-    if not (cfg.get("HELPSCOUT_APP_ID") and cfg.get("HELPSCOUT_APP_SECRET")):
-        return None
-    return HelpScoutClient(cfg["HELPSCOUT_APP_ID"], cfg["HELPSCOUT_APP_SECRET"])
-
-
-def _slack(text: str, blocks: list | None = None) -> bool:
+def _slack(text: str) -> bool:
     url = current_app.config.get("SLACK_WEBHOOK_URL")
     if not url:
         return False
     try:
-        r = requests.post(url, json={"text": text, **({"blocks": blocks} if blocks else {})}, timeout=10)
-        return r.status_code < 300
+        return requests.post(url, json={"text": text}, timeout=10).status_code < 300
     except requests.RequestException as e:  # noqa: BLE001
         log.warning("slack notify failed: %s", e)
         return False
@@ -50,37 +40,22 @@ def lead_summary(lead) -> str:
 
 
 def notify_new_lead(lead) -> dict:
-    """Create a Help Scout conversation in the sales mailbox and ping Slack."""
-    result = {"helpscout": False, "slack": False}
-    hs = _hs()
-    mailbox = current_app.config.get("HELPSCOUT_MAILBOX_ID_SALES")
-    if hs and mailbox:
-        try:
-            convo = hs.create_conversation(
-                int(mailbox), subject=f"Quote request · {lead.community_name} · {lead.units} doors · score {lead.score}",
-                customer_email=lead.email or current_app.config["LEAD_NOTIFY_EMAIL"], text=lead_summary(lead),
-                first_name=(lead.contact_name or "").split(" ")[0], last_name=" ".join((lead.contact_name or "").split(" ")[1:]),
-                tags=["lead", f"score-{(lead.score or 0) // 10 * 10}", lead.plan or "no-plan", (lead.state or "xx").lower()], imported=True,
-            )
-            result["helpscout"] = bool(convo)
-        except HelpScoutError as e:
-            log.warning("helpscout lead notify failed: %s", e)
-    result["slack"] = _slack(f":house: New quote request: *{lead.community_name}* · {lead.units} doors · {lead.state} · score {lead.score} · {lead.contact_name} <{lead.email}>")
-    return result
+    summary = lead_summary(lead)
+    res = email_channel.send(current_app.config["LEAD_NOTIFY_EMAIL"], f"Quote request · {lead.community_name} · {lead.units} doors · score {lead.score}", summary, tag="lead")
+    slack = _slack(f":house: New quote request: *{lead.community_name}* · {lead.units} doors · {lead.state} · score {lead.score} · {lead.contact_name} <{lead.email}>")
+    return {"email": res, "slack": slack}
 
 
 def deliver_contact_message(msg) -> dict:
-    """Contact-form messages become real conversations in the support or sales mailbox."""
-    result = {"helpscout": False, "slack": False}
-    hs = _hs()
-    cfg = current_app.config
-    mailbox = cfg.get("HELPSCOUT_MAILBOX_ID_SALES") if msg.topic in ("sales", "closing-docs", "vendor") else cfg.get("HELPSCOUT_MAILBOX_ID_SUPPORT")
-    if hs and mailbox:
-        try:
-            convo = hs.create_conversation(int(mailbox), subject=f"[{msg.topic}] from {msg.name}", customer_email=msg.email, text=msg.message, first_name=msg.name or "", tags=["website", msg.topic or "other"])
-            result["helpscout"] = bool(convo)
-        except HelpScoutError as e:
-            log.warning("helpscout contact deliver failed: %s", e)
-    if msg.topic in ("sales", "closing-docs"):
-        result["slack"] = _slack(f":envelope: Website message ({msg.topic}) from {msg.name} <{msg.email}>: {msg.message[:200]}")
-    return result
+    """Website message → work item (cs lane) + ops email + Slack for sales topics."""
+    from ..agents import runtime
+
+    try:
+        item = runtime.inbound_portal(community_id=None, unit_account_id=None, kind="email", subject=f"[{msg.topic}] {msg.name}", body=msg.message, email=msg.email, name=msg.name, lane="cs")
+        item_id = item.id
+    except Exception as e:  # noqa: BLE001
+        log.warning("work item for contact message failed: %s", e)
+        item_id = None
+    res = email_channel.send(current_app.config["LEAD_NOTIFY_EMAIL"], f"[{msg.topic}] website message from {msg.name}", f"{msg.message}\n\nFrom: {msg.name} <{msg.email}>\nWork item: #{item_id}", tag="website")
+    slack = _slack(f":envelope: Website message ({msg.topic}) from {msg.name} <{msg.email}>: {msg.message[:200]}") if msg.topic in ("sales", "closing-docs") else False
+    return {"email": res, "slack": slack, "work_item": item_id}

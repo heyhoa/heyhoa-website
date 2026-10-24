@@ -14,14 +14,17 @@ app/__init__.py             create_app, filters, CLI (flask seed)
 app/config.py               env-driven config (.env.example)
 app/brand.py                brand copy + pricing tiers (single source for site and docs)
 app/models.py               local tables
-app/services/               leads (scoring), auth (role_required), seed
+app/services/               leads (scoring), auth (role_required), seed, notify, financials
 app/integrations/           base (interface), registry, mock, frontsteps
 app/ai/                     prompts, assistant (live + demo)
+app/agents/                 base (framework), tools, lanes (cs, ar, ap, board, close, onboarding), runtime
+app/channels/               email (Postmark), sms (Twilio)
 app/blueprints/marketing    public site + content.py (services, FAQs, reviews, posts)
 app/blueprints/auth         login/logout
 app/blueprints/homeowner    /me/*
 app/blueprints/board        /board/*
-app/blueprints/api          /api/* (health, provider ping, ask, leads)
+app/blueprints/api          /api/* (health, provider ping, ask, leads, Postmark inbound webhook, daily agents hook)
+app/blueprints/ops          /ops/* (hey ops console)
 app/templates/              base.html (dark), portal/base.html (light shell), partials/hey-mark.html
 app/static/                 css, js, img, brand svgs
 brand/                      logo SVG sources
@@ -59,8 +62,8 @@ Template → route → `get_provider()` → provider method → dataclasses → 
 | Auth | `GET login` (Basic), `POST requestnewuseraccount`, `POST resetpassword`, `GET contact/multipass` |
 | Health | `GET ping`, `GET time`, `GET mgmtco` |
 
-## Inbox and tickets
-Help Scout is the shared inbox and ticket system. `app/integrations/helpscout.py` wraps the Mailbox API 2.0 (OAuth2 client credentials, conversations, replies, notes, tags, assignment) and verifies webhook signatures. `app/services/triage.py` turns a conversation into a community + owner + category + route and acts (reply or note+assign), mirroring to `PortalRequest`. `app/services/notify.py` creates Sales conversations for leads and website messages and pings Slack. All of it degrades to no-ops when the env vars are unset.
+## hey ops: agents and the console
+`app/agents/base.py` defines `Tool` (name, schema, function, risk), `Proposal` and `Agent` (lane, prompt, tools, auto-execute risks, demo `plan()` and live `run_live()` using Claude tool use: read tools run inline, the first send/write/money call becomes the proposal). `app/agents/tools.py` holds the shared tools over the provider interface and the channels. `app/agents/lanes.py` defines the six lanes. `app/agents/runtime.py` creates work items from inbound email, portal forms and the scheduled `daily()` job, runs agents, follows hand-offs, applies the review policy (shadow mode, risk, confidence) and executes approvals. `app/blueprints/ops/` is the console. `app/channels/` holds transports (Postmark email with inbound parsing, Twilio SMS), simulated when unconfigured. `app/services/notify.py` pings Slack and the ops inbox for leads. Nothing here depends on a third-party help desk.
 
 ## Financials pipeline
 `flask snapshot-coa` runs nightly (cron) and copies every community's chart of accounts into `coa_snapshots`. `services/financials.py` derives the balance sheet (lifetime `Balance`), the YTD income statement (`FYBalance`), monthly activity (Δ `FYBalance` between snapshots) and budget vs actual (`budget_lines`). Bank reconciliation lives in Caliber with the First Citizens integration; we verify cash GL vs statement and show the status. See doc 12 for the full capability map and doc 13 for the close runbook.

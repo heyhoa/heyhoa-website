@@ -1,0 +1,18 @@
+{% extends "ops/base.html" %}
+{% block title %}Agents — hey ops{% endblock %}
+{% block page_title %}Lanes &amp; policy{% endblock %}
+{% block content %}
+<p class="small muted">Mode: <strong>{{ 'live (Claude)' if config.ANTHROPIC_API_KEY else 'demo planners' }}</strong> · Shadow: <strong>{{ 'on' if shadow else 'off' }}</strong>. Read tools run freely. Tools marked send, write or money become proposals; a lane may execute send/write on its own only when shadow is off and the risk is in its auto list. Money always needs a person.</p>
+{% for lane, a in agents.items() %}
+<div class="card" style="margin-bottom:1rem">
+  <div class="decision">
+    <div class="body"><h3 style="margin:0">{{ a.name }} <span class="mono small muted">{{ lane }}</span></h3><p class="muted">{{ a.description }}</p>
+      <p class="small"><strong>Tools:</strong> {% for t in a.tools %}<span class="pill {% if t.risk == 'money' %}red{% elif t.risk == 'send' %}amber{% elif t.risk == 'write' %}blue{% else %}green{% endif %}" title="{{ t.description }}">{{ t.name }}</span> {% endfor %}</p>
+      <p class="small muted"><strong>May execute alone (shadow off):</strong> {{ a.auto_execute_risks|join(', ') }}</p>
+      <details><summary class="small">System prompt</summary><pre class="small" style="white-space:pre-wrap">{{ a.system_prompt }}</pre></details>
+    </div>
+    <div class="amount"><div class="stat" style="padding:0"><div class="value">{{ stats[lane].done }}</div><div class="label">done · {{ stats[lane].auto }} alone · {{ stats[lane].waiting }} waiting</div></div></div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

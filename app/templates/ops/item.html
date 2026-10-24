@@ -1,0 +1,43 @@
+{% extends "ops/base.html" %}
+{% from "ops/_macros.html" import state_pill %}
+{% block title %}#{{ w.id }} — hey ops{% endblock %}
+{% block crumbs %}hey ops · {{ communities[w.community_id].name if w.community_id in communities else 'unknown community' }} · {{ w.lane }} lane{% endblock %}
+{% block page_title %}#{{ w.id }} {{ w.subject }}{% endblock %}
+{% block page_actions %}{{ state_pill(w.state) }}<span class="pill">{{ w.priority }}</span>{% if w.shadow %}<span class="pill lime">shadow</span>{% endif %}{% endblock %}
+{% block content %}
+<div class="row">
+  <div>
+    <div class="card">
+      <h3>Thread</h3>
+      <div class="chat">
+        {% for m in w.messages %}
+        <div class="bubble {% if m.direction == 'in' %}them{% else %}us{% endif %}" style="max-width:100%"><span class="who">{{ m.author }} · {{ m.channel }}{% if m.recipient %} → {{ m.recipient }}{% endif %} · {{ m.created_at|datefmt('%b %d %H:%M') }}{% if m.direction == 'out' and not m.delivered %} · not delivered{% if (m.meta or {}).get('simulated') %} (simulated){% endif %}{% endif %}</span>{% if m.subject %}<strong>{{ m.subject }}</strong><br>{% endif %}<span style="white-space:pre-wrap">{{ m.body }}</span></div>
+        {% else %}<p class="muted">No messages. {{ w.summary }}</p>{% endfor %}
+      </div>
+      <form method="post" action="{{ url_for('ops.note', item_id=w.id) }}" style="margin-top:1rem;display:flex;gap:.5rem"><input class="form-control" name="body" placeholder="Internal note"><button class="btn btn-ghost btn-sm">Add note</button></form>
+    </div>
+    {% set pr = w.proposal or {} %}
+    <div class="card" style="margin-top:1.25rem">
+      <h3>hey proposes: <span class="mono">{{ pr.get('action','—') }}</span></h3>
+      <p class="small muted">{{ (pr.get('confidence', 0) * 100)|round|int }}% confidence · {{ pr.get('reason','') }}{% if pr.get('sources') %} · sources: {{ pr.get('sources')|join(', ') }}{% endif %} · {% if w.needs_review %}needs review{% else %}auto-executable{% endif %}</p>
+      <pre style="white-space:pre-wrap;font-family:var(--font-body);background:var(--bg-2);padding:1rem;border-radius:8px">{{ pr.get('preview','') }}</pre>
+      <details><summary>Payload</summary><pre class="small">{{ pr.get('payload', {})|tojson(indent=2) }}</pre></details>
+      {% if w.state in ('proposed','escalated') %}
+      <form method="post" action="{{ url_for('ops.approve', item_id=w.id) }}" style="margin-top:1rem">
+        {% if pr.get('payload', {}).get('body') %}<textarea class="form-control" name="body" rows="6">{{ pr.get('payload', {}).get('body') }}</textarea>{% endif %}
+        <div class="actions" style="margin-top:.75rem">{% if w.state == 'proposed' %}<button class="btn btn-primary btn-sm">Approve &amp; execute</button>{% endif %}<input class="form-control" name="note" placeholder="Note" style="width:240px;padding:.45rem .7rem"></div>
+      </form>
+      <form method="post" action="{{ url_for('ops.reject', item_id=w.id) }}" style="display:flex;gap:.5rem;margin-top:.5rem"><input class="form-control" name="note" placeholder="Why reject?" style="width:240px;padding:.45rem .7rem"><button class="btn btn-ghost btn-sm" style="color:var(--red)">Reject</button></form>
+      {% endif %}
+      {% if w.outcome %}<p class="small" style="margin-top:1rem"><strong>Outcome:</strong> {{ w.outcome }}</p>{% endif %}
+      {% if w.reviewer %}<p class="small muted">Reviewed by {{ w.reviewer }} {{ w.reviewed_at|datefmt('%b %d %H:%M') }}{% if w.review_note %} · {{ w.review_note }}{% endif %}</p>{% endif %}
+    </div>
+  </div>
+  <div>
+    <div class="card"><h4>Evidence</h4><ul class="checks">{% for e in (w.evidence or []) %}<li><span><strong>{{ e.label }}</strong> <span class="small muted">{{ e.ref }}</span><br><span class="small">{{ e.text }}</span></span></li>{% else %}<li class="muted small">None attached.</li>{% endfor %}</ul>
+      <p class="small muted" style="margin-top:.75rem">Owner: {{ w.unit_account_id or 'not identified' }} · {{ w.counterpart_name or '' }} {{ w.counterpart_email or '' }}</p></div>
+    <div class="card" style="margin-top:1.25rem"><h4>Agent runs</h4><ul class="timeline">{% for r in w.runs %}<li><span>{{ r.created_at|datefmt('%H:%M:%S') }}</span><span><span class="mono small">{{ r.lane }}/{{ r.mode }} step {{ r.step }} · {{ r.tool }}</span>{% if r.output %}<br><span class="small muted">{{ r.output[:220] }}</span>{% endif %}</span></li>{% else %}<li class="muted small">No runs.</li>{% endfor %}</ul></div>
+    <div class="card" style="margin-top:1.25rem"><h4>Re-run</h4><form method="post" action="{{ url_for('ops.rerun', item_id=w.id) }}" style="display:flex;gap:.5rem"><select class="form-control" name="lane">{% for l in lanes %}<option value="{{ l }}" {% if l == w.lane %}selected{% endif %}>{{ l }}</option>{% endfor %}</select><button class="btn btn-ghost btn-sm">Run</button></form><p class="small muted" style="margin-top:.5rem">Move it to another lane or let the same agent try again after you added a note.</p></div>
+  </div>
+</div>
+{% endblock %}

@@ -28,16 +28,19 @@ class Config:
 
     LEAD_NOTIFY_EMAIL = os.environ.get("LEAD_NOTIFY_EMAIL", "hello@heyhoa.com")
 
-    # Help Scout (shared inbox + tickets) and Slack
-    HELPSCOUT_APP_ID = os.environ.get("HELPSCOUT_APP_ID", "")
-    HELPSCOUT_APP_SECRET = os.environ.get("HELPSCOUT_APP_SECRET", "")
-    HELPSCOUT_WEBHOOK_SECRET = os.environ.get("HELPSCOUT_WEBHOOK_SECRET", "")
-    HELPSCOUT_MAILBOX_ID_SUPPORT = os.environ.get("HELPSCOUT_MAILBOX_ID_SUPPORT", "")
-    HELPSCOUT_MAILBOX_ID_SALES = os.environ.get("HELPSCOUT_MAILBOX_ID_SALES", "")
-    HELPSCOUT_ASSIGNEE_COORDINATOR = os.environ.get("HELPSCOUT_ASSIGNEE_COORDINATOR", "")
-    HELPSCOUT_ASSIGNEE_ACCOUNTANT = os.environ.get("HELPSCOUT_ASSIGNEE_ACCOUNTANT", "")
-    HELPSCOUT_ASSIGNEE_BOARD = os.environ.get("HELPSCOUT_ASSIGNEE_BOARD", "")
+    # Transports: Postmark (email), Twilio (SMS), Slack (internal pings)
+    POSTMARK_SERVER_TOKEN = os.environ.get("POSTMARK_SERVER_TOKEN", "")
+    POSTMARK_INBOUND_TOKEN = os.environ.get("POSTMARK_INBOUND_TOKEN", "")  # shared secret in the inbound webhook URL
+    POSTMARK_FROM = os.environ.get("POSTMARK_FROM", "hey@heyhoa.com")
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "")
+    TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "")
+    TWILIO_FROM = os.environ.get("TWILIO_FROM", "")
     SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
+
+    # Agent policy. Shadow mode: every proposal waits for a person.
+    SHADOW_MODE = os.environ.get("SHADOW_MODE", "true").lower() != "false"
+    LIVE_COMMUNITIES = [c for c in os.environ.get("LIVE_COMMUNITIES", "").split(",") if c]
+    AUTO_CONFIDENCE = float(os.environ.get("AUTO_CONFIDENCE", "0.8"))
     # "alias@heyhoa.com=1001,other@heyhoa.com=1002"
     COMMUNITY_ALIASES = dict(p.split("=", 1) for p in os.environ.get("COMMUNITY_ALIASES", "").split(",") if "=" in p)
 

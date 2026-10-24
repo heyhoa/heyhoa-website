@@ -3,8 +3,8 @@
 Goal: one accountant and one coordinator run 80–120 communities, because hey does the first pass on everything and people do judgment, signatures and the Caliber UI tasks the API cannot. This doc says who does what, through which channel, with what tooling, and how far each task is automated. It assumes doc 12 (what Caliber's API can do).
 
 ## 1. Operating principles
-1. **Everything is a ticket.** Every inbound (email, text, call, portal form, lockbox exception, bank exception, Caliber alert) becomes a ticket with a community, a unit (if any), a category, an owner (hey / person / board) and an SLA. Nothing lives in a personal inbox.
-2. **hey first, person second, board last.** hey resolves what it can source. A person handles what hey cannot. The board only sees decisions: approvals, votes, policy. Boards do not get tickets; they get a "needs a decision" list.
+1. **Everything is a work item in hey ops.** Every inbound (email, text, call, portal form, lockbox exception, bank exception, Caliber signal, scheduled check) becomes a work item with a community, a unit (if any), a kind, an owning agent lane, a state, an SLA, evidence and a proposed action. Nothing lives in a personal inbox or in a third-party help desk. We do not use human-first tools as the system of record; the agents are the team and hey ops is where people review them.
+2. **Agent first, person second, board last.** The lane's agent resolves what it can source and execute within policy. A person reviews proposals the policy holds back. The board only sees decisions: approvals, votes, policy. Boards do not get work items; they get a "needs a decision" list.
 3. **Write to Caliber through the small write surface; log everything.** Any Caliber write hey makes is logged with the payload and shown in the board activity log. Anything outside the write surface becomes a ticket for the accountant's Caliber seat.
 4. **Drafts are drafts.** Letters, notices, announcements, minutes, budgets: hey writes, a person sends. Payments: two board approvals, accountant releases.
 5. **Measure the two numbers that matter:** percent of tickets closed by hey without a person (target 70%+), and zero incorrect sourced answers (weekly audit of a sample).
@@ -12,8 +12,8 @@ Goal: one accountant and one coordinator run 80–120 communities, because hey d
 ## 2. Channels
 
 ### Email (`help@heyhoa.com` plus one alias per community)
-- **Help Scout** is the shared inbox and the ticket system. Two mailboxes: Support (owners, boards, vendors) and Sales (quote requests, website messages, closing-doc orders). Each community gets an alias (`willowcreek@heyhoa.com`) that forwards into Support; the alias identifies the community. Owners can also email the board alias we host, which routes to the same queue with the board on copy.
-- hey reads every inbound: identifies the community and the owner (from the roster), classifies, drafts, and either sends (sourced, low-risk categories) or queues for a person.
+- **Postmark** is the transport, nothing more. Inbound mail to any `@heyhoa.com` address hits the inbound webhook (`/api/webhooks/postmark`); the address identifies the community (`willowcreek@heyhoa.com` → community 1001 via `COMMUNITY_ALIASES`). Outbound goes through the same provider with per-lane tags. Threads live in our database on the work item. There is no mailbox UI; people read threads in hey ops.
+- The CS agent reads every inbound: identifies the community and the owner (from the roster), classifies, drafts, and either sends (sourced, low-risk categories, when the community is out of shadow) or proposes for a person in the review queue. It hands billing to the AR agent, invoices to AP, decisions to Board.
 - Categories hey sends on its own after a confidence check: balance and payment questions, document requests, "what does the rule say", autopay setup, contact changes it already made, status of a request. Everything with money adjustments, disputes, legal threats, emotion or a board decision goes to a person with a draft attached.
 - Reply time targets: hey under 2 minutes; person under 4 business hours; board decision items surfaced same day.
 
@@ -27,25 +27,26 @@ Goal: one accountant and one coordinator run 80–120 communities, because hey d
 - **Voice stack now:** Twilio Media Streams → speech-to-text → Claude with the same tools hey uses in chat → text-to-speech. Latency is acceptable for account questions and intake. Design the layer so the speech model is a module.
 - **Dessa:** Block's full-duplex speech model is the target experience (natural turn-taking, interruptions, backchannels). As of its release it is a research model on a waitlist that runs locally on an M4 Max class machine, not a telephony product. We request access, run it on a Mac in the office against a test number, and swap it in for the first pass when it is stable and hostable. Until then the stack above.
 - What the voice agent may do: look up balance and due date, explain a charge with the ledger line, take a payment by handing off to the provider's IVR or texting a link, set up autopay or a payment plan within policy, file a maintenance request, answer rule questions with the section, take a message for the board. What it may never do: waive a fee, discuss another owner's account, give legal advice, promise an outcome.
-- Every call is transcribed, summarized and attached to the ticket; the owner gets a text recap.
+- Every call is transcribed, summarized and attached to the work item; the owner gets a text recap. Until the voice agent ships, a person logs calls in hey ops (Log a call) and the CS agent takes it from there.
 
 ### Portal
-- Owner and board portals are the preferred channel; email and phone nudge toward them ("I've put the form in your portal; tap here").
+- Owner and board portals are the preferred channel; email and phone nudge toward them ("I've put the form in your portal; tap here"). Portal forms create work items like any other channel.
 - "Ask hey" in both portals uses the same brain as email and phone, with the user already identified.
 
 ### Mail
-- Outbound letters (collection notices that policy or statute require by mail, annual meeting notices, ballots) go through a print-and-mail API (Lob or PostGrid) with proof of delivery stored on the ticket. Inbound mail goes to a scanning service; checks go to the lockbox, never to us.
+- Outbound letters (collection notices that policy or statute require by mail, annual meeting notices, ballots) go through a print-and-mail API (Lob or PostGrid) with proof of delivery stored on the work item. Inbound mail goes to a scanning service; checks go to the lockbox, never to us.
 
-## 3. The ticket system
-- One queue: Help Scout conversations. Our app mirrors each into `PortalRequest` (`remote_id` = `hs:<conversation id>`) so the portals show status without exposing the tool. Routing and hey's actions use tags (`cat:*`, `route:*`, `hey:replied|drafted`) and assignment, so the coordinator can filter by route in Help Scout's own views.
-- Mechanics (built, `app/services/triage.py`): Help Scout webhook (`convo.created`, `convo.customer.reply.created`) → `/api/webhooks/helpscout` (HMAC verified) → community from the alias, owner from the roster → hey classifies and drafts → auto-reply for sourced balance/payment/autopay/document/rule/status questions from a known owner, otherwise an internal note with the draft, tags and assignment to the coordinator, accountant or board contact. Quote requests and website messages are created as Sales conversations (`app/services/notify.py`), with a Slack ping for leads.
-- Ticket fields: community · unit/owner · channel · category (balance, payment, autopay, document, rule question, maintenance, ARC, violation, resale, vendor, invoice, adjustment, dispute, board, onboarding, other) · owner: hey / coordinator / accountant / board · SLA · AI confidence · outcome.
-- Routing rules:
-  - hey auto-resolves: sourced answers, status lookups, self-service tasks it can do via API (contact change, autopay, plan within policy, maintenance intake, ARC intake).
-  - Coordinator: anything emotional, ambiguous, multi-party, vendor coordination, meeting and election admin, onboarding.
-  - Accountant: adjustments, waivers, disputes on amounts, bank exceptions, AP release, close, 1099s, resale figures.
-  - Board: approvals (AP, ARC), policy questions, escalations (attorney referral), vendor selection, budget. These appear in the board portal's decision list, not as tickets.
-- Weekly review: every ticket hey resolved on its own gets sampled (10%) by the coordinator; errors become eval cases.
+## 3. hey ops: work items, agents, review
+Built in `app/agents/` and `app/blueprints/ops/`.
+
+- **Work item** fields: community · unit/owner · counterpart (email/name) · kind (email, sms, call, portal_form, delinquency, invoice, vendor_compliance, close, digest, decision, onboarding) · lane · state (new → working → proposed → approved → done, or escalated / rejected / failed) · priority · SLA due · evidence · proposal (action, payload, preview, confidence, sources, reason) · reviewer and outcome. Messages (any channel, any direction) and agent runs hang off it.
+- **Six agent lanes**, each a system prompt + tools + policy: **CS** (communication), **AR** (dues, autopay, plans, Exhibit B ladder), **AP** (invoices, vendors, W-9/COI), **Board** (decision list, digests, agendas, minutes, announcements), **Close** (snapshots, cash checks, packet), **Onboarding** (documents, interview, community brain). Lanes hand items to each other.
+- **Tools carry a risk level.** `read` tools run freely while the agent thinks. `write` (Caliber notes, service requests, invoice posting), `send` (email, text) and `money` (fines, payment plans, notices with fees) become the proposal. Money always waits for a person. Send and write wait for a person in shadow mode, or when the lane's policy or the confidence floor says so.
+- **Shadow mode** (`SHADOW_MODE=true`, default) means every proposal is reviewed. Take a community out of shadow with `LIVE_COMMUNITIES=1001` after two clean weeks; then the CS lane answers sourced questions on its own, AP posts coded invoices for board approval on its own, Board sends digests on its own. AR never sends a notice without a person.
+- **Review queue**: one screen per item with the thread, the evidence, the proposal and an editable body. Approve executes exactly what is on screen; reject sends nothing; re-run moves it to another lane. Everything lands in the audit log (board portal shows the community's slice).
+- **Scheduled work** (`flask agents-daily` or `POST /api/agents/daily?token=…` from cron): AR items for every delinquent account, AP items for pending invoices and W-9 gaps, a Close check per community, a Board digest on Fridays. Idempotent: an open item per account/invoice is reused.
+- **Modes**: `demo` planners (deterministic, no API key) or `live` (Claude with tool use). Same proposal shape either way, so the console and the tests do not care.
+- Weekly review: every item an agent closed on its own gets sampled (10%) by the coordinator; errors become eval cases.
 
 ## 4. Onboarding: capturing the context hey needs
 Onboarding is where most of hey's later accuracy is decided. We run a structured interview with a board member (usually the president or treasurer) and turn it into the **community brain**: a versioned knowledge base per community, stored in our DB and used in every hey prompt.
@@ -135,11 +136,11 @@ Order form (site) → fee collected → hey assembles the package from `resale` 
 | Role | Does | Ratio |
 |---|---|---|
 | HOA accountant (Caliber seat) | Setup, bank rec, adjustments, AP release, close sign-off, 1099s, resale figures | 1 per 60–80 communities |
-| Community coordinator | Tickets hey cannot close, boards, vendors, onboarding interviews, weekly reviews | 1 per 40–60 communities |
+| Community coordinator | Review queue, escalations, boards, vendors, onboarding interviews, weekly agent audits | 1 per 40–60 communities |
 | Founder / ops lead | Sales, onboarding kickoff, escalations, eval reviews, FrontSteps relationship | — |
-| hey | First pass on everything; all API writes in the surface; drafts; monitoring | all |
+| hey (six agent lanes) | First pass on everything; all Caliber writes in the surface; drafts; scheduled checks; monitoring | all |
 
-Tooling: Caliber (desktop seats for accountants) · First Citizens via the Caliber bank integration and lockbox (no direct bank API in year one) · Help Scout (shared inbox and tickets, Support and Sales mailboxes, per-community aliases) · Twilio (SMS, voice) · print-and-mail API · e-signature · our Flask app (portals, hey, snapshots, budgets, community brain, audit log) · Claude via the Anthropic API · Slack for internal pings · an eval harness with real tickets.
+Tooling: our app (hey ops console, agents, portals, snapshots, budgets, community brain, audit log) · Caliber (desktop seats for accountants) · First Citizens via the Caliber bank integration and lockbox (no direct bank API in year one) · Postmark (email transport, inbound webhook) · Twilio (SMS, voice) · print-and-mail API · e-signature · Claude via the Anthropic API · Slack for internal pings · an eval harness built from reviewed work items. No third-party help desk, CRM or ticket tool.
 
 ## 7. What stays human, on purpose
 Releasing money · waiving or adjusting a charge · any legal-adjacent letter (lien, attorney, violation hearing) · talking to an owner in distress · board politics · vendor selection · anything hey cannot cite. These are listed in each community's escalation list and in hey's system prompt.

@@ -1,0 +1,3 @@
+{% macro state_pill(s) -%}
+<span class="pill {% if s in ('done',) %}green{% elif s in ('proposed','approved') %}amber{% elif s in ('escalated','failed') %}red{% elif s in ('rejected',) %}{% else %}blue{% endif %}">{{ s }}</span>
+{%- endmacro %}

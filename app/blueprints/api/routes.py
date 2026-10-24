@@ -34,24 +34,28 @@ def ask():
     return jsonify(answer=answer)
 
 
-@bp.post("/webhooks/helpscout")
-def helpscout_webhook():
-    """Help Scout → hey triage. Verifies the HMAC signature, then triages
-    convo.created and convo.customer.reply.created; everything else is 204."""
-    from ...integrations import helpscout as hs
-    from ...services.triage import triage_conversation
+@bp.post("/webhooks/postmark")
+def postmark_inbound():
+    """Postmark inbound email → work item → agent. The URL carries a shared token."""
+    from ...agents import runtime
 
-    secret = current_app.config.get("HELPSCOUT_WEBHOOK_SECRET", "")
-    if not hs.verify_signature(request.get_data(), request.headers.get("X-HelpScout-Signature"), secret):
-        return jsonify(error="bad signature"), 401
-    event = request.headers.get("X-HelpScout-Event", "")
-    if event not in ("convo.created", "convo.customer.reply.created"):
-        return "", 204
+    expected = current_app.config.get("POSTMARK_INBOUND_TOKEN", "")
+    if not expected or request.args.get("token") != expected:
+        return jsonify(error="bad token"), 401
     payload = request.get_json(silent=True) or {}
-    client = None
-    if current_app.config.get("HELPSCOUT_APP_ID") and current_app.config.get("HELPSCOUT_APP_SECRET"):
-        client = hs.HelpScoutClient(current_app.config["HELPSCOUT_APP_ID"], current_app.config["HELPSCOUT_APP_SECRET"])
-    return jsonify(triage_conversation(payload, client))
+    item = runtime.inbound_email(payload)
+    return jsonify(work_item=item.id, lane=item.lane, state=item.state, action=(item.proposal or {}).get("action"))
+
+
+@bp.post("/agents/daily")
+def agents_daily():
+    """Cron hook: POST with the inbound token to run the scheduled agents."""
+    from ...agents import runtime
+
+    expected = current_app.config.get("POSTMARK_INBOUND_TOKEN", "")
+    if not expected or request.args.get("token") != expected:
+        return jsonify(error="bad token"), 401
+    return jsonify(runtime.daily(request.args.get("community")))
 
 
 @bp.post("/leads")

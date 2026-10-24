@@ -1,0 +1,10 @@
+{% extends "ops/base.html" %}
+{% block title %}Runs & audit — hey ops{% endblock %}
+{% block page_title %}Runs &amp; audit{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card"><h3>Agent runs</h3><div class="table-wrap"><table><thead><tr><th>When</th><th>Item</th><th>Lane</th><th>Mode</th><th>Tool</th><th class="num">Tokens</th><th class="num">ms</th></tr></thead>
+    <tbody>{% for r in runs %}<tr><td class="small">{{ r.created_at|datefmt('%b %d %H:%M:%S') }}</td><td><a href="{{ url_for('ops.item', item_id=r.work_item_id) }}">#{{ r.work_item_id }}</a></td><td>{{ r.lane }}</td><td>{{ r.mode }}</td><td class="mono small">{{ r.tool }}</td><td class="num small">{{ r.tokens_in + r.tokens_out }}</td><td class="num small">{{ r.ms }}</td></tr>{% else %}<tr><td colspan="7" class="muted">No runs.</td></tr>{% endfor %}</tbody></table></div></div>
+  <div class="card"><h3>Audit log</h3><ul class="timeline">{% for l in log %}<li><span>{{ l.created_at|datefmt('%b %d %H:%M') }}</span><span><strong>{{ l.actor }}</strong> <span class="mono small">{{ l.action }}</span> {{ l.target }}<br><span class="small muted">{{ l.detail }}</span></span></li>{% else %}<li class="muted">Empty.</li>{% endfor %}</ul></div>
+</div>
+{% endblock %}

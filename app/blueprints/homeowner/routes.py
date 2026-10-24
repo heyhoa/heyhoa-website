@@ -1,5 +1,6 @@
 from flask import flash, redirect, render_template, request, session, url_for
 
+from ...agents import runtime
 from ...ai.assistant import classify_request
 from ...extensions import db
 from ...integrations.registry import get_provider
@@ -66,6 +67,7 @@ def request_new():
         sr = p.create_service_request(community.id, ua.id, category, summary)
         db.session.add(PortalRequest(community_id=community.id, unit_account_id=ua.id, kind="maintenance", title=category, body=summary, remote_id=sr.id, ai_category=category))
         db.session.commit()
+        runtime.inbound_portal(community_id=community.id, unit_account_id=ua.id, kind="portal_form", subject=f"Maintenance: {category}", body=f"Request {sr.id} filed from the portal: {summary}", email=me.get("email"), name=me.get("name"), lane="cs")
         flash(f"Request {sr.id} logged. We will confirm by text within one business hour.")
         return redirect(url_for("homeowner.requests_list"))
     return render_template("homeowner/request_new.html", ua=ua, community=community)

@@ -1,0 +1,18 @@
+{% extends "ops/base.html" %}
+{% from "ops/_macros.html" import state_pill %}
+{% block title %}Work — hey ops{% endblock %}
+{% block page_title %}All work{% endblock %}
+{% block page_actions %}
+<form method="get" class="actions">
+  <select class="form-control" name="lane" style="width:auto;padding:.45rem .7rem"><option value="">all lanes</option>{% for l in lanes %}<option value="{{ l }}" {% if l == lane %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <select class="form-control" name="state" style="width:auto;padding:.45rem .7rem"><option value="">any state</option><option value="open" {% if state == 'open' %}selected{% endif %}>open</option>{% for s in states %}<option value="{{ s }}" {% if s == state %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+  <select class="form-control" name="community" style="width:auto;padding:.45rem .7rem"><option value="">all communities</option>{% for id, c in communities.items() %}<option value="{{ id }}" {% if id == cid %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+  <button class="btn btn-ghost btn-sm">Filter</button>
+</form>
+{% endblock %}
+{% block content %}
+<div class="table-wrap"><table>
+  <thead><tr><th>#</th><th>Subject</th><th>Lane</th><th>Kind</th><th>Community</th><th>Proposal</th><th>State</th><th>Updated</th></tr></thead>
+  <tbody>{% for w in items %}<tr><td><a href="{{ url_for('ops.item', item_id=w.id) }}">{{ w.id }}</a></td><td>{{ w.subject }}</td><td>{{ w.lane }}</td><td>{{ w.kind }}</td><td class="small">{{ communities[w.community_id].name if w.community_id in communities else '—' }}</td><td class="small mono">{{ (w.proposal or {}).get('action','') }}</td><td>{{ state_pill(w.state) }}</td><td class="small muted">{{ w.updated_at|datefmt('%b %d %H:%M') }}</td></tr>{% else %}<tr><td colspan="8" class="muted">No work items yet.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

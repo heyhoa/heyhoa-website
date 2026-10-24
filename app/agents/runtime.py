@@ -1,0 +1,152 @@
+"""Runtime: create work items from inbound events, run agents, review, execute."""
+from __future__ import annotations
+
+import datetime as dt
+import logging
+
+from flask import current_app
+
+from ..channels import email as email_channel
+from ..extensions import db
+from ..integrations.registry import get_provider
+from ..models import AuditLog, Message, WorkItem
+from .lanes import AGENTS
+
+log = logging.getLogger(__name__)
+
+SLA_HOURS = {"cs": 4, "ar": 24, "ap": 24, "board": 72, "close": 24, "onboarding": 48}
+
+
+def _shadow(community_id: str | None) -> bool:
+    live = set(current_app.config.get("LIVE_COMMUNITIES", []))
+    return current_app.config.get("SHADOW_MODE", True) and str(community_id) not in live
+
+
+def community_from_addresses(addresses: list[str]) -> str | None:
+    aliases = current_app.config.get("COMMUNITY_ALIASES", {})
+    for a in addresses:
+        if a in aliases:
+            return aliases[a]
+    return None
+
+
+def owner_from_email(community_id: str | None, email: str):
+    if not community_id or not email:
+        return None
+    for ua in get_provider().list_unit_accounts(community_id):
+        if (ua.email or "").lower() == email.lower():
+            return ua
+    return None
+
+
+def create_item(*, kind: str, lane: str, subject: str, summary: str, community_id: str | None = None, unit_account_id: str | None = None,
+                counterpart_email: str | None = None, counterpart_name: str | None = None, priority: str = "normal", remote_ids: dict | None = None, evidence: list | None = None) -> WorkItem:
+    item = WorkItem(kind=kind, lane=lane, subject=subject[:300], summary=summary, community_id=community_id, unit_account_id=unit_account_id,
+                    counterpart_email=counterpart_email, counterpart_name=counterpart_name, priority=priority, remote_ids=remote_ids or {}, evidence=evidence or [],
+                    shadow=_shadow(community_id), sla_due=dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=SLA_HOURS.get(lane, 24)))
+    db.session.add(item)
+    db.session.flush()
+    return item
+
+
+def run(item: WorkItem) -> WorkItem:
+    """Run the owning agent; execute immediately when policy allows, else park as proposed."""
+    for _ in range(3):  # follow hand-offs
+        agent = AGENTS[item.lane]
+        item.state = "working"
+        proposal = agent.run(item)
+        item.proposal = proposal.to_json()
+        item.needs_review = proposal.needs_review
+        if proposal.action == "handoff" and not proposal.needs_review:
+            agent.execute(item, item.proposal)
+            continue
+        if proposal.action == "none":
+            item.state, item.outcome = "done", proposal.preview
+        elif proposal.needs_review:
+            item.state = "proposed"
+        else:
+            _execute(item, agent)
+        break
+    db.session.add(AuditLog(actor="hey", action=f"agent.{item.lane}.{item.state}", target=f"wi:{item.id}", detail=(item.proposal or {}).get("action", "")))
+    db.session.commit()
+    return item
+
+
+def _execute(item: WorkItem, agent=None) -> dict:
+    agent = agent or AGENTS[item.lane]
+    res = agent.execute(item, item.proposal or {})
+    if res.get("ok"):
+        if item.state != "escalated":
+            item.state = "done"
+        item.outcome = (item.proposal or {}).get("preview", "")[:2000]
+    else:
+        item.state = "failed"
+        item.outcome = str(res.get("error"))
+    return res
+
+
+def approve(item: WorkItem, reviewer: str, edits: dict | None = None, note: str = "") -> dict:
+    if edits:
+        item.proposal = {**(item.proposal or {}), "payload": {**((item.proposal or {}).get("payload") or {}), **edits}}
+        if "body" in edits:
+            item.proposal["preview"] = edits["body"]
+    item.reviewer, item.reviewed_at, item.review_note = reviewer, dt.datetime.now(dt.timezone.utc), note
+    item.state = "approved"
+    res = _execute(item)
+    db.session.add(AuditLog(actor=reviewer, action="review.approve", target=f"wi:{item.id}", detail=(item.proposal or {}).get("action", "")))
+    db.session.commit()
+    return res
+
+
+def reject(item: WorkItem, reviewer: str, note: str = "") -> None:
+    item.reviewer, item.reviewed_at, item.review_note = reviewer, dt.datetime.now(dt.timezone.utc), note
+    item.state = "rejected"
+    item.outcome = f"Rejected by {reviewer}: {note}"
+    db.session.add(AuditLog(actor=reviewer, action="review.reject", target=f"wi:{item.id}", detail=note))
+    db.session.commit()
+
+
+def inbound_email(payload: dict) -> WorkItem:
+    """Postmark inbound webhook → work item in the cs lane (agents hand off from there)."""
+    m = email_channel.parse_inbound(payload)
+    cid = community_from_addresses(m["to"])
+    ua = owner_from_email(cid, m["from_email"])
+    item = create_item(kind="email", lane="cs", subject=m["subject"], summary=m["text"], community_id=cid, unit_account_id=ua.id if ua else None,
+                       counterpart_email=m["from_email"], counterpart_name=m["from_name"] or (ua.owner_name if ua else ""), remote_ids={"postmark_message_id": m["message_id"]},
+                       evidence=([{"label": "owner", "ref": ua.id, "text": f"{ua.owner_name} · {ua.unit_label} · balance ${ua.balance:,.2f}"}] if ua else []) + [{"label": "attachments", "ref": "", "text": ", ".join(a["name"] or "" for a in m["attachments"]) or "none"}])
+    db.session.add(Message(work_item_id=item.id, direction="in", channel="email", sender=m["from_email"], recipient=", ".join(m["to"]), subject=m["subject"], body=m["text"], author="owner" if ua else "unknown", delivered=True, meta={"message_id": m["message_id"]}))
+    return run(item)
+
+
+def inbound_portal(*, community_id: str, unit_account_id: str | None, kind: str, subject: str, body: str, email: str | None, name: str | None, lane: str = "cs") -> WorkItem:
+    item = create_item(kind=kind, lane=lane, subject=subject, summary=body, community_id=community_id, unit_account_id=unit_account_id, counterpart_email=email, counterpart_name=name)
+    db.session.add(Message(work_item_id=item.id, direction="in", channel="portal", sender=email or "", subject=subject, body=body, author="owner", delivered=True))
+    return run(item)
+
+
+def daily(community_id: str | None = None) -> dict:
+    """Scheduled work: AR ladder, vendor compliance, close snapshot, Friday digest."""
+    p = get_provider()
+    counts = {"ar": 0, "ap": 0, "close": 0, "board": 0}
+    for c in p.list_communities():
+        if community_id and c.id != str(community_id):
+            continue
+        for d in p.list_delinquencies(c.id):
+            if WorkItem.query.filter_by(community_id=c.id, unit_account_id=d.unit_account_id, kind="delinquency").filter(WorkItem.state.in_(["new", "working", "proposed", "approved"])).first():
+                continue
+            run(create_item(kind="delinquency", lane="ar", subject=f"Collections: {d.unit_label} · {d.days_late} days · ${d.balance:,.2f}", summary=f"{d.owner_name} is {d.days_late} days past due with ${d.balance:,.2f}. Stage {d.stage}. Last: {d.last_action}.", community_id=c.id, unit_account_id=d.unit_account_id, counterpart_email=None, priority="high" if d.days_late >= 60 else "normal"))
+            counts["ar"] += 1
+        if any(not v.w9_on_file for v in p.list_vendors(c.id)) and not WorkItem.query.filter_by(community_id=c.id, kind="vendor_compliance").filter(WorkItem.state.in_(["new", "working", "proposed"])).first():
+            run(create_item(kind="vendor_compliance", lane="ap", subject="Vendor missing W-9", summary="A vendor on the list has no W-9; payments are blocked until received.", community_id=c.id))
+            counts["ap"] += 1
+        for inv in p.list_invoices(c.id, status="pending_board"):
+            if not WorkItem.query.filter_by(community_id=c.id, kind="invoice").filter(WorkItem.remote_ids["invoice_id"].as_string() == inv.id).first():
+                run(create_item(kind="invoice", lane="ap", subject=f"Invoice {inv.vendor} {inv.number} · ${inv.amount:,.2f}", summary=inv.description, community_id=c.id, remote_ids={"invoice_id": inv.id}))
+                counts["ap"] += 1
+        run(create_item(kind="close", lane="close", subject=f"Nightly close check · {dt.date.today():%b %d}", summary="Snapshot chart of accounts, verify cash and reconciliation status.", community_id=c.id))
+        counts["close"] += 1
+        if dt.date.today().weekday() == 4:
+            run(create_item(kind="digest", lane="board", subject="Friday board digest", summary="Weekly digest for the board.", community_id=c.id))
+            counts["board"] += 1
+    db.session.commit()
+    return counts

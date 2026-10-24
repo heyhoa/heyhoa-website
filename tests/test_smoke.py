@@ -11,6 +11,7 @@ MARKETING = [
     "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office", "/sample-packet",
 ]
 HOMEOWNER = ["/me/dashboard", "/me/pay", "/me/ledger", "/me/requests", "/me/requests/new", "/me/arc", "/me/arc/new", "/me/documents", "/me/directory", "/me/profile", "/me/ask"]
+OPS = ["/ops/dashboard", "/ops/review", "/ops/queue?state=open", "/ops/threads", "/ops/new", "/ops/agents", "/ops/activity", "/ops/settings"]
 BOARD = ["/board/dashboard", "/board/financials", "/board/invoices", "/board/invoices?status=pending_board", "/board/delinquencies", "/board/delinquencies?draft=ua-1003",
          "/board/owners", "/board/requests", "/board/arc", "/board/violations", "/board/documents", "/board/vendors", "/board/announcements", "/board/meetings", "/board/budget", "/board/settings", "/board/ask", "/board/activity"]
 
@@ -44,9 +45,16 @@ def test_board_pages(client, path):
     assert client.get(path).status_code == 200
 
 
+@pytest.mark.parametrize("path", OPS)
+def test_ops_pages(client, path):
+    client.post("/login/ops")
+    assert client.get(path).status_code == 200
+
+
 def test_role_isolation(client):
     client.post("/login/homeowner")
     assert client.get("/board/dashboard").status_code == 403
+    assert client.get("/ops/dashboard").status_code == 403
 
 
 def test_quote_creates_lead(client):

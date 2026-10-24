@@ -5,6 +5,7 @@ AI-first accounting and back office for self-managed HOAs and condos. One Flask 
 - **Marketing site** at `/` (dark theme, public pricing, quote form)
 - **Homeowner portal** at `/me` (pay, ledger, requests, ARC, documents, ask hey)
 - **Board portal** at `/board` (financials, approve payments, delinquencies, ARC, vendors, announcements, meetings)
+- **hey ops** at `/ops` (the admin console: work items, six agent lanes, review queue, messages, audit)
 
 Accounting data comes through a provider interface; `mock` ships realistic demo data, `frontsteps` talks to the FrontSteps / Caliber CAPI2 API.
 
@@ -19,7 +20,7 @@ flask --app run run --debug     # http://127.0.0.1:5000
 pytest -q                       # every route renders
 ```
 
-Demo logins (no password): `/login/board?demo=1` and `/login/homeowner?demo=1`.
+Demo logins (no password): `/login/board?demo=1`, `/login/homeowner?demo=1` and `/login/ops?demo=1`. In ops, click "Run daily agents now" to populate the review queue from demo data.
 
 Set `ANTHROPIC_API_KEY` to make `hey` answer with Claude instead of the rule-based demo. Set `ACCOUNTING_PROVIDER=frontsteps` plus `FRONTSTEPS_API_KEY` to read real association data.
 

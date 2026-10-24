@@ -18,12 +18,14 @@ def create_app(config_object=None):
     from .blueprints.homeowner import bp as homeowner_bp
     from .blueprints.board import bp as board_bp
     from .blueprints.api import bp as api_bp
+    from .blueprints.ops import bp as ops_bp
 
     app.register_blueprint(marketing_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(homeowner_bp, url_prefix="/me")
     app.register_blueprint(board_bp, url_prefix="/board")
     app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(ops_bp, url_prefix="/ops")
 
     @app.context_processor
     def inject_globals():
@@ -79,6 +81,14 @@ def create_app(config_object=None):
         with app.test_request_context():
             for c in get_provider().list_communities():
                 print(c.name, snapshot_coa(c.id), "accounts")
+
+    @app.cli.command("agents-daily")
+    def agents_daily_cmd():
+        """Scheduled: AR ladder, vendor compliance, invoice intake, close check, Friday digest."""
+        from .agents import runtime
+
+        with app.test_request_context():
+            print(runtime.daily())
 
     @app.cli.command("seed")
     def seed():

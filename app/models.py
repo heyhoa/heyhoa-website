@@ -111,6 +111,82 @@ class BudgetLine(db.Model):
     __table_args__ = (db.UniqueConstraint("community_id", "fiscal_year", "account_number", name="uq_budget_line"),)
 
 
+class WorkItem(db.Model):
+    """The unit of work for hey ops. Every inbound (email, text, call, portal
+    form, scheduled job, Caliber signal) becomes one. An agent lane owns it,
+    proposes an action, and a person approves it unless policy lets the agent
+    execute on its own."""
+
+    __tablename__ = "work_items"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc), onupdate=lambda: dt.datetime.now(dt.timezone.utc))
+    community_id = db.Column(db.String(40), index=True)
+    unit_account_id = db.Column(db.String(40), index=True)
+    counterpart_email = db.Column(db.String(200))
+    counterpart_name = db.Column(db.String(160))
+    kind = db.Column(db.String(30), index=True)  # email|sms|call|portal_form|delinquency|invoice|close|onboarding|decision|other
+    lane = db.Column(db.String(20), index=True)  # cs|ar|ap|board|close|onboarding
+    state = db.Column(db.String(20), index=True, default="new")  # new|working|proposed|approved|rejected|done|escalated|failed
+    priority = db.Column(db.String(10), default="normal")  # low|normal|high|urgent
+    sla_due = db.Column(db.DateTime)
+    subject = db.Column(db.String(300))
+    summary = db.Column(db.Text)
+    category = db.Column(db.String(40))
+    evidence = db.Column(db.JSON)  # [{"label":..., "ref":..., "text":...}]
+    proposal = db.Column(db.JSON)  # {"action","payload","preview","confidence","sources","reason","needs_review"}
+    needs_review = db.Column(db.Boolean, default=True)
+    reviewer = db.Column(db.String(120))
+    reviewed_at = db.Column(db.DateTime)
+    review_note = db.Column(db.Text)
+    outcome = db.Column(db.Text)
+    remote_ids = db.Column(db.JSON)  # ids in Caliber / Postmark / Twilio
+    shadow = db.Column(db.Boolean, default=True)
+
+    messages = db.relationship("Message", backref="work_item", order_by="Message.created_at", cascade="all, delete-orphan")
+    runs = db.relationship("AgentRun", backref="work_item", order_by="AgentRun.created_at", cascade="all, delete-orphan")
+
+    @property
+    def is_open(self):
+        return self.state in ("new", "working", "proposed", "approved", "escalated")
+
+
+class Message(db.Model):
+    """A message in a work item's thread, any channel, any direction."""
+
+    __tablename__ = "messages"
+    id = db.Column(db.Integer, primary_key=True)
+    work_item_id = db.Column(db.Integer, db.ForeignKey("work_items.id"), index=True)
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    direction = db.Column(db.String(5))  # in|out
+    channel = db.Column(db.String(10))  # email|sms|voice|portal|note
+    sender = db.Column(db.String(200))
+    recipient = db.Column(db.String(200))
+    subject = db.Column(db.String(300))
+    body = db.Column(db.Text)
+    author = db.Column(db.String(30))  # owner|vendor|hey|coordinator|accountant|board|system
+    meta = db.Column(db.JSON)
+    delivered = db.Column(db.Boolean, default=False)
+
+
+class AgentRun(db.Model):
+    """One step of an agent working an item: what it saw, what it did."""
+
+    __tablename__ = "agent_runs"
+    id = db.Column(db.Integer, primary_key=True)
+    work_item_id = db.Column(db.Integer, db.ForeignKey("work_items.id"), index=True)
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    lane = db.Column(db.String(20))
+    mode = db.Column(db.String(10))  # demo|live
+    step = db.Column(db.Integer, default=0)
+    tool = db.Column(db.String(60))
+    input = db.Column(db.Text)
+    output = db.Column(db.Text)
+    tokens_in = db.Column(db.Integer, default=0)
+    tokens_out = db.Column(db.Integer, default=0)
+    ms = db.Column(db.Integer, default=0)
+
+
 class AuditLog(db.Model):
     __tablename__ = "audit_log"
     id = db.Column(db.Integer, primary_key=True)

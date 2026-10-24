@@ -5,9 +5,9 @@ How to use this: each phase is a checklist. Work the unchecked boxes top to bott
 Status legend: `[x]` done · `[ ]` open · `[~]` in progress.
 
 ## Now (next three boxes, in order)
-1. Phase 1 · Form the hey hoa entity, decide the term question (doc 11 decisions 1 and 3), send the adapted PSA to counsel
-2. Phase 1 · Help Scout account: Support + Sales mailboxes, OAuth app, webhook to `/api/webhooks/helpscout`, per-community aliases, assignee ids in env
-3. Phase 1 · Deploy (Render/Fly + Postgres + cron for `snapshot-coa`), custom domain, CI
+1. Phase 1 · Deploy (Render/Fly + Postgres + cron for `agents-daily` and `snapshot-coa`), custom domain, CI
+2. Phase 1 · Postmark account: server token, inbound stream → `/api/webhooks/postmark?token=…`, per-community aliases, SPF/DKIM on heyhoa.com
+3. Phase 1 · Form the hey hoa entity, decide the term question (doc 11 decisions 1 and 3), send the adapted PSA to counsel
 
 Keep this list to three. When one is done, tick its box below and promote the next.
 
@@ -29,15 +29,15 @@ Goal: plan, brand, mock-ups, scaffold. Everything renders with demo data.
 Goal: public site that converts; first customer signed by hand.
 - [ ] Replace placeholder reviews with real quotes or remove the page until there are three
 - [x] Sample financial packet PDF (annotated) downloadable from `/pricing`, `/how-it-works` and the home page (`/sample-packet` is the HTML source; `node scripts/build_sample_packet.js` regenerates the PDF)
-- [x] Lead notification: Help Scout Sales conversation + Slack ping on new `Lead`, with score, plan and attribution (`services/notify.py`)
-- [ ] Help Scout account: Support + Sales mailboxes, OAuth app, webhook to `/api/webhooks/helpscout`, per-community aliases, assignee ids in env
+- [x] Lead notification: email to the ops inbox + Slack ping on new `Lead`, with score, plan and attribution (`services/notify.py`)
+- [ ] Postmark account: server token, inbound stream → `/api/webhooks/postmark?token=…`, per-community aliases, SPF/DKIM on heyhoa.com
 - [ ] Quote form: plan preselect from `?plan=`, UTM capture, honeypot, rate limit
-- [x] Contact form: delivered as a Help Scout conversation (Support or Sales by topic)
+- [x] Contact form: becomes a work item in the CS lane plus an ops email and a Slack ping for sales topics
 - [ ] Blog: move posts to markdown files, add RSS, add 9 more posts from the content calendar
 - [ ] SEO: sitemap.xml, robots.txt, OG image per page, schema.org Organization + FAQ
 - [ ] Analytics: privacy-friendly (Plausible) with quote-funnel events
 - [ ] Legal: counsel review of `/terms`, `/privacy`, the 5th-or-free clause, state manager-licensing language
-- [ ] Deploy: Render/Fly with Postgres, custom domain, TLS, GitHub Actions running `pytest`
+- [ ] Deploy: Render/Fly with Postgres, custom domain, TLS, GitHub Actions running `pytest`, cron for `agents-daily` and `snapshot-coa`
 - [ ] Portal sidebar collapses to a top bar on phones (currently a full-screen nav list)
 - [x] Services agreement template added to `legal/` and mapped to tiers, fees and collections (doc 11)
 - [ ] Tailor the PSA for hey hoa: hey entity as Service Provider, term decision, 5th-or-free clause, hey hoa Exhibit A, AI review clause, state exhibits (AZ, TX); then counsel
@@ -60,9 +60,12 @@ Goal: first community live on FrontSteps data; owners and board use the portals 
 - [ ] Maintenance + ARC: write-through to `servicerequest` / `architectural/savenew` and document upload
 - [ ] Documents: proxy `client/{id}/documents` with visibility flags
 - [ ] Announcements: email (Postmark) + SMS (Twilio) delivery with opt-in tracking
-- [x] Help Scout chosen as inbox + tickets; webhook → hey triage → auto-reply or note+tags+assign; mirrored into `PortalRequest` (`services/triage.py`)
-- [ ] Triage in production: 2 weeks of shadow mode (hey drafts only, never auto-sends) on the Heywood community, then enable auto-send for the sourced categories
-- [ ] Portal: owners see their Help Scout tickets (`PortalRequest.kind == 'ticket'`) under Requests
+- [x] hey ops: work items, six agent lanes with risk-tiered tools, review queue, shadow mode, Postmark inbound, scheduled daily agents (`app/agents/`, `/ops`)
+- [ ] Two weeks of shadow mode on the Heywood community; weekly 10% audit of agent-closed items; then `LIVE_COMMUNITIES` for CS/AP/Board lanes
+- [ ] Portal: owners see their work items (status and outcome) under Requests; board sees Board-lane decisions in its decision list
+- [ ] Live agent mode exercised end to end with a key: tool-use loop, token accounting, cost per item on the activity page
+- [ ] Community brain as data: profile, policies, decision rights, board notes with sources; `search_rules` reads it instead of the prompt context
+- [ ] AP intake from email attachments: PDF → extraction → `post_invoice` proposal with the PDF attached as evidence
 - [ ] Onboarding interview script + community-brain schema in the DB; first interview run with the Heywood community
 - [ ] Audit log: every provider mutation and every AI action logged with inputs
 - [ ] Onboarding runbook executed on customer #1 (doc 05 checklist)

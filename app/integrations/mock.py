@@ -64,6 +64,7 @@ for i, (name, unit) in enumerate(_OWNERS):
 
 DEMO_HOMEOWNER = {"id": "contact-4412", "name": "Marcus Reed", "email": "marcus@example.com", "unit_account_id": "ua-1012", "community_id": "1001", "role": "homeowner"}
 DEMO_BOARD = {"id": "cc-7", "name": "Dana Whitfield", "email": "treasurer@willowcreek.example", "title": "Treasurer", "community_id": "1001", "role": "board"}
+DEMO_OPS = {"id": "staff-1", "name": "Jordan Alvarez", "email": "jordan@heyhoa.com", "title": "Coordinator", "community_id": "1001", "role": "ops"}
 
 LEDGER = {
     "ua-1012": [
@@ -170,7 +171,7 @@ class MockProvider(AccountingProvider):
         return COMMUNITIES[str(community_id)]
 
     def list_unit_accounts(self, community_id):
-        return sorted(UNIT_ACCOUNTS.values(), key=lambda u: int(u.unit_label.split()[1]))
+        return sorted((u for u in UNIT_ACCOUNTS.values() if u.community_id == str(community_id)), key=lambda u: int(u.unit_label.split()[1]))
 
     def get_unit_account(self, unit_account_id):
         return UNIT_ACCOUNTS[unit_account_id]
@@ -216,10 +217,12 @@ class MockProvider(AccountingProvider):
         return inv
 
     def list_delinquencies(self, community_id):
+        if str(community_id) != "1001":
+            return []
         return sorted(DELINQUENCIES, key=lambda d: -d.balance)
 
     def list_service_requests(self, community_id, unit_account_id=None):
-        rows = list(SERVICE_REQUESTS.values())
+        rows = [r for r in SERVICE_REQUESTS.values() if r.community_id == str(community_id)]
         if unit_account_id:
             ua = UNIT_ACCOUNTS[unit_account_id]
             rows = [r for r in rows if r.unit_label == ua.unit_label]
@@ -233,7 +236,7 @@ class MockProvider(AccountingProvider):
         return sr
 
     def list_arc_requests(self, community_id, unit_account_id=None):
-        rows = list(ARC_REQUESTS.values())
+        rows = [r for r in ARC_REQUESTS.values() if r.community_id == str(community_id)]
         if unit_account_id:
             ua = UNIT_ACCOUNTS[unit_account_id]
             rows = [r for r in rows if r.unit_label == ua.unit_label]
@@ -263,10 +266,10 @@ class MockProvider(AccountingProvider):
         return [d for d in DOCUMENTS if board or not d.board_only]
 
     def list_vendors(self, community_id):
-        return VENDORS
+        return VENDORS if str(community_id) == "1001" else []
 
     def list_violations(self, community_id):
-        return VIOLATIONS
+        return VIOLATIONS if str(community_id) == "1001" else []
 
     def post_payment(self, unit_account_id, amount, method):
         ua = UNIT_ACCOUNTS[unit_account_id]
