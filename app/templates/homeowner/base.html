@@ -1,5 +1,6 @@
 {% extends "portal/base.html" %}
-{% block portal_name %}homeowner{% endblock %}
+{% block shell_class %}col-s{% endblock %}
+{% block home_url %}{{ url_for('homeowner.dashboard') }}{% endblock %}
 {% block sidenav %}
 {% set p = request.path %}
 <ul>
@@ -18,4 +19,4 @@
   <li><a href="{{ url_for('homeowner.profile') }}" {% if p == '/me/profile' %}aria-current="page"{% endif %}>My profile</a></li>
 </ul></details>
 {% endblock %}
-{% block crumbs %}{{ community.name }} · {{ ua.unit_label }}{% endblock %}
+{% block crumbs %}{{ ua.unit_label }}{% endblock %}

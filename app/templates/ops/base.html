@@ -1,5 +1,6 @@
 {% extends "portal/base.html" %}
-{% block portal_name %}ops{% endblock %}
+{% block shell_class %}col-l{% endblock %}
+{% block home_url %}{{ url_for('ops.review') }}{% endblock %}
 {% block sidenav %}
 {% set p = request.path %}
 <ul>

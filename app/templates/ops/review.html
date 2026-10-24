@@ -11,7 +11,7 @@
     <span class="ir-tag"><span class="pill {{ 'red' if w.priority == 'high' else 'amber' if w.state == 'proposed' else 'blue' }}">{{ w.lane }}</span></span>
     <span class="ir-main"><span class="ir-title">{{ w.subject }}</span><span class="ir-sub">{{ (pr.get('action') or '—')|replace('_',' ') }} · {{ (pr.get('confidence', 0) * 100)|round|int }}% · {{ communities[w.community_id].name if w.community_id in communities else '—' }}{% if w.counterpart_name or w.counterpart_email %} · {{ w.counterpart_name or w.counterpart_email }}{% endif %}</span></span>
     <span class="ir-meta {% if w.sla_due and w.sla_due < now %}due late{% endif %}">{{ w.sla_due|datefmt('%b %d %H:%M') if w.sla_due else '' }}</span>
-  </li>{% else %}<li class="inbox-row" style="cursor:default"><span class="ir-main muted">Nothing to review.</span></li>{% endfor %}
+  </li>{% else %}<li class="inbox-row empty">Nothing to review.</li>{% endfor %}
 </ul>
 
 {% for w in items %}{% set pr = w.proposal or {} %}{% set payload = pr.get('payload', {}) or {} %}

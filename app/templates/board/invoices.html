@@ -10,7 +10,7 @@
     <span class="ir-tag"><span class="pill {% if i.status == 'paid' %}green{% elif i.status == 'approved' %}blue{% elif i.status == 'rejected' %}red{% else %}amber{% endif %}">{{ {'pending_board': 'to approve', 'approved': 'paying', 'paid': 'paid', 'rejected': 'rejected'}[i.status] }}</span></span>
     <span class="ir-main"><span class="ir-title">{{ i.vendor }} · {{ i.amount|money }}</span><span class="ir-sub">{{ i.description }}{% if i.ai_note %} · {{ i.ai_note }}{% endif %}</span></span>
     <span class="ir-meta">{% if i.status == 'pending_board' %}{{ i.approvals }}/{{ i.approvals_required }} · due {{ i.due_date|datefmt('%b %d') }}{% elif i.status == 'paid' %}paid {{ i.paid_on|datefmt('%b %d') }}{% else %}due {{ i.due_date|datefmt('%b %d') }}{% endif %}</span>
-  </li>{% else %}<li class="inbox-row" style="cursor:default"><span class="ir-main muted">Nothing here.</span></li>{% endfor %}
+  </li>{% else %}<li class="inbox-row empty">Nothing here.</li>{% endfor %}
 </ul>
 <p class="small muted" style="margin-top:.8rem">{{ invoices|length }} bills · {{ total|money }}</p>
 {% for i in invoices %}{{ invoice_drawer(i, flags.get(i.id), signers, me, initials) }}{% endfor %}
