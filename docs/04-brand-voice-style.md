@@ -1,6 +1,6 @@
 # 04 · Brand voice & style
 
-Reference: Block's Dessa page (block.xyz/dessa). What we borrow: a handwritten lowercase script wordmark dropped **inside** a large, tight sans-serif headline as if it were a person's name; near-black background; off-white type; one accent; short declarative headlines with a turn in the second line ("You learned to talk by listening. So did dessa."). What we do not borrow: the research-lab tone. We are a service for tired volunteers.
+Reference: Block's Dessa page (block.xyz/dessa). What we borrow: a handwritten lowercase script wordmark dropped **inside** a large, tight sans-serif headline as if it were a person's name; one clean sans-serif family for everything; generous type sizes that hold up on a phone; one accent; short declarative headlines with a turn in the second line ("You learned to talk by listening. So did dessa."). What we do not borrow: the research-lab tone. We are a service for tired volunteers.
 
 ## The mark
 - `hey` is a handwritten lowercase script. Source of truth: `brand/hey-mark.svg` (traced from the original PNG; 2 paths, evenodd). Variants: `-white`, `-lime`, `-currentcolor`, and square tiles `hey-tile-lime.svg`, `hey-tile-lime-rounded.svg`, `hey-tile-dark.svg`.
@@ -20,17 +20,18 @@ Keep headlines under 12 words. Period at the end. No exclamation marks anywhere 
 ## Color
 | Token | Hex | Use |
 |---|---|---|
-| ink | `#080909` | Marketing backgrounds, portal sidebar |
-| paper | `#F0EDF4` | Type on ink |
+| ink | `#080909` | Type, primary dark buttons, portal sidebar, optional dark sections |
+| paper | `#F0EDF4` | Type on ink; near-white page tint |
 | lime | `#C6FF00` | One accent: primary buttons, the mark on dark tiles, check marks, progress. Never body text, never large fills behind text except buttons and the CTA card |
 | blue | `#2468FF` | Links on light backgrounds, info pills |
 | red | `#FF0049` | Errors, "no" lists, overdue |
 | muted | `#939098` | Secondary text on ink |
-Marketing pages are dark (`theme-dark`). Portals are light (`theme-light`) because people read ledgers there. Same tokens, swapped roles.
+Everything is light by default: white page, ink type, soft grey (`#F6F5F8`) cards, lime only on buttons and the CTA card. `theme-dark` exists as an opt-in for a single section or a launch page; the portal sidebar is always ink.
 
 ## Type
-- **Display:** Inter Tight 600, letter-spacing −0.04em at h1, −0.03em at h2, line-height 1.02. (Free near-match for Cash Sans.)
-- **Body:** Inter 400/500, 17px, line-height 1.55.
+- **One family: Figtree** (Google Fonts). It is the closest free match to Cash Sans, the face Dessa uses: friendly rounded grotesque, single-story g, slanted terminals.
+- **Headlines:** Figtree 500 (medium, not bold), letter-spacing −0.035em at h1, −0.03em below, line-height 1.0–1.04. h1 is `clamp(2.75rem, 11vw, 5.75rem)`, so about 43px on a phone and 92px on a desktop.
+- **Body:** Figtree 400, 18px, line-height 1.5. Lede paragraphs `clamp(1.2rem, 4.8vw, 1.45rem)`. Nothing on a phone is smaller than 16px except table labels.
 - **Mono (labels, numbers, eyebrows):** Space Grotesk, uppercase eyebrows at 0.78rem with 0.08em tracking.
 - Numbers in tables use tabular figures, right-aligned.
 
