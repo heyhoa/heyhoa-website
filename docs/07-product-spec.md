@@ -100,6 +100,14 @@ Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools w
 | Draft budget | actuals + reserve study + known increases | line-item draft | board votes |
 Live mode uses Claude via the Anthropic SDK (model from `HEY_AI_MODEL`, default Opus 5.5, server-side refusal fallbacks on). Demo mode is rule-based so every page works offline.
 
+## Keep it simple
+
+The board portal is five things: Needs you (bills and votes), Bills, Financials, Documents, Settings.
+Everything else lives under "More" and stays out of the way until a board asks for it. Owners get
+Home, Pay dues, Ledger & statements, Ask hey, and a "More". A bill's drawer is the document, hey's
+note, who approved, the buttons. A vote's drawer is the details, the votes, the buttons. No toolbars,
+bulk bars, floating buttons or onboarding strips.
+
 ## Nothing to learn
 
 The board's job is three verbs: approve a bill, decide a question, read the package. The product

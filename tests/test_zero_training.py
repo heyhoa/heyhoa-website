@@ -139,8 +139,8 @@ def test_home_is_the_inbox_in_plain_words(client):
     client.post("/board/decisions/new", data={"decision_type": "bid", "title": "Award asphalt bid", "amount": "18500", "body": "three bids"})
     r = client.get("/board/")
     assert r.status_code == 200 and b"Needs you" in r.data and b"Award asphalt bid" in r.data and b'id="dec-' in r.data
-    assert b"Bills</a>" in r.data and b"Votes</a>" in r.data and b"Owners behind</a>" in r.data
-    assert b"GL account" not in r.data and b"(memo)" not in r.data and b'id="ask-drawer"' in r.data
+    assert b"Bills</a>" in r.data and b"Votes</a>" in r.data and b"Financials</a>" in r.data
+    assert b"GL account" not in r.data and b"(memo)" not in r.data
 
 
 def test_emails_carry_the_portal_link_not_a_login_link(client):

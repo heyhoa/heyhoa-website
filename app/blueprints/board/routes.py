@@ -38,7 +38,6 @@ def dashboard():
     p, me, community = _ctx()
     snap = p.get_financial_snapshot(community.id)
     pending = p.list_invoices(community.id, status="pending_board")
-    evidence = {i.id: _invoice_evidence(p, community.id, i, snap) for i in pending}
     roster = board_calendar.roster(community.id)
     signers = [{"id": m.contact_id or f"member-{m.id}", "name": m.name, "title": m.role.replace("_", " ").title(), "signer": True} for m in roster if m.signer] or [m for m in BOARD_MEMBERS if m["signer"]]
     for s in signers:
@@ -50,9 +49,9 @@ def dashboard():
     cal_rows = [r for r in board_calendar.due_now(community.id) if r["item"].owner in ("board", my_seat) or (r["item"].owner != "hey" and not my_seat)]
     messages = WorkItem.query.filter_by(community_id=community.id).filter(WorkItem.kind.in_(OWNER_FACING_KINDS), WorkItem.state.in_(["new", "working", "escalated"])).order_by(WorkItem.updated_at.desc()).limit(10).all()
     arcs = [a for a in p.list_arc_requests(community.id) if a.status in ("submitted", "under_review")]
-    n_needs = len(pending) + len(votes) + len(cal_rows) + len(messages) + len(arcs)
-    return render_template("board/dashboard.html", community=community, snap=snap, pending=pending, evidence=evidence, flags=flags, signers=signers, initials=_initials, votes=votes, spec=lambda k: decisions.spec(k, community.id),
-                           cal_rows=cal_rows, messages=messages, arcs=arcs, delinquencies=p.list_delinquencies(community.id), n_needs=n_needs, today=dt.date.today())
+    n_needs = len(pending) + len(votes)
+    return render_template("board/dashboard.html", community=community, snap=snap, pending=pending, flags=flags, signers=signers, initials=_initials, votes=votes, spec=lambda k: decisions.spec(k, community.id),
+                           n_needs=n_needs, more=len(cal_rows) + len(messages) + len(arcs))
 
 
 @bp.route("/package/<audience>")
@@ -117,16 +116,13 @@ def invoices():
         counts[i.status] = counts.get(i.status, 0) + 1
     rows = [i for i in every if i.status == status] if status else every
     rows.sort(key=lambda i: (i.status != "pending_board", i.due_date))
-    snap = p.get_financial_snapshot(community.id)
-    evidence = {i.id: _invoice_evidence(p, community.id, i, snap) for i in rows}
     roster = board_calendar.roster(community.id)
     signers = [{"id": m.contact_id or f"member-{m.id}", "name": m.name, "title": m.role.replace("_", " ").title(), "signer": True} for m in roster if m.signer] or [m for m in BOARD_MEMBERS if m["signer"]]
     if not any(s["id"] == me["id"] for s in signers):
         for s in signers:
             if s["name"] == me["name"]:
                 s["id"] = me["id"]
-    return render_template("board/invoices.html", community=community, invoices=rows, status=status or "all", counts=counts, flags=flags, evidence=evidence, signers=signers, initials=_initials,
-                           today=dt.date.today().isoformat(), total=sum(i.amount for i in rows))
+    return render_template("board/invoices.html", community=community, invoices=rows, status=status or "all", flags=flags, signers=signers, initials=_initials, total=sum(i.amount for i in rows))
 
 
 @bp.route("/invoices/bulk", methods=["POST"])

@@ -1,10 +1,8 @@
 {% extends "board/base.html" %}
 {% block title %}Decisions — {{ brand.name }}{% endblock %}
 {% block page_title %}Votes{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.invoices', status='pending_board') }}">{{ invoices|length }} invoices to approve</a><button class="btn btn-primary btn-sm" data-open="new-decision">New decision</button>{% endblock %}
+{% block page_actions %}<button class="btn btn-primary btn-sm" data-open="new-decision">New vote</button>{% endblock %}
 {% block content %}
-<nav class="stage-tabs"><a class="active" href="#">Waiting on a vote <span class="n">{{ pending|length }}</span></a><a href="#recent">Decided <span class="n">{{ done|length }}</span></a></nav>
-<div class="toolbar"><span>Click a row for the details and the votes. Money decisions are carried out by a person at {{ config.BANK_NAME }} after the vote.</span><span><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve · <kbd>d</kbd> deny</span></div>
 <div class="table-wrap"><table class="data">
   <thead><tr><th>Decision</th><th>Type</th><th>Asked</th><th>Votes</th><th class="num">Amount</th></tr></thead>
   <tbody>{% for d in pending %}{% set s = spec(d.category) %}{% set votes = (d.remote_ids or {}).get('votes', []) %}{% set yes = votes|selectattr('vote','equalto','approve')|list|length %}{% set mine = votes|selectattr('member_id','equalto',me.id)|list %}

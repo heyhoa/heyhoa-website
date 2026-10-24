@@ -1,31 +1,17 @@
 {% extends "board/base.html" %}
-{% block title %}Approve payments — {{ brand.name }}{% endblock %}
+{% from 'board/_invoice_drawer.html' import invoice_drawer %}
+{% block title %}Bills — {{ brand.name }}{% endblock %}
 {% block page_title %}Bills{% endblock %}
-{% block page_actions %}<span class="small muted">{{ invoices|length }} · {{ total|money }}</span>{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('To approve', url_for('board.invoices', status='pending_board'), status == 'pending_board'), ('Paid', url_for('board.invoices', status='paid'), status == 'paid'), ('All', url_for('board.invoices', status='all'), status == 'all')]) }}{% endblock %}
 {% block content %}
-<nav class="stage-tabs">
-  <a href="{{ url_for('board.invoices', status='pending_board') }}" class="{% if status == 'pending_board' %}active{% endif %}">For approval <span class="n">{{ counts.pending_board }}</span></a>
-  <a href="{{ url_for('board.invoices', status='approved') }}" class="{% if status == 'approved' %}active{% endif %}">Approved, paying <span class="n">{{ counts.approved }}</span></a>
-  <a href="{{ url_for('board.invoices', status='paid') }}" class="{% if status == 'paid' %}active{% endif %}">Paid <span class="n">{{ counts.paid }}</span></a>
-  <a href="{{ url_for('board.invoices', status='rejected') }}" class="{% if status == 'rejected' %}active{% endif %}">Rejected <span class="n">{{ counts.rejected }}</span></a>
-  <a href="{{ url_for('board.invoices', status='all') }}" class="{% if status == 'all' %}active{% endif %}">All</a>
-</nav>
-<div class="toolbar"><span>{% if status == 'pending_board' %}Two approvals release a payment. hey read each bill and checked it against the contract, the budget and the vendor's past bills.{% else %}Click a row for the bill, the checks and who approved it.{% endif %}</span><span><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve · <kbd>r</kbd> reject · <kbd>esc</kbd> close</span></div>
-<div class="table-wrap"><table class="data">
-  <thead><tr>{% if status == 'pending_board' %}<th class="check"><input type="checkbox" class="checkall" aria-label="Select all"></th>{% endif %}<th>Vendor</th><th>For</th><th>Due</th><th>hey checked</th><th>Approvals</th><th class="num">Amount</th></tr></thead>
-  <tbody>{% for i in invoices %}{% set ev = evidence[i.id] %}{% set worst = 'bad' if ev.checks|selectattr(0,'equalto','bad')|list else 'warn' if ev.checks|selectattr(0,'equalto','warn')|list else 'ok' %}
-    <tr data-drawer="inv-{{ i.id }}" id="row-{{ i.id }}">
-      {% if status == 'pending_board' %}<td class="check"><input type="checkbox" class="rowcheck" value="{{ i.id }}" data-amount="{{ i.amount }}" aria-label="Select"></td>{% endif %}
-      <td><span class="primary">{{ i.vendor }}</span><span class="sub">#{{ i.number }} · {{ i.invoice_date|datefmt('%b %d') }}</span></td>
-      <td>{{ i.description }}<span class="sub">{{ i.gl_account }}</span></td>
-      <td class="due {% if i.due_date < today %}late{% elif (i.due_date|string)[:7] == today[:7] %}soon{% endif %}">{{ i.due_date|datefmt('%b %d') }}</td>
-      <td><span class="check-mark {{ worst }}">{{ ev.checks[0][1].split(' ·')[0] }}</span></td>
-      <td>{% if i.status == 'pending_board' %}<span class="avatars">{% for s in signers %}<span class="avatar {% if loop.index <= i.approvals %}done{% endif %} {% if s.id == me.id %}me{% endif %}" title="{{ s.name }}">{{ initials(s.name) }}</span>{% endfor %}</span> <span class="small muted">{{ i.approvals }}/{{ i.approvals_required }}</span>{% elif i.status == 'paid' %}<span class="pill green">paid {{ i.paid_on|datefmt('%b %d') }}</span>{% elif i.status == 'approved' %}<span class="pill blue">approved · paying</span>{% else %}<span class="pill red">rejected</span>{% endif %}</td>
-      <td class="amt num">{{ i.amount|money }}</td>
-    </tr>{% else %}<tr><td colspan="7" class="muted" style="padding:1.5rem;text-align:center">Nothing here.</td></tr>{% endfor %}</tbody>
-</table></div>
-
-{% if status == 'pending_board' %}<div class="bulkbar"><span><strong class="bulk-count">0</strong> selected · <span class="bulk-sum">$0</span></span><form method="post" action="{{ url_for('board.invoices_bulk') }}"><button class="btn btn-primary btn-sm" name="action" value="approve">Approve selected</button><button class="btn btn-ghost btn-sm" name="action" value="hold">Hold</button></form></div>{% endif %}
-
-{% from 'board/_invoice_drawer.html' import invoice_drawer %}{% for i in invoices %}{{ invoice_drawer(i, evidence[i.id], flags.get(i.id), signers, me, initials) }}{% endfor %}
+<ul class="inbox">
+  {% for i in invoices %}
+  <li class="inbox-row" data-drawer="inv-{{ i.id }}">
+    <span class="ir-tag"><span class="pill {% if i.status == 'paid' %}green{% elif i.status == 'approved' %}blue{% elif i.status == 'rejected' %}red{% else %}amber{% endif %}">{{ {'pending_board': 'to approve', 'approved': 'paying', 'paid': 'paid', 'rejected': 'rejected'}[i.status] }}</span></span>
+    <span class="ir-main"><span class="ir-title">{{ i.vendor }} · {{ i.amount|money }}</span><span class="ir-sub">{{ i.description }}{% if i.ai_note %} · {{ i.ai_note }}{% endif %}</span></span>
+    <span class="ir-meta">{% if i.status == 'pending_board' %}{{ i.approvals }}/{{ i.approvals_required }} · due {{ i.due_date|datefmt('%b %d') }}{% elif i.status == 'paid' %}paid {{ i.paid_on|datefmt('%b %d') }}{% else %}due {{ i.due_date|datefmt('%b %d') }}{% endif %}</span>
+  </li>{% else %}<li class="inbox-row" style="cursor:default"><span class="ir-main muted">Nothing here.</span></li>{% endfor %}
+</ul>
+<p class="small muted" style="margin-top:.8rem">{{ invoices|length }} bills · {{ total|money }}. Two approvals release a payment; the accountant then pays it.</p>
+{% for i in invoices %}{{ invoice_drawer(i, flags.get(i.id), signers, me, initials) }}{% endfor %}
 {% endblock %}

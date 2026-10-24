@@ -564,12 +564,6 @@ body.drawer-open .drawer-backdrop { display: block; }
 .shell .bulkbar .btn-ghost { color: var(--paper); border-color: rgba(240,237,244,0.3); }
 @media (max-width: 900px) { .shell .kv { grid-template-columns: 1fr 1fr; } .shell .stage-tabs { overflow-x: auto; } }
 
-/* ask hey, everywhere */
-.ask-fab { position: fixed; right: 1rem; bottom: 1rem; z-index: 35; display: inline-flex; align-items: center; gap: 0.35rem; background: var(--ink); color: var(--lime); border: 0; border-radius: 999px; padding: 0.45rem 0.85rem 0.45rem 0.7rem; cursor: pointer; box-shadow: 0 8px 24px rgba(18,18,18,0.25); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
-.ask-fab .hey { height: 18px; width: auto; fill: var(--lime); }
-.ask-fab:hover { transform: translateY(-1px); }
-body.drawer-open .ask-fab { display: none; }
-.shell .bubble.me { align-self: flex-end; background: var(--ink); color: var(--paper); }
 
 /* inbox list: tag | title + sub | meta. One grid, so everything lines up on every width. */
 .shell .inbox { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: #fff; overflow: hidden; }
@@ -590,3 +584,10 @@ body.drawer-open .ask-fab { display: none; }
   .shell .inbox-row .ir-meta { grid-column: 2; grid-row: 2; text-align: left; }
 }
 }
+
+/* sidebar: the rest, folded */
+.shell .sidebar details.more { border: 0; padding: 0; }
+.shell .sidebar details.more > summary { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-2); padding: 0.6rem 0.55rem 0.15rem; cursor: pointer; list-style: none; display: block; }
+.shell .sidebar details.more > summary::after { content: " +"; }
+.shell .sidebar details[open].more > summary::after { content: " –"; }
+.shell .sidebar details.more > summary::-webkit-details-marker { display: none; }
