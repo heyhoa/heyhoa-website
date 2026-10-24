@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Who fixes what — {{ brand.name }}{% endblock %}
-{% block page_title %}Who fixes what{% endblock %}
-{% block page_actions %}{% if not items %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo chart</button></form>{% endif %}{% endblock %}
+{% block page_title %}Plan{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Reserve plan', url_for('board.reserves'), request.path.startswith('/board/reserves')), ('Projects', url_for('board.projects'), request.path.startswith('/board/projects')), ('Who fixes what', url_for('board.who_fixes_what'), request.path == '/board/who-fixes-what'), ('Budget', url_for('board.budget'), request.path == '/board/budget')]) }}{% if not items %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo chart</button></form>{% endif %}{% endblock %}
 {% block content %}
 <div class="row">
   <div class="card">
@@ -15,7 +15,7 @@
         <td><form method="post"><input type="hidden" name="intent" value="delete"><input type="hidden" name="id" value="{{ r.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
       </tr>{% else %}<tr><td colspan="5" class="muted">Nothing here yet. Add the parts owners ask about most: roofs, windows, doors, patios, pipes, termites.</td></tr>{% endfor %}</tbody>
     </table></div>
-    <p class="small muted" style="margin-top:.5rem">Owners see this chart in their portal, and hey cites it when someone asks "who fixes my patio gate?". Put the resolution or CC&amp;R section in the note so the answer carries its source.</p>
+    <p class="help">Owners see this chart; hey cites it, note included, when an owner asks.</p>
   </div>
   <form class="card" method="post">
     <h4>Add a line</h4>

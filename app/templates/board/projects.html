@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Projects — {{ brand.name }}{% endblock %}
-{% block page_title %}Projects{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.reserves') }}">Reserve plan</a>{% if not projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo list</button></form>{% endif %}{% endblock %}
+{% block page_title %}Plan{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Reserve plan', url_for('board.reserves'), request.path.startswith('/board/reserves')), ('Projects', url_for('board.projects'), request.path.startswith('/board/projects')), ('Who fixes what', url_for('board.who_fixes_what'), request.path == '/board/who-fixes-what'), ('Budget', url_for('board.budget'), request.path == '/board/budget')]) }}{% if not projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo list</button></form>{% endif %}{% endblock %}
 {% block content %}
 <div class="card">
   <div class="table-wrap"><table class="stack">
@@ -16,7 +16,7 @@
       <td><form method="post" action="{{ url_for('board.project_action', project_id=p.id, action='delete') }}" onsubmit="return confirm('Delete {{ p.name|e }}?')"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
     </tr>{% else %}<tr><td colspan="7" class="muted">No projects yet. Add the first one below.</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="small muted" style="margin-top:.5rem">1 = now, 2 = next, 3 = someday. Reserve-funded projects with a year show up on the <a href="{{ url_for('board.reserves') }}">reserve plan</a>. Owners see this list (not the priorities' reasoning, just the list).{% if projects %} Last updated by {{ (projects|sort(attribute='updated_at')|last).updated_by }}.{% endif %}</p>
+  <p class="help">1 now · 2 next · 3 someday. Reserve-funded projects with a year appear on the reserve plan. Owners see this list.{% if projects %} Last updated by {{ (projects|sort(attribute='updated_at')|last).updated_by }}.{% endif %}</p>
 </div>
 <form class="card" method="post" style="margin-top:.8rem">
   <h4>Add a project</h4>

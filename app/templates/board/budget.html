@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Budget — {{ brand.name }}{% endblock %}
-{% block page_title %}Budget &amp; reserves{% endblock %}
-{% block page_actions %}<a class="btn btn-primary btn-sm" href="#">Start 2027 budget</a>{% endblock %}
+{% block page_title %}Plan{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Reserve plan', url_for('board.reserves'), request.path.startswith('/board/reserves')), ('Projects', url_for('board.projects'), request.path.startswith('/board/projects')), ('Who fixes what', url_for('board.who_fixes_what'), request.path == '/board/who-fixes-what'), ('Budget', url_for('board.budget'), request.path == '/board/budget')]) }}{% endblock %}
 {% block content %}
 <div class="grid grid-3">
   <div class="card stat"><div class="label">2026 dues</div><div class="value">$310<small style="font-size:.9rem;font-weight:400;color:var(--fg-2)">/mo</small></div><div class="delta">48 doors · $178,560 annual</div></div>

@@ -42,11 +42,11 @@
 
 <form method="post" enctype="multipart/form-data" class="card" style="margin-top:1rem"><input type="hidden" name="intent" value="documents">
   <h3>3 · Documents</h3>
-  <ul class="small" style="columns:2;margin:0 0 .75rem 1rem;padding:0">{% for d in docs_needed %}<li>{{ d }}</li>{% endfor %}</ul>
+  <details class="small" style="margin-bottom:.6rem"><summary>What to upload ({{ docs_needed|length }} things; skip what you don't have)</summary><ul style="columns:2;margin:.4rem 0 0 1rem;padding:0">{% for d in docs_needed %}<li>{{ d }}</li>{% endfor %}</ul></details>
   <div class="form-row"><div class="form-group"><input class="form-control" type="file" name="files" multiple required></div><div class="form-group"><select class="form-control" name="category"><option value="governing">governing</option><option value="financial">bank statements / financial</option><option value="contract">contracts</option><option value="insurance">insurance</option><option value="reserve_study">reserve study</option><option value="meetings">minutes</option><option value="other">other</option></select></div></div>
   <button class="btn btn-primary btn-sm" type="submit">Upload</button>
   {% if documents %}<p class="small muted" style="margin-top:.5rem">{{ documents|length }} on file: {% for d in documents[:6] %}{{ d.title }}{% if not loop.last %}, {% endif %}{% endfor %}{% if documents|length > 6 %}…{% endif %}</p>{% endif %}
-  <p class="small muted" style="margin-top:.5rem">Don't have something? Skip it; hey emails you a short list of what is still missing and why it matters.</p>
+  <p class="help">hey emails you what is still missing and why it matters.</p>
 </form>
 
 <form method="post" class="card" style="margin-top:1rem"><input type="hidden" name="intent" value="rules">

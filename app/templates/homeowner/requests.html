@@ -1,7 +1,7 @@
 {% extends "homeowner/base.html" %}
 {% block title %}Requests — {{ brand.name }}{% endblock %}
-{% block page_title %}Maintenance requests{% endblock %}
-{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('homeowner.request_new') }}">New request</a>{% endblock %}
+{% block page_title %}Requests{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Maintenance', url_for('homeowner.requests_list'), request.path.startswith('/me/requests')), ('Architectural', url_for('homeowner.arc_list'), request.path.startswith('/me/arc'))]) }}<a class="btn btn-primary btn-sm" href="{{ url_for('homeowner.request_new') }}">New request</a>{% endblock %}
 {% block content %}
 <div class="table-wrap"><table>
   <thead><tr><th>Opened</th><th>Category</th><th>Summary</th><th>Vendor</th><th>Status</th></tr></thead>

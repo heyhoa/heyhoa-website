@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Reserve plan — {{ brand.name }}{% endblock %}
-{% block page_title %}Reserve plan{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents', category='reserve_study') }}">Upload a reserve study</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.projects') }}">Project list</a>{% if not grid.projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo plan</button></form>{% endif %}{% endblock %}
+{% block page_title %}Plan{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Reserve plan', url_for('board.reserves'), request.path.startswith('/board/reserves')), ('Projects', url_for('board.projects'), request.path.startswith('/board/projects')), ('Who fixes what', url_for('board.who_fixes_what'), request.path == '/board/who-fixes-what'), ('Budget', url_for('board.budget'), request.path == '/board/budget')]) }}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.documents', category='reserve_study') }}">Upload a study</a>{% if not grid.projects %}<form method="post"><input type="hidden" name="intent" value="seed_demo"><button class="btn btn-ghost btn-sm">Load demo plan</button></form>{% endif %}{% endblock %}
 {% block content %}
 <div class="card">
   <h3>Reserve projects</h3>
@@ -30,7 +30,7 @@
       <tr class="tot"><td><strong>Year end balance</strong></td>{% for m in grid.money %}<td class="num {{ 'neg' if m.end < 0 }}"><strong>{{ m.end|money0 }}</strong></td>{% endfor %}</tr>
     </tbody>
   </table></div>
-  <p class="small muted" style="margin-top:.5rem">Starting amount for {{ grid.years[0] }} is today's reserve cash at the bank ({{ snap.reserve_cash|money0 }}); each year after starts where the last one ended. A red year end means the plan needs more contribution, a special assessment, or a later year.{% if grid.unscheduled %} Not in the grid yet (no year inside the window): {% for p in grid.unscheduled %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}.{% endif %}</p>
+  <p class="help">{{ grid.years[0] }} starts at today's reserve cash ({{ snap.reserve_cash|money0 }}); each year starts where the last ended. Red means more contribution, a special assessment, or a later year.{% if grid.unscheduled %} Beyond {{ grid.years[-1] }}: {% for p in grid.unscheduled %}{{ p.name }}{% if not loop.last %}, {% endif %}{% endfor %}.{% endif %}</p>
 </div>
 
 <div class="row" style="margin-top:.8rem">
@@ -53,7 +53,7 @@
       <div class="form-group"><label>Reserve contribution</label><input class="form-control" name="contribution" inputmode="decimal" placeholder="36,000"></div>
       <div class="form-group"><label>Special assessment</label><input class="form-control" name="special_assessment" inputmode="decimal" placeholder="0"></div>
     </div>
-    <div class="form-group"><label>Note</label><input class="form-control" name="note" placeholder="$3,000/mo from dues · special: $175 × 12 payments × 48 units = $100,800 (needs an owner vote)"></div>
+    <div class="form-group"><label>Note</label><input class="form-control" name="note" placeholder="$3,000/mo from dues"></div>
     <button class="btn btn-primary btn-sm">Save</button>
   </form>
 </div>

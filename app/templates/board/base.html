@@ -6,32 +6,22 @@
 <ul>
   <li><a href="{{ url_for('board.dashboard') }}" {% if p in ('/board/','/board/dashboard') %}aria-current="page"{% endif %}>Dashboard</a></li>
   <li><a href="{{ url_for('board.financials') }}" {% if p == '/board/financials' %}aria-current="page"{% endif %}>Financials</a></li>
-  <li><a href="{{ url_for('board.decisions_page') }}" {% if p.startswith('/board/decisions') %}aria-current="page"{% endif %}>Decisions</a></li>
   <li><a href="{{ url_for('board.invoices') }}" {% if p.startswith('/board/invoices') %}aria-current="page"{% endif %}>Approve payments</a></li>
+  <li><a href="{{ url_for('board.decisions_page') }}" {% if p.startswith('/board/decisions') %}aria-current="page"{% endif %}>Decisions</a></li>
   <li><a href="{{ url_for('board.delinquencies') }}" {% if p == '/board/delinquencies' %}aria-current="page"{% endif %}>Delinquencies</a></li>
-  <li><a href="{{ url_for('board.budget') }}" {% if p == '/board/budget' %}aria-current="page"{% endif %}>Budget</a></li>
-  <li><a href="{{ url_for('board.reserves') }}" {% if p.startswith('/board/reserves') %}aria-current="page"{% endif %}>Reserve plan</a></li>
-  <li><a href="{{ url_for('board.projects') }}" {% if p.startswith('/board/projects') %}aria-current="page"{% endif %}>Projects</a></li>
-  <li><a href="{{ url_for('board.who_fixes_what') }}" {% if p == '/board/who-fixes-what' %}aria-current="page"{% endif %}>Who fixes what</a></li>
-  <li><a href="{{ url_for('board.vendors') }}" {% if p == '/board/vendors' %}aria-current="page"{% endif %}>Vendors</a></li>
-  <li><a href="{{ url_for('board.insurance_page') }}" {% if p == '/board/insurance' %}aria-current="page"{% endif %}>Insurance</a></li>
 </ul>
 <div class="section-label">Community</div>
 <ul>
-  <li><a href="{{ url_for('board.inbox') }}" {% if p.startswith('/board/inbox') %}aria-current="page"{% endif %}>Owner inbox</a></li>
+  <li><a href="{{ url_for('board.reserves') }}" {% if p.startswith(('/board/reserves', '/board/projects', '/board/who-fixes-what', '/board/budget')) %}aria-current="page"{% endif %}>Plan</a></li>
+  <li><a href="{{ url_for('board.documents') }}" {% if p in ('/board/documents', '/board/insurance', '/board/vendors') %}aria-current="page"{% endif %}>Records</a></li>
   <li><a href="{{ url_for('board.owners') }}" {% if p == '/board/owners' %}aria-current="page"{% endif %}>Owners &amp; units</a></li>
-  <li><a href="{{ url_for('board.requests_list') }}" {% if p == '/board/requests' %}aria-current="page"{% endif %}>Maintenance</a></li>
-  <li><a href="{{ url_for('board.arc') }}" {% if p.startswith('/board/arc') %}aria-current="page"{% endif %}>ARC review</a></li>
-  <li><a href="{{ url_for('board.violations') }}" {% if p == '/board/violations' %}aria-current="page"{% endif %}>Violations</a></li>
-  <li><a href="{{ url_for('board.announcements') }}" {% if p == '/board/announcements' %}aria-current="page"{% endif %}>Announcements</a></li>
-  <li><a href="{{ url_for('board.meetings_page') }}" {% if p.startswith('/board/meetings') %}aria-current="page"{% endif %}>Meetings</a></li>
-  <li><a href="{{ url_for('board.letters_page') }}" {% if p == '/board/letters' %}aria-current="page"{% endif %}>Letters</a></li>
-  <li><a href="{{ url_for('board.documents') }}" {% if p == '/board/documents' %}aria-current="page"{% endif %}>Documents</a></li>
+  <li><a href="{{ url_for('board.inbox') }}" {% if p.startswith('/board/inbox') %}aria-current="page"{% endif %}>Owner inbox</a></li>
+  <li><a href="{{ url_for('board.requests_list') }}" {% if p.startswith(('/board/requests', '/board/arc', '/board/violations')) %}aria-current="page"{% endif %}>Requests</a></li>
+  <li><a href="{{ url_for('board.announcements') }}" {% if p.startswith(('/board/announcements', '/board/letters', '/board/meetings')) %}aria-current="page"{% endif %}>Communications</a></li>
 </ul>
 <div class="section-label">hey</div>
 <ul>
   <li><a href="{{ url_for('board.ask') }}" {% if p == '/board/ask' %}aria-current="page"{% endif %}>Ask hey</a></li>
-  <li><a href="{{ url_for('board.activity') }}" {% if p == '/board/activity' %}aria-current="page"{% endif %}>Activity log</a></li>
-  <li><a href="{{ url_for('board.settings') }}" {% if p == '/board/settings' %}aria-current="page"{% endif %}>Settings</a></li>
+  <li><a href="{{ url_for('board.settings') }}" {% if p in ('/board/settings', '/board/activity') %}aria-current="page"{% endif %}>Settings</a></li>
 </ul>
 {% endblock %}

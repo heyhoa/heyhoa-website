@@ -6,8 +6,7 @@
   <li><a href="{{ url_for('homeowner.dashboard') }}" {% if p in ('/me/','/me/dashboard') %}aria-current="page"{% endif %}>Home</a></li>
   <li><a href="{{ url_for('homeowner.pay') }}" {% if p == '/me/pay' %}aria-current="page"{% endif %}>Pay dues {% if ua.balance > 0 %}<span class="pill red">{{ ua.balance|money0 }}</span>{% endif %}</a></li>
   <li><a href="{{ url_for('homeowner.ledger') }}" {% if p == '/me/ledger' %}aria-current="page"{% endif %}>Ledger &amp; statements</a></li>
-  <li><a href="{{ url_for('homeowner.requests_list') }}" {% if p.startswith('/me/requests') %}aria-current="page"{% endif %}>Maintenance requests</a></li>
-  <li><a href="{{ url_for('homeowner.arc_list') }}" {% if p.startswith('/me/arc') %}aria-current="page"{% endif %}>ARC requests</a></li>
+  <li><a href="{{ url_for('homeowner.requests_list') }}" {% if p.startswith(('/me/requests', '/me/arc')) %}aria-current="page"{% endif %}>Requests</a></li>
   <li><a href="{{ url_for('homeowner.documents') }}" {% if p == '/me/documents' %}aria-current="page"{% endif %}>Documents</a></li>
   <li><a href="{{ url_for('homeowner.spending') }}" {% if p == '/me/spending' %}aria-current="page"{% endif %}>Community spending</a></li>
   <li><a href="{{ url_for('homeowner.community_page') }}" {% if p == '/me/community' %}aria-current="page"{% endif %}>Projects &amp; who fixes what</a></li>

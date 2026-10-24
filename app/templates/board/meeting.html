@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}{{ kinds[m.kind] }} · {{ m.date|datefmt }} — {{ brand.name }}{% endblock %}
 {% block page_title %}{{ kinds[m.kind] }} · {{ m.date|datefmt }}{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.meetings_page') }}">← Meetings</a><a class="btn btn-dark btn-sm" href="{{ url_for('board.meeting', meeting_id=m.id, print=1) }}" target="_blank">Print agenda</a>{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Announcements', url_for('board.announcements'), request.path == '/board/announcements'), ('Letters', url_for('board.letters_page'), request.path == '/board/letters'), ('Meetings', url_for('board.meetings_page'), request.path.startswith('/board/meetings'))]) }}<a class="btn btn-dark btn-sm" href="{{ url_for('board.meeting', meeting_id=m.id, print=1) }}" target="_blank">Print</a>{% endblock %}
 {% block content %}
 <div class="row">
   <div>

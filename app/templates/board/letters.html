@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Letters — {{ brand.name }}{% endblock %}
-{% block page_title %}Letters{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="{{ url_for('board.announcements') }}">Email blast instead</a>{% endblock %}
+{% block page_title %}Communications{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Announcements', url_for('board.announcements'), request.path == '/board/announcements'), ('Letters', url_for('board.letters_page'), request.path == '/board/letters'), ('Meetings', url_for('board.meetings_page'), request.path.startswith('/board/meetings'))]) }}{% endblock %}
 {% block content %}
 <div class="row">
   <form class="card" method="post">
@@ -10,12 +10,14 @@
       <div class="form-group"><label>Template</label><select class="form-control" name="kind">{% for k, t in templates.items() %}<option value="{{ k }}" {% if preview and preview.kind == k %}selected{% endif %}>{{ t.label }}</option>{% endfor %}</select></div>
       <div class="form-group"><label>To</label><select class="form-control" name="audience">{% for k, label in audiences %}<option value="{{ k }}" {% if preview and preview.audience == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
     </div>
-    <div class="form-row">
+    <details class="form-group"><summary class="small muted">More: one unit, meeting subject, budget letter fields</summary>
+    <div class="form-row" style="margin-top:.5rem">
       <div class="form-group"><label>Unit (if one unit)</label><select class="form-control" name="unit_account_id"><option value="">—</option>{% for u in owners %}<option value="{{ u.id }}" {% if preview and preview.unit_account_id == u.id %}selected{% endif %}>{{ u.unit_label }} · {{ u.owner_name }}</option>{% endfor %}</select></div>
       <div class="form-group"><label>Subject (meeting notice only)</label><input class="form-control" name="subject" value="{{ request.form.get('subject','') }}"></div>
     </div>
-    <div class="form-group"><label>Message <span class="small muted">({owner}, {unit} and {balance} fill in per recipient)</span></label><textarea class="form-control" name="message" rows="6" required>{{ request.form.get('message','') }}</textarea></div>
     <div class="form-row"><div class="form-group"><label>New assessment (budget letter)</label><input class="form-control" name="dues" value="{{ request.form.get('dues','') }}" placeholder="$320"></div><div class="form-group"><label>Frequency · start</label><div style="display:flex;gap:.4rem"><input class="form-control" name="frequency" value="{{ request.form.get('frequency','monthly') }}"><input class="form-control" name="start" value="{{ request.form.get('start','') }}" placeholder="Jan 1"></div></div></div>
+    </details>
+    <div class="form-group"><label>Message <span class="muted">({owner}, {unit}, {balance} fill in per recipient)</span></label><textarea class="form-control" name="message" rows="6" required>{{ request.form.get('message','') }}</textarea></div>
     <label class="small"><input type="checkbox" name="certified" {% if preview and preview.certified %}checked{% endif %}> Certified mail (collection and legal notices; +$6.50)</label>
     <div style="display:flex;gap:.5rem;margin-top:.75rem"><button class="btn btn-ghost btn-sm" name="intent" value="preview">Preview</button></div>
   </form>

@@ -1,6 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Activity — {{ brand.name }}{% endblock %}
 {% block page_title %}Activity log{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Settings', url_for('board.settings'), request.path == '/board/settings'), ('Activity log', url_for('board.activity'), request.path == '/board/activity')]) }}{% endblock %}
 {% block content %}
 <div class="table-wrap"><table>
   <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead>

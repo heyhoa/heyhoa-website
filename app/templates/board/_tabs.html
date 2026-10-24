@@ -1,0 +1,1 @@
+{% macro tabs(items) %}<span class="tabs">{% for label, url, active in items %}<a class="tab{% if active %} active{% endif %}" href="{{ url }}">{{ label }}</a>{% endfor %}</span>{% endmacro %}
