@@ -70,6 +70,16 @@ def create_app(config_object=None):
             return value.strftime(fmt)
         return value
 
+    @app.cli.command("snapshot-coa")
+    def snapshot_coa_cmd():
+        """Nightly: copy each community's chart of accounts into coa_snapshots."""
+        from .integrations.registry import get_provider
+        from .services.financials import snapshot_coa
+
+        with app.test_request_context():
+            for c in get_provider().list_communities():
+                print(c.name, snapshot_coa(c.id), "accounts")
+
     @app.cli.command("seed")
     def seed():
         """Create tables and seed demo rows."""

@@ -63,8 +63,8 @@ Light theme, sidebar grouped Money / Community / hey. Goal: decide fast with the
 | Settings | `/board/settings` | Approval rules, integrations status, board members, plan |
 
 ## Data model (local, `app/models.py`)
-`Lead` (quote requests, scored) · `ContactMessage` · `PortalRequest` (maintenance/ARC submissions mirrored to the provider) · `Announcement` · `AuditLog`.
-Accounting data (communities, units, ledgers, invoices, delinquencies, ARC, documents, vendors, violations, financial snapshot) comes from the **provider interface** (`app/integrations/base.py`) and is never stored locally in Phase 1–2.
+`Lead` (quote requests, scored) · `ContactMessage` · `PortalRequest` (maintenance/ARC submissions mirrored to the provider; mirrors tickets) · `Announcement` · `AuditLog` · `CoaSnapshot` (nightly chart of accounts, the basis for monthly statements) · `BudgetLine` (we are the system of record for budgets).
+Live accounting data (communities, units, ledgers, invoices, delinquencies, ARC, documents, vendors, violations) comes from the **provider interface** (`app/integrations/base.py`). Period financials are *derived* in `app/services/financials.py` from snapshots, because Caliber exposes balances but not activity by period (doc 12). Bank reconciliation is done in Caliber; we verify and present it.
 
 ## AI jobs (`app/ai/assistant.py`)
 | Job | Input | Output | Human in loop |

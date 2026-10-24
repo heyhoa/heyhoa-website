@@ -59,6 +59,9 @@ Template → route → `get_provider()` → provider method → dataclasses → 
 | Auth | `GET login` (Basic), `POST requestnewuseraccount`, `POST resetpassword`, `GET contact/multipass` |
 | Health | `GET ping`, `GET time`, `GET mgmtco` |
 
+## Financials pipeline
+`flask snapshot-coa` runs nightly (cron) and copies every community's chart of accounts into `coa_snapshots`. `services/financials.py` derives the balance sheet (lifetime `Balance`), the YTD income statement (`FYBalance`), monthly activity (Δ `FYBalance` between snapshots) and budget vs actual (`budget_lines`). Bank reconciliation lives in Caliber with the First Citizens integration; we verify cash GL vs statement and show the status. See doc 12 for the full capability map and doc 13 for the close runbook.
+
 ## Adding a second backend
 Implement `AccountingProvider` in `app/integrations/<vendor>.py`, register it in `registry.py`, run the smoke tests with `ACCOUNTING_PROVIDER=<vendor>`. The UI does not change.
 

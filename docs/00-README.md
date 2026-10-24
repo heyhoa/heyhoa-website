@@ -15,6 +15,8 @@ Everything needed to start the company and the product, in reading order.
 | 09 | [Roadmap & phases](09-roadmap-phases.md) | Phased, checkbox-tracked plan; how to run it recursively |
 | 10 | [FrontSteps API reference](10-frontsteps-api-reference.md) | Generated from the sandbox Swagger (310 endpoints) |
 | 11 | [Services agreement](11-services-agreement.md) | The PSA we start from, Exhibit A fees mapped to tiers, Exhibit B collections, open decisions |
+| 12 | [Caliber API capabilities](12-caliber-api-operational-capabilities.md) | What the API reads, writes and lacks; how financials are derived; what stays in the Caliber UI; verification list |
+| 13 | [Operations playbook](13-operations-playbook.md) | AI-first team: channels (email, text, phone/voice), tickets, onboarding interview and community brain, runbooks, ratios |
 | — | [Competitor analysis](competitor-analysis.md) | Clark Simson Miller and the rest of the field |
 
 The app itself: see the repo [README](../README.md) for running it.

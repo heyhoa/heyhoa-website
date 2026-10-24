@@ -78,6 +78,39 @@ class Announcement(db.Model):
     author = db.Column(db.String(120))
 
 
+class CoaSnapshot(db.Model):
+    """Nightly copy of Caliber's chart of accounts. Monthly activity = delta of
+    fy_balance between two snapshots (Caliber exposes no GL-by-period endpoint)."""
+
+    __tablename__ = "coa_snapshots"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    as_of = db.Column(db.Date, index=True)
+    account_number = db.Column(db.String(20))
+    name = db.Column(db.String(200))
+    type = db.Column(db.String(30))  # Asset | Liability | Equity | Income | Expense
+    fund = db.Column(db.String(30))  # operating | reserve | other
+    balance = db.Column(db.Numeric(14, 2))
+    fy_balance = db.Column(db.Numeric(14, 2))
+    __table_args__ = (db.UniqueConstraint("community_id", "as_of", "account_number", name="uq_coa_snapshot"),)
+
+
+class BudgetLine(db.Model):
+    """Budgets do not exist in Caliber's API; we are the system of record."""
+
+    __tablename__ = "budget_lines"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    fiscal_year = db.Column(db.Integer, index=True)
+    account_number = db.Column(db.String(20))
+    name = db.Column(db.String(200))
+    type = db.Column(db.String(30))
+    annual_amount = db.Column(db.Numeric(14, 2))
+    approved_at = db.Column(db.DateTime)
+    approved_by = db.Column(db.String(120))
+    __table_args__ = (db.UniqueConstraint("community_id", "fiscal_year", "account_number", name="uq_budget_line"),)
+
+
 class AuditLog(db.Model):
     __tablename__ = "audit_log"
     id = db.Column(db.Integer, primary_key=True)

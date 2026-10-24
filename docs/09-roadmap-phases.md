@@ -45,16 +45,23 @@ Goal: public site that converts; first customer signed by hand.
 
 ## Phase 2 — Real data, real logins (week 3–6)
 Goal: first community live on FrontSteps data; owners and board use the portals for real.
-- [ ] FrontSteps tenant/sandbox API key; verify `ping`, `clientlist`, `chartofaccounts`, `ledger`; fix `_map_*` field names
+- [ ] FrontSteps tenant/sandbox API key; run the 13-step verification list in doc 12; record observed payloads; fix `_map_*` field names
+- [x] COA snapshot job and budget model; period financials derived from snapshots (`services/financials.py`, `flask snapshot-coa`)
+- [ ] Nightly cron for `snapshot-coa` on the host; opening snapshot on each community's go-live day
+- [ ] Budget entry UI in the board portal (`BudgetLine`), approval recorded; budget vs actual on `/board/financials` from the service
+- [ ] Bank reconciliation verification: statement balance entry (manual/CSV from First Citizens) vs COA cash; status on the financials page
 - [ ] Magic-link auth (email), session hardening, CSRF (Flask-WTF), password-less board invites
 - [ ] Link portal users to FrontSteps `contact` / `clientcontact` ids; owner sees only own unit account
 - [ ] Homeowner: live ledger, statements (PDF proxy), autopay via `unitaccount/{id}/ach`
 - [ ] Payments: hosted processor redirect from `paymentproviders`; webhook → `POST paymentaccepted`
 - [ ] Board: live invoices queue with `invoice/{id}/{cc}/action`; approval rules from settings
-- [ ] Board: live financial snapshot from COA + transaction accounts; packet PDF generation
+- [ ] Board: live financial snapshot from COA snapshots + delinquencies + AP; packet PDF generation from the sample-packet template with real data
 - [ ] Maintenance + ARC: write-through to `servicerequest` / `architectural/savenew` and document upload
 - [ ] Documents: proxy `client/{id}/documents` with visibility flags
 - [ ] Announcements: email (Postmark) + SMS (Twilio) delivery with opt-in tracking
+- [ ] Shared inbox with API (Front/Help Scout/Missive) + per-community aliases; inbound email → ticket → hey triage (doc 13 §2–3)
+- [ ] Ticketing tool chosen and mirrored into `PortalRequest`; routing rules hey/coordinator/accountant/board
+- [ ] Onboarding interview script + community-brain schema in the DB; first interview run with the Heywood community
 - [ ] Audit log: every provider mutation and every AI action logged with inputs
 - [ ] Onboarding runbook executed on customer #1 (doc 05 checklist)
 
@@ -67,6 +74,9 @@ Goal: AI handles first pass on invoices, owner questions and letters at producti
 - [ ] Delinquency engine: policy stages as data; drafts generated on schedule; human send; proof of delivery
 - [ ] ARC assistant: palette/rule check at submission; decision letter drafts; day-25 nudges
 - [ ] Meeting assistant: agenda from month's activity; minutes from recording (transcript upload)
+- [ ] Phone: Twilio Voice + streaming STT/Claude/TTS agent for balance, intake and rule questions; person handoff; call summary to ticket (doc 13 §2)
+- [ ] Dessa access requested; local test rig against a test number; swap-in criteria defined
+- [ ] Print-and-mail API (Lob/PostGrid) for statutory notices with proof of delivery
 - [ ] Budget draft from actuals + reserve study
 - [ ] Eval set: 100 real owner questions with gold answers; run on every prompt change
 - [ ] Cost tracking per community for AI inference
