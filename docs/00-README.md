@@ -17,6 +17,7 @@ Everything needed to start the company and the product, in reading order. Priori
 | 11 | [Services agreement](11-services-agreement.md) | The PSA we start from, Exhibit A fees mapped to tiers, Exhibit B collections, open decisions |
 | 12 | [Caliber API capabilities](12-caliber-api-operational-capabilities.md) | What the API reads, writes and lacks; how financials are derived; what stays in the Caliber UI; verification list |
 | 14 | [Agent-native surfaces](14-agent-native-surfaces.md) | MCP for owners', boards', vendors' and closing parties' agents; public community pages and JSON; records requests; what context we need from you |
+| 15 | [Data intake](15-data-intake.md) | How to deliver three months of real inbound in 30 minutes; the importer; what we do with it |
 | 13 | [Operations playbook](13-operations-playbook.md) | AI-first team: channels (email, text, phone/voice), hey ops work items and agent lanes, onboarding interview and community brain, runbooks, ratios |
 | — | [Competitor analysis](competitor-analysis.md) | Clark Simson Miller and the rest of the field |
 

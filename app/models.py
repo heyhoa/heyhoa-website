@@ -187,6 +187,75 @@ class AgentRun(db.Model):
     ms = db.Column(db.Integer, default=0)
 
 
+class StoredDocument(db.Model):
+    """The board's system of record for files: governing docs, contracts,
+    warranties, insurance, reserve studies, meeting records, vendor files."""
+
+    __tablename__ = "stored_documents"
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    community_id = db.Column(db.String(40), index=True)
+    title = db.Column(db.String(300))
+    category = db.Column(db.String(40), index=True)  # governing|rules|policy|contract|warranty|insurance|reserve_study|meetings|financial|vendor|arc|other
+    visibility = db.Column(db.String(20), default="board")  # board | owners
+    filename = db.Column(db.String(300))
+    path = db.Column(db.String(500))
+    size = db.Column(db.Integer)
+    uploaded_by = db.Column(db.String(120))
+    vendor = db.Column(db.String(200))
+    effective_on = db.Column(db.Date)
+    expires_on = db.Column(db.Date, index=True)
+    notes = db.Column(db.Text)
+
+    @property
+    def days_to_expiry(self):
+        return (self.expires_on - dt.date.today()).days if self.expires_on else None
+
+
+class ReserveComponent(db.Model):
+    """A line in the digital reserve plan, built from the reserve study."""
+
+    __tablename__ = "reserve_components"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    name = db.Column(db.String(200))
+    category = db.Column(db.String(60))  # roofing|paving|pool|fencing|lighting|painting|mechanical|landscape|other
+    quantity = db.Column(db.String(60))
+    useful_life = db.Column(db.Integer)
+    remaining_life = db.Column(db.Integer)
+    replacement_cost = db.Column(db.Numeric(14, 2))
+    next_year = db.Column(db.Integer)
+    notes = db.Column(db.Text)
+    source = db.Column(db.String(200))  # study title / page
+
+    @property
+    def accrued(self):
+        """Straight-line share of the cost that should be funded by now."""
+        if not self.useful_life or self.replacement_cost is None:
+            return 0
+        used = max(0, min(self.useful_life, self.useful_life - (self.remaining_life or 0)))
+        return float(self.replacement_cost) * used / self.useful_life
+
+    @property
+    def annual_contribution(self):
+        if not self.remaining_life or self.replacement_cost is None:
+            return float(self.replacement_cost or 0)
+        return float(self.replacement_cost) / max(self.remaining_life, 1)
+
+
+class InvoiceFlag(db.Model):
+    """Board-set flags on provider invoices, e.g. hide from owners (legal bills)."""
+
+    __tablename__ = "invoice_flags"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    invoice_id = db.Column(db.String(60), index=True)
+    confidential = db.Column(db.Boolean, default=False)
+    reason = db.Column(db.String(200))
+    set_by = db.Column(db.String(120))
+    __table_args__ = (db.UniqueConstraint("community_id", "invoice_id", name="uq_invoice_flag"),)
+
+
 class AuditLog(db.Model):
     __tablename__ = "audit_log"
     id = db.Column(db.Integer, primary_key=True)

@@ -1,0 +1,18 @@
+{% extends "board/base.html" %}
+{% block title %}Owner inbox — {{ brand.name }}{% endblock %}
+{% block page_title %}Owner inbox{% endblock %}
+{% block page_actions %}{% for s in ['open','done','all'] %}<a class="btn btn-sm {% if s == state %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.inbox', state=s) }}">{{ s }}</a>{% endfor %}{% endblock %}
+{% block content %}
+<p class="small muted">Every call, text, email and portal request from an owner, with hey's answer when it sent one. Reply here when the board wants to speak for itself; it goes out under your name. hey and the hey team handle the rest.</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>When</th><th>From</th><th>Channel</th><th>Subject</th><th>hey</th><th>Status</th></tr></thead>
+  <tbody>{% for w in items %}<tr>
+    <td class="small">{{ w.updated_at|datefmt('%b %d %H:%M') }}</td>
+    <td class="small">{{ w.counterpart_name or w.counterpart_email or 'unknown' }}{% if w.unit_account_id %}<br><span class="muted">{{ w.unit_account_id }}</span>{% endif %}</td>
+    <td class="small">{{ w.kind|replace('_',' ') }}</td>
+    <td><a href="{{ url_for('board.inbox_item', item_id=w.id) }}">{{ w.subject }}</a><br><span class="small muted">{{ (w.summary or '')[:110] }}</span></td>
+    <td class="small">{% if w.state == 'done' and not w.reviewer %}answered{% elif w.state == 'proposed' %}drafted, in review{% elif w.state == 'escalated' %}with the hey team{% else %}{{ w.state }}{% endif %}</td>
+    <td><span class="pill {% if w.state == 'done' %}green{% elif w.state in ('proposed','approved') %}amber{% elif w.state == 'escalated' %}red{% else %}blue{% endif %}">{{ w.state }}</span></td>
+  </tr>{% else %}<tr><td colspan="6" class="muted">Nothing here.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

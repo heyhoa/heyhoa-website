@@ -4,7 +4,7 @@ from ...agents import runtime
 from ...ai.assistant import classify_request
 from ...extensions import db
 from ...integrations.registry import get_provider
-from ...models import Announcement, PortalRequest
+from ...models import Announcement, InvoiceFlag, PortalRequest, StoredDocument
 from ...services.auth import role_required
 from . import bp
 
@@ -97,7 +97,23 @@ def arc_new():
 @role_required("homeowner")
 def documents():
     p, me, ua, community = _ctx()
-    return render_template("homeowner/documents.html", ua=ua, community=community, documents=p.list_documents(community.id))
+    stored = StoredDocument.query.filter_by(community_id=community.id, visibility="owners").order_by(StoredDocument.created_at.desc()).all()
+    return render_template("homeowner/documents.html", ua=ua, community=community, documents=p.list_documents(community.id), stored=stored)
+
+
+@bp.route("/spending")
+@role_required("homeowner")
+def spending():
+    """Paid bills, visible to owners by default; the board can hide specific ones (e.g. legal bills)."""
+    p, me, ua, community = _ctx()
+    hidden = {f.invoice_id for f in InvoiceFlag.query.filter_by(community_id=community.id, confidential=True).all()}
+    paid = [i for i in p.list_invoices(community.id, status="paid") if i.id not in hidden]
+    n_hidden = sum(1 for i in p.list_invoices(community.id, status="paid") if i.id in hidden)
+    by_gl = {}
+    for i in paid:
+        by_gl[i.gl_account] = by_gl.get(i.gl_account, 0) + i.amount
+    snap = p.get_financial_snapshot(community.id)
+    return render_template("homeowner/spending.html", ua=ua, community=community, paid=paid, n_hidden=n_hidden, by_gl=sorted(by_gl.items(), key=lambda kv: -kv[1]), snap=snap)
 
 
 @bp.route("/directory")

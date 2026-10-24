@@ -35,7 +35,8 @@ Light theme, sidebar. Goal: pay, ask, file, find.
 | Ledger & statements | `/me/ledger` | Full ledger table, monthly statement PDFs, CSV export |
 | Maintenance requests | `/me/requests`, `/me/requests/new` | List with status/vendor; 2-step form, `hey` classifies, photo upload, urgent flag |
 | ARC | `/me/arc`, `/me/arc/new` | List with approvals count; 3-step application with palette/rule hints |
-| Documents | `/me/documents` | Governing, ARC, financial, meetings, insurance |
+| Documents | `/me/documents` | Governing, ARC, financial, meetings, insurance, plus anything the board filed for owners |
+| Community spending | `/me/spending` | Cash, reserves, YTD spend, every paid bill by vendor and category, except bills the board marked confidential |
 | Board & contacts | `/me/directory` | Board, hey contact, emergency numbers |
 | Profile | `/me/profile` | Contact info, mailing address, notification prefs, directory opt-in |
 | Ask hey | `/me/ask` | Chat with sourced answers; unsourced → human |
@@ -46,8 +47,11 @@ Light theme, sidebar grouped Money / Community / hey. Goal: decide fast with the
 | Page | Route | Key content |
 |---|---|---|
 | Dashboard | `/board/dashboard` | Cash, reserves, AR, AP pending; needs-a-decision list; cash chart; delinquencies; open maintenance; `hey says` |
-| Financials | `/board/financials` | YTD income/expense vs budget, balance sheet summary, recon status, packet downloads |
-| Approve payments | `/board/invoices` | Queue with `hey` notes (contract match, trend variance); approve / hold / reject; 2-approval rule |
+| Financials | `/board/financials` | Strict cash basis: YTD income/expense vs budget, cash-basis balance sheet, recon status, packet downloads |
+| Approve payments | `/board/invoices` | Queue with `hey` notes (contract match, trend variance); approve / hold / reject; 2-approval rule; hide-from-owners flag for protected bills |
+| Decisions | `/board/decisions` | Everything else that needs a vote: bank transfers, CDs/yield vehicles, bids, work orders, ARC when assigned, special assessments, budget, policies, collections steps, fee waivers, vendors, insurance, meetings; quorum per type; votes logged; approved → execution item for the accountant/coordinator |
+| Owner inbox | `/board/inbox` | Every call, text, email and portal request from owners with hey's answer and state; board replies under its own name |
+| Reserve plan | `/board/reserves` | Components from the reserve study (upload → hey extracts), accrued vs balance, percent funded, suggested contribution, ten-year horizon |
 | Delinquencies | `/board/delinquencies` | Stage, days, last/next action; draft notice via `hey` |
 | Budget & reserves | `/board/budget` | Dues, reserve funding %, `hey` draft budget, component table |
 | Vendors | `/board/vendors` | COI expiry, W-9 status, YTD paid; payment block without W-9 |
@@ -57,7 +61,7 @@ Light theme, sidebar grouped Money / Community / hey. Goal: decide fast with the
 | Violations | `/board/violations` | Stage tracking (Board+) |
 | Announcements | `/board/announcements` | Compose, channel, `hey` draft from a brief; sent history |
 | Meetings | `/board/meetings` | Next meeting, `hey`-drafted agenda, minutes archive |
-| Documents | `/board/documents` | Board-only + owner-visible with visibility flags |
+| Documents | `/board/documents` | The association's system of record: upload governing docs, rules, policies, contracts, warranties, insurance, reserve studies, meeting records; vendor, effective and expiry dates; 90-day expiry warnings; owner/board visibility |
 | Ask hey | `/board/ask` | Numbers with GL citations, drafts |
 | Activity log | `/board/activity` | Every human and `hey` action with inputs |
 | Settings | `/board/settings` | Approval rules, integrations status, board members, plan |
@@ -95,6 +99,20 @@ Six lanes (CS, AR, AP, Board, Close, Onboarding) built on one framework: tools w
 | Draft announcement / agenda / minutes | brief or month's activity | text | board edits, sends |
 | Draft budget | actuals + reserve study + known increases | line-item draft | board votes |
 Live mode uses Claude via the Anthropic SDK (model from `HEY_AI_MODEL`, default Opus 5.5, server-side refusal fallbacks on). Demo mode is rule-based so every page works offline.
+
+## Visibility rules (from the founders)
+| Who | Sees | Never sees |
+|---|---|---|
+| Owner | own ledger, statements, own requests, documents marked for owners, paid bills (minus confidential), published financial summary, meeting notices | compliance/violations list, delinquency list, any other owner's balance or ledger, unpaid-bill queue, board-only documents, ops screens, agent proposals |
+| Board member | everything about the community: financials, approvals, decisions, delinquencies, violations, owner inbox with hey's answers, all documents, reserve plan, audit log for the community | ops screens, other communities, agent internals (runs, prompts), the hey team's review queue |
+| Vendor (via MCP/email) | own invoices and payment status | anything else |
+| Realtor/lender (via MCP) | public profile, fee schedule, their own orders | anything else |
+| hey team (ops) | all of it, across communities | — |
+
+Confidential invoices: the board hides a specific bill (legal, HR, protected information) with a reason; it stays in the board view and the packet, and leaves the owner spending page.
+
+## Decision types and quorums (defaults)
+Bank transfer 2 · CD / yield vehicle 2 · vendor bid 2 · open work order 1 · ARC (if assigned to the board) 2 · special assessment 3 · budget 3 · policy 3 · collections step (attorney, lien) 2 · fee waiver 2 · new vendor / contract 2 · insurance 2 · meeting notice / election 1 · announcement 1 · invoice 2 (Caliber flow). Quorums are defaults from the bylaws; editable per community (Phase 2). Approved money decisions become an execution item for the accountant (bank + Caliber); others go to the coordinator.
 
 ## Non-goals (for now)
 No on-site services, no violations inspection, no funds custody, no mobile app (responsive web is enough), no multi-community board users until Phase 4.

@@ -21,6 +21,8 @@ class CSAgent(Agent):
     auto_execute_risks = {RISK_READ, RISK_SEND, RISK_WRITE}
 
     def plan(self, item):
+        if item.kind == "board_approved":
+            return Proposal(action="escalate", payload={"lane": "coordinator", "note": f"Board approved: {item.subject}. Carry it out and close the loop with the owner/vendor."}, preview=f"Board approved. Coordinator executes: {item.summary[:300]}", confidence=0.9, reason="board decision")
         if item.kind == "records_request":
             docs = get_provider().list_documents(item.community_id or "1001", board=True)
             inv = ", ".join(d.title for d in docs[:8])
@@ -53,6 +55,8 @@ class ARAgent(Agent):
     auto_execute_risks = {RISK_READ}
 
     def plan(self, item):
+        if item.kind == "board_approved":
+            return Proposal(action="escalate", payload={"lane": "accountant", "note": f"Board approved: {item.subject}. Post in Caliber."}, preview=f"Board approved. Accountant posts in Caliber: {item.summary[:300]}", confidence=0.9, reason="board decision")
         if item.kind == "delinquency" and item.unit_account_id:
             d = next((x for x in get_provider().list_delinquencies(item.community_id or "1001") if x.unit_account_id == item.unit_account_id), None)
             if not d:
@@ -83,6 +87,8 @@ class APAgent(Agent):
     auto_execute_risks = {RISK_READ, RISK_WRITE}
 
     def plan(self, item):
+        if item.kind == "board_approved":
+            return Proposal(action="escalate", payload={"lane": "accountant", "note": f"Board approved: {item.subject}. Set up the vendor/contract or release per the bid; accountant handles the bank side."}, preview=f"Board approved. Accountant executes: {item.summary[:300]}", confidence=0.9, reason="board decision")
         vendors = get_provider().list_vendors(item.community_id or "1001")
         missing = [v for v in vendors if not v.w9_on_file]
         if item.kind == "vendor_compliance" and missing:
@@ -125,6 +131,9 @@ class CloseAgent(Agent):
     auto_execute_risks = {RISK_READ}
 
     def plan(self, item):
+        if item.kind == "board_approved":
+            amt = (item.remote_ids or {}).get("amount")
+            return Proposal(action="escalate", payload={"lane": "accountant", "note": f"Board approved money movement: {item.subject}{f' · ${amt:,.2f}' if amt else ''}. Execute at the bank with two signers, record in Caliber, attach confirmation."}, preview=f"Board approved. Accountant executes at the bank and records in Caliber: {item.summary[:300]}", confidence=0.95, reason="board decision")
         return Proposal(action="snapshot_and_verify", payload={}, preview="Snapshot the chart of accounts and verify cash and reconciliation status.", confidence=0.95, reason="nightly")
 
 

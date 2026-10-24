@@ -1,10 +1,31 @@
 {% extends "board/base.html" %}
 {% block title %}Documents — {{ brand.name }}{% endblock %}
 {% block page_title %}Documents{% endblock %}
-{% block page_actions %}<a class="btn btn-ghost btn-sm" href="#">Upload</a>{% endblock %}
+{% block page_actions %}<a class="btn btn-sm {% if not cat %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.documents') }}">all</a>{% for c in categories %}<a class="btn btn-sm {% if c == cat %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('board.documents', category=c) }}">{{ c|replace('_',' ') }}</a>{% endfor %}{% endblock %}
 {% block content %}
-<div class="table-wrap"><table>
-  <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Visibility</th><th></th></tr></thead>
-  <tbody>{% for d in documents %}<tr><td>{{ d.title }}</td><td class="small" style="text-transform:capitalize">{{ d.category }}</td><td>{{ d.date|datefmt }}</td><td>{% if d.board_only %}<span class="pill">board only</span>{% else %}<span class="pill green">owners</span>{% endif %}</td><td><a href="{{ d.url }}">Open</a></td></tr>{% endfor %}</tbody>
-</table></div>
+{% if expiring %}<div class="flash">Expiring within 90 days: {% for d in expiring %}<strong>{{ d.title }}</strong> ({{ d.expires_on|datefmt }}){% if not loop.last %} · {% endif %}{% endfor %}. hey will remind the board and the vendor.</div>{% endif %}
+<div class="row">
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Title</th><th>Category</th><th>Vendor</th><th>Effective</th><th>Expires</th><th>Who sees it</th><th></th></tr></thead>
+      <tbody>
+        {% for d in stored %}<tr><td>{{ d.title }}{% if d.notes %}<br><span class="small muted">{{ d.notes }}</span>{% endif %}</td><td class="small">{{ d.category|replace('_',' ') }}</td><td class="small">{{ d.vendor or '—' }}</td><td class="small">{{ d.effective_on|datefmt if d.effective_on else '—' }}</td><td class="small">{% if d.expires_on %}<span class="{% if d.days_to_expiry is not none and d.days_to_expiry <= 90 %}pill amber{% endif %}">{{ d.expires_on|datefmt }}</span>{% else %}—{% endif %}</td><td>{% if d.visibility == 'owners' %}<span class="pill green">owners</span>{% else %}<span class="pill">board only</span>{% endif %}</td><td class="small">{% if d.filename %}{{ (d.size or 0) // 1024 }} KB{% else %}no file{% endif %}</td></tr>{% endfor %}
+        {% for d in documents %}<tr><td>{{ d.title }}</td><td class="small">{{ d.category }}</td><td class="small">—</td><td class="small">{{ d.date|datefmt }}</td><td class="small">—</td><td>{% if d.board_only %}<span class="pill">board only</span>{% else %}<span class="pill green">owners</span>{% endif %}</td><td class="small muted">Caliber</td></tr>{% endfor %}
+        {% if not stored and not documents %}<tr><td colspan="7" class="muted">Nothing filed yet.</td></tr>{% endif %}
+      </tbody>
+    </table></div>
+    <p class="small muted" style="margin-top:.6rem">This is the association's system of record: governing documents, rules, policies, vendor contracts, warranties, insurance, the reserve study, meeting records. hey reads what is here when it answers owners and matches invoices to contracts. Owners see only what is marked for owners.</p>
+  </div>
+  <form class="card" method="post" action="{{ url_for('board.document_upload') }}" enctype="multipart/form-data">
+    <h4>File a document</h4>
+    <div class="form-group"><label for="du-file">File</label><input class="form-control" id="du-file" type="file" name="file"></div>
+    <div class="form-group"><label for="du-title">Title</label><input class="form-control" id="du-title" name="title" placeholder="GreenScape landscape contract 2026"></div>
+    <div class="form-row"><div class="form-group"><label for="du-cat">Category</label><select class="form-control" id="du-cat" name="category">{% for c in categories %}<option value="{{ c }}">{{ c|replace('_',' ') }}</option>{% endfor %}</select></div><div class="form-group"><label for="du-vis">Who sees it</label><select class="form-control" id="du-vis" name="visibility"><option value="board">Board only</option><option value="owners">Owners too</option></select></div></div>
+    <div class="form-group"><label for="du-vendor">Vendor (contracts, warranties, insurance)</label><input class="form-control" id="du-vendor" name="vendor"></div>
+    <div class="form-row"><div class="form-group"><label for="du-eff">Effective</label><input class="form-control" id="du-eff" name="effective_on" type="date"></div><div class="form-group"><label for="du-exp">Expires</label><input class="form-control" id="du-exp" name="expires_on" type="date"></div></div>
+    <div class="form-group"><label for="du-notes">Notes</label><input class="form-control" id="du-notes" name="notes" placeholder="Rate $1,850/mo, auto-renews, 30-day out"></div>
+    <button class="btn btn-primary btn-sm">File it</button>
+    <span class="form-help-text">Reserve studies are read by hey and turned into your reserve plan. Contracts with a rate in the notes let hey match invoices.</span>
+  </form>
+</div>
 {% endblock %}

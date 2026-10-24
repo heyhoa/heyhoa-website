@@ -1,0 +1,38 @@
+{% extends "board/base.html" %}
+{% block title %}Decisions — {{ brand.name }}{% endblock %}
+{% block page_title %}Decisions{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('board.invoices', status='pending_board') }}">{{ invoices|length }} invoices to approve</a>{% endblock %}
+{% block content %}
+<div class="row">
+  <div>
+    {% for d in pending %}{% set s = spec(d.category) %}{% set votes = (d.remote_ids or {}).get('votes', []) %}{% set mine = votes|selectattr('member_id','equalto',me.id)|list %}
+    <div class="card" style="margin-bottom:.8rem">
+      <div class="decision">
+        <div class="body"><h4 style="margin:0">{{ d.subject }}</h4><p class="small muted" style="margin:.2rem 0">{{ s.label }} · asked by {{ (d.remote_ids or {}).get('requested_by','hey') }} · {{ d.created_at|datefmt }}{% if (d.proposal.payload or {}).get('amount') %} · ${{ "{:,.2f}".format(d.proposal.payload.amount) }}{% endif %}</p><p class="small" style="white-space:pre-wrap;margin:.4rem 0">{{ d.summary }}</p>
+          {% if votes %}<p class="small muted">Votes: {% for v in votes %}{{ v.member }} {{ v.vote }}{% if v.note %} ({{ v.note }}){% endif %}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}</div>
+        <div class="amount"><span class="pill amber">{{ votes|selectattr('vote','equalto','approve')|list|length }}/{{ s.approvals }} approvals</span></div>
+      </div>
+      {% if not mine %}
+      <form method="post" action="{{ url_for('board.decision_vote', item_id=d.id) }}" class="actions" style="margin-top:.6rem">
+        <button class="btn btn-primary btn-sm" name="vote" value="approve">Approve</button><button class="btn btn-ghost btn-sm" name="vote" value="deny" style="color:var(--red)">Deny</button><button class="btn btn-ghost btn-sm" name="vote" value="abstain">Abstain</button>
+        <input class="form-control" name="note" placeholder="Note or condition" style="width:260px">
+      </form>
+      {% else %}<p class="small muted" style="margin-top:.5rem">You voted {{ mine[0].vote }}. Waiting on the rest of the board.</p>{% endif %}
+    </div>
+    {% else %}<div class="card"><p class="muted">Nothing waiting on the board beyond invoices.</p></div>{% endfor %}
+    <div class="card" style="margin-top:.8rem"><h4>Recent</h4><ul class="checks">{% for d in done %}<li><span>{{ d.subject }} <span class="small muted">{{ spec(d.category).label }} · {{ d.updated_at|datefmt }}</span></span><span class="pill {{ 'green' if d.state == 'done' else 'red' }}">{{ 'approved' if d.state == 'done' else 'denied' }}</span></li>{% else %}<li class="muted small">No decisions yet.</li>{% endfor %}</ul></div>
+  </div>
+  <div>
+    <form class="card" method="post" action="{{ url_for('board.decision_new') }}">
+      <h4>Put something to the board</h4>
+      <div class="form-group"><label for="dt">Type</label><select class="form-control" id="dt" name="decision_type">{% for k, t in types.items() if k != 'invoice' %}<option value="{{ k }}">{{ t.label }} · {{ t.approvals }} approval{{ 's' if t.approvals > 1 }}</option>{% endfor %}</select></div>
+      <div class="form-group"><label for="dtitle">Title</label><input class="form-control" id="dtitle" name="title" required placeholder="Transfer $12,000 operating → reserve"></div>
+      <div class="form-group"><label for="damount">Amount (if money)</label><input class="form-control" id="damount" name="amount" type="number" step="0.01"></div>
+      <div class="form-group"><label for="dbody">Details</label><textarea class="form-control" id="dbody" name="body" rows="4" placeholder="Why, what it costs, what hey found, attachments in Documents"></textarea></div>
+      <button class="btn btn-primary btn-sm">Add to the list</button>
+      <span class="form-help-text">Approved money decisions go to the accountant to execute at the bank and record in Caliber. Everything else goes to the coordinator. Every vote is logged.</span>
+    </form>
+    <div class="card" style="margin-top:.8rem"><h4>What needs a vote</h4><ul class="checks">{% for k, t in types.items() %}<li><span>{{ t.label }}</span><span class="muted small">{{ t.approvals }}</span></li>{% endfor %}</ul><p class="small muted" style="margin-top:.5rem">Quorums are defaults from your bylaws; change them in Settings.</p></div>
+  </div>
+</div>
+{% endblock %}

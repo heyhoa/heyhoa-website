@@ -6,5 +6,6 @@
 {% set docs = documents|selectattr('category','equalto',cat)|list %}{% if docs %}
 <div class="card" style="margin-bottom:1.25rem"><h4 style="text-transform:capitalize">{{ cat }}</h4><ul class="checks">{% for d in docs %}<li><span>{{ d.title }} <span class="muted small">{{ d.date|datefmt }}</span></span><a href="{{ d.url }}">Open</a></li>{% endfor %}</ul></div>
 {% endif %}{% endfor %}
+{% if stored %}<div class="card" style="margin-bottom:1.25rem"><h4>Filed by the board</h4><ul class="checks">{% for d in stored %}<li><span>{{ d.title }} <span class="muted small">{{ d.category|replace('_',' ') }} · {{ d.created_at|datefmt }}</span></span><a href="#">Open</a></li>{% endfor %}</ul></div>{% endif %}
 <p class="small muted">Cannot find it? <a href="{{ url_for('homeowner.ask') }}">Ask hey</a>: “what does the declaration say about rentals?” gets you the section, not the whole PDF.</p>
 {% endblock %}

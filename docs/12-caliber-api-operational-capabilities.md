@@ -4,6 +4,7 @@ Source: the sandbox Swagger spec in `docs/api/` (Caliber API v2, 310 paths) and 
 
 ## The short version
 - **Caliber is the system of record. We never try to replace its ledger.** The API reads almost everything and writes the handful of things that matter operationally: vendor invoices, invoice approvals, payments, fines, ACH/autopay and payment plans, owner contact data, service requests, ARC items, violations, notes, new owners at resale, vendors and 1099 adjustments.
+- **Basis: strictly cash.** Income when received, expense when paid. Balance sheet = bank balances + fund balances. Owner balances and unpaid bills are memo schedules. Caliber's `APBasis` and the monthly "cash basis" statements in the PSA (§2.8) line up with this; we never post accruals.
 - **Financials: yes, with one trick.** The chart of accounts returns a lifetime `Balance` and a fiscal-year `FYBalance` per account. That gives a balance sheet and a YTD income statement at any moment. There is **no GL journal endpoint and no "activity for a period" endpoint**, so a *monthly* income statement comes from the difference between two snapshots of `FYBalance`. We snapshot the chart of accounts every night and on the 1st; month = end snapshot minus start snapshot. Budgets do not exist in the API at all, so we hold the budget.
 - **Bank reconciliation: not through the API.** No bank transactions, no reconciliation endpoint. Bank data enters Caliber through its bank integrations (First Citizens is a listed Caliber partner, with CheckAlt lockbox since 2026) and the reconciliation is done inside the Caliber desktop/web product. Our accountant reviews it there; the API lets us *verify* (cash GL balance vs bank statement balance) and *explain* (AP payments and AR applied payments account for most cash movement).
 - **Communications: nothing.** No email, SMS, letter generation or mail. Caliber can print templated letters internally (`printeddocument`), but we cannot trigger them. We send everything ourselves and log it back as a note on the unit account.
@@ -16,7 +17,7 @@ Legend for "Automation": **A** fully automatic via API · **D** hey drafts/decid
 ### Financial statements and reporting
 | Need | API | Automation | How |
 |---|---|---|---|
-| Balance sheet | `client/{id}/chartofaccounts` (`Balance`) | A | Assets/liabilities/equity from COA at snapshot date. Operating vs reserve by account or cost center (`costcenters`). |
+| Balance sheet (cash basis) | `client/{id}/chartofaccounts` (`Balance`) | A | Cash accounts and fund balances from COA at snapshot date; receivable/payable accounts, if the tenant has them, are excluded and shown as memo schedules. Operating vs reserve by account or cost center (`costcenters`). |
 | YTD income statement | `chartofaccounts` (`FYBalance`) | A | Income/expense accounts' FY balance. |
 | Monthly income statement | derived | A | Nightly COA snapshots in our DB; month = Δ FYBalance. First month after go-live needs an opening snapshot on day 1. Prior-year comparatives need Caliber's own reports until we have 13 months of snapshots. |
 | Budget vs actual | **no budget in API** | A (ours) | `BudgetLine` table in our DB per community/fiscal year/account; actuals from snapshots. Board approves the budget in our portal. |

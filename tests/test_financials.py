@@ -20,9 +20,9 @@ def app():
 
 def test_snapshot_from_mock_provider(app):
     n = financials.snapshot_coa("1001", dt.date(2026, 10, 1))
-    assert n == 15
-    assert financials.snapshot_coa("1001", dt.date(2026, 10, 1)) == 15  # idempotent per day
-    assert CoaSnapshot.query.filter_by(community_id="1001").count() == 15
+    assert n == 14
+    assert financials.snapshot_coa("1001", dt.date(2026, 10, 1)) == 14  # idempotent per day
+    assert CoaSnapshot.query.filter_by(community_id="1001").count() == 14
 
 
 def test_period_activity_is_delta_of_fy_balance(app):
@@ -44,4 +44,4 @@ def test_budget_vs_actual_and_balance_sheet(app):
     bva = financials.budget_vs_actual("1001", 2026, dt.date(2026, 9, 30))
     assert len(bva) == 1 and bva[0]["ytd_budget"] == Decimal("18000") and bva[0]["actual"] == Decimal("18500.00") and bva[0]["variance"] == Decimal("500.00")
     bs = financials.balance_sheet("1001", dt.date(2026, 9, 30))
-    assert bs["totals"]["Asset"] > 0 and len(bs["Asset"]) == 3
+    assert bs["totals"]["Asset"] > 0 and len(bs["Asset"]) == 2 and len(bs["Liability"]) == 0 and len(bs["Equity"]) == 2  # strict cash basis: cash and fund balances only

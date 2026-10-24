@@ -58,6 +58,38 @@ def agents_daily():
     return jsonify(runtime.daily(request.args.get("community")))
 
 
+def _twiml(*parts: str) -> "Response":
+    from flask import Response
+
+    return Response('<?xml version="1.0" encoding="UTF-8"?><Response>' + "".join(parts) + "</Response>", mimetype="application/xml")
+
+
+@bp.route("/webhooks/twilio/voice", methods=["GET", "POST"])
+def twilio_voice():
+    """Simple phone intake: greet, get the caller's name, the reason, confirm the callback number,
+    then create a work item for the board's inbox. Twilio sends SpeechResult between steps."""
+    from flask import url_for
+
+    from ...agents import runtime
+
+    expected = current_app.config.get("POSTMARK_INBOUND_TOKEN", "")
+    if not expected or request.args.get("token") != expected:
+        return _twiml("<Say>This number is not configured.</Say><Hangup/>"), 401
+    step = int(request.args.get("step", 0))
+    community_id = request.args.get("community") or None
+    speech = (request.values.get("SpeechResult") or "").strip()
+    caller = request.values.get("From", "")
+    name, reason = request.args.get("name", ""), ""
+    nxt = lambda s, **kw: url_for("api.twilio_voice", token=expected, step=s, community=community_id, **kw)  # noqa: E731
+    if step == 0:
+        return _twiml(f'<Gather input="speech" action="{nxt(1)}" method="POST" speechTimeout="auto"><Say>Hey, thanks for calling. This is the back office for your community. What is your name and your unit or address?</Say></Gather><Say>Sorry, I did not catch that.</Say><Redirect>{nxt(0)}</Redirect>')
+    if step == 1:
+        return _twiml(f'<Gather input="speech" action="{nxt(2, name=speech[:120])}" method="POST" speechTimeout="auto"><Say>Thanks. In a sentence or two, what can we help with?</Say></Gather><Say>Sorry, I did not catch that.</Say><Redirect>{nxt(1)}</Redirect>')
+    reason = speech
+    item = runtime.inbound_portal(community_id=community_id, unit_account_id=None, kind="call", subject=f"Call from {name or caller}: {reason[:80]}", body=f"Caller: {name or 'unknown'} · callback {caller}\nReason: {reason}", email=None, name=name or caller, lane="cs")
+    return _twiml(f'<Say>Got it. I have passed this to the board and the hey team. Someone will follow up at the number you called from, {" ".join(caller[-4:])} being the last four digits. Thanks for calling.</Say><Hangup/>') if item else _twiml("<Say>Thanks. Goodbye.</Say><Hangup/>")
+
+
 @bp.post("/leads")
 def leads():
     data = request.get_json(silent=True) or request.form

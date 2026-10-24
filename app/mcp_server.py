@@ -325,6 +325,30 @@ def decide_arc(p, arc_id: str, action: str, note: str = "") -> dict:
     return {"application": a.id, "status": a.status, "approvals": f"{a.approvals}/{a.approvals_required}"}
 
 
+@server.tool(description="Decisions waiting on the board beyond invoices (transfers, bids, work orders, policies) with votes so far.")
+@require("board")
+def pending_decisions(p) -> dict:
+    from .services import decisions
+
+    return {"decisions": [{"id": d.id, "type": d.category, "label": decisions.spec(d.category)["label"], "title": d.subject, "details": d.summary, "approvals_needed": decisions.spec(d.category)["approvals"], "votes": (d.remote_ids or {}).get("votes", [])} for d in decisions.pending(p.community_id)]}
+
+
+@server.tool(description="Record this board member's vote on a decision: approve, deny or abstain, with an optional note.")
+@require("board")
+def vote_decision(p, decision_id: int, vote: str, note: str = "") -> dict:
+    from .extensions import db
+    from .models import WorkItem
+    from .services import decisions
+
+    item = db.session.get(WorkItem, decision_id)
+    if not item or item.community_id != p.community_id or item.kind != "decision":
+        return {"error": "unknown decision"}
+    if vote not in ("approve", "deny", "abstain"):
+        return {"error": "vote must be approve, deny or abstain"}
+    decisions.vote(item, p.contact_id or p.name, p.name, vote, note)
+    return {"decision": item.id, "state": item.state, "outcome": item.outcome, "votes": item.remote_ids.get("votes", [])}
+
+
 @server.tool(description="Have hey draft an owner announcement from a brief; it is queued for a board member to send.")
 @require("board")
 def draft_announcement(p, brief: str) -> dict:

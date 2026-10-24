@@ -26,8 +26,8 @@
   </div>
   <div>
     <div class="card">
-      <h3>Balance sheet (summary)</h3>
-      <ul class="checks">{% for a in coa if a.type in ('Asset','Liability') %}<li><span>{{ a.number }} {{ a.name }}</span><span class="num">{{ a.balance|money }}</span></li>{% endfor %}</ul>
+      <h3>Balance sheet <span class="small muted">cash basis</span></h3>
+      <ul class="checks">{% for a in coa if a.type in ('Asset','Liability','Equity') %}<li><span>{{ a.number }} {{ a.name }}</span><span class="num">{{ a.balance|money }}</span></li>{% endfor %}</ul>
     </div>
     <div class="card" style="margin-top:1.25rem">
       <h3>Packets</h3>

@@ -145,9 +145,8 @@ VIOLATIONS = [
 CHART_OF_ACCOUNTS = [
     {"number": "1010", "name": "Operating cash — partner bank", "type": "Asset", "balance": 48210.55},
     {"number": "1020", "name": "Reserve cash — partner bank MM", "type": "Asset", "balance": 162480.00},
-    {"number": "1200", "name": "Assessments receivable", "type": "Asset", "balance": 3100.00},
-    {"number": "2010", "name": "Accounts payable", "type": "Liability", "balance": 6877.37},
-    {"number": "2100", "name": "Prepaid assessments", "type": "Liability", "balance": 1860.00},
+    {"number": "3010", "name": "Operating fund balance", "type": "Equity", "balance": 48210.55},
+    {"number": "3020", "name": "Reserve fund balance", "type": "Equity", "balance": 162480.00},
     {"number": "4010", "name": "Assessment income", "type": "Income", "balance": 148800.00},
     {"number": "4100", "name": "Late fees & interest", "type": "Income", "balance": 925.00},
     {"number": "6210", "name": "Landscaping", "type": "Expense", "balance": 18500.00},

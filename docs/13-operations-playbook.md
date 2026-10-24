@@ -23,11 +23,10 @@ Goal: one accountant and one coordinator run 80–120 communities, because hey d
 - Inbound: same pipeline as email. Short answers, link to the portal for anything longer.
 
 ### Phone
-- One national number and per-community numbers (Twilio Voice). During business hours a voice agent answers first; a person is reachable by saying "person" or pressing 0; after hours the agent handles what it can and takes a message that becomes a ticket.
-- **Voice stack now:** Twilio Media Streams → speech-to-text → Claude with the same tools hey uses in chat → text-to-speech. Latency is acceptable for account questions and intake. Design the layer so the speech model is a module.
-- **Dessa:** Block's full-duplex speech model is the target experience (natural turn-taking, interruptions, backchannels). As of its release it is a research model on a waitlist that runs locally on an M4 Max class machine, not a telephony product. We request access, run it on a Mac in the office against a test number, and swap it in for the first pass when it is stable and hostable. Until then the stack above.
-- What the voice agent may do: look up balance and due date, explain a charge with the ledger line, take a payment by handing off to the provider's IVR or texting a link, set up autopay or a payment plan within policy, file a maintenance request, answer rule questions with the section, take a message for the board. What it may never do: waive a fee, discuss another owner's account, give legal advice, promise an outcome.
-- Every call is transcribed, summarized and attached to the work item; the owner gets a text recap. Until the voice agent ships, a person logs calls in hey ops (Log a call) and the CS agent takes it from there.
+- **Keep it simple (founders' call).** One national number and per-community numbers (Twilio Voice). The phone says "Hey, thanks for calling", asks for the caller's name and unit, asks what they need, confirms the callback number, and says it will pass this to the board. That creates a work item: the board sees it in the owner inbox, the CS agent drafts the follow-up, and a person or the board replies. Built: `/api/webhooks/twilio/voice` (TwiML, speech gathering, no model in the loop).
+- Later, if call volume justifies it: a conversational agent for balance and rule questions on the same number, with Dessa as the speech layer when it is hostable. Not before.
+- What the phone may never do: waive a fee, discuss another owner's account, give legal advice, promise an outcome.
+- Every call's speech results are attached to the work item. Calls that come to a person are logged in hey ops (Log a call) and the CS agent takes it from there.
 
 ### Portal
 - Owner and board portals are the preferred channel; email and phone nudge toward them ("I've put the form in your portal; tap here"). Portal forms create work items like any other channel.
@@ -107,7 +106,7 @@ Onboarding is where most of hey's later accuracy is decided. We run a structured
 |---|---|---|
 | 1 | Opening snapshot; hey drafts packet from snapshots, delinquencies, AP, budget | A |
 | 1–3 | Bank reconciliation in Caliber (bank integration); accountant clears exceptions; hey verifies cash GL vs statement balance | UI + A verify |
-| 2–3 | Adjustments, accruals if any, late-fee review in Caliber | UI |
+| 2–3 | Adjustments and late-fee review in Caliber (cash basis: no accruals, ever) | UI |
 | 3–4 | hey re-renders packet, writes the board summary, flags variances > 10% or > $500 | A |
 | 4–5 | Accountant review and sign-off in our portal; packet delivered; board notified; "5th" SLA timer closes | D |
 | 5+ | Board meeting agenda drafted from the month | A |

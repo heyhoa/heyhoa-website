@@ -55,7 +55,7 @@ def discovery() -> dict:
         "scopes": {
             "public": ["community_profile", "fee_schedule", "request_records"],
             "homeowner": ["my_account", "my_ledger", "my_statements", "my_requests", "community_documents", "search_rules", "payment_link", "set_autopay", "request_payment_plan", "file_service_request", "submit_arc_request", "request_records", "message_board", "update_contact"],
-            "board": ["financials", "pending_approvals", "delinquencies", "vendors", "approve_invoice", "decide_arc", "draft_announcement", "plus every homeowner tool"],
+            "board": ["financials", "pending_approvals", "pending_decisions", "vote_decision", "delinquencies", "vendors", "approve_invoice", "decide_arc", "draft_announcement", "plus every homeowner tool"],
             "vendor": ["payment_status", "submit_invoice"],
             "realtor": ["community_profile", "fee_schedule", "order_resale_package"],
         },

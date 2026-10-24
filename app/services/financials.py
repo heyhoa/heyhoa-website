@@ -1,5 +1,9 @@
 """Derive period financials from chart-of-accounts snapshots plus our budget.
 
+Strict cash basis: income when received, expense when paid. The balance
+sheet is bank balances and fund balances; receivables and payables are memo
+schedules (delinquencies, unpaid bills) and never balance-sheet lines.
+
 Caliber's API returns a lifetime Balance and a fiscal-year FYBalance per
 account but no activity by period, so:
   month activity = FYBalance(end) - FYBalance(start)      (same fiscal year)

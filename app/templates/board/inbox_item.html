@@ -1,0 +1,24 @@
+{% extends "board/base.html" %}
+{% block title %}{{ w.subject }} — {{ brand.name }}{% endblock %}
+{% block crumbs %}{{ community.name }} · owner inbox{% endblock %}
+{% block page_title %}{{ w.subject }}{% endblock %}
+{% block page_actions %}<span class="pill">{{ w.kind|replace('_',' ') }}</span><span class="pill {% if w.state == 'done' %}green{% elif w.state == 'escalated' %}red{% else %}amber{% endif %}">{{ w.state }}</span>{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="card">
+    <p class="small muted">From {{ w.counterpart_name or '' }} {{ w.counterpart_email or '' }}{% if w.unit_account_id %} · {{ w.unit_account_id }}{% endif %} · {{ w.created_at|datefmt('%b %d, %Y %H:%M') }}</p>
+    <div class="chat">
+      {% for m in w.messages if m.channel != 'note' or m.author == 'board' %}<div class="bubble {% if m.direction == 'in' %}them{% else %}us{% endif %}" style="max-width:100%"><span class="who">{{ m.author }} · {{ m.channel }} · {{ m.created_at|datefmt('%b %d %H:%M') }}</span><span style="white-space:pre-wrap">{{ m.body }}</span></div>{% endfor %}
+      {% if not w.messages %}<div class="bubble them" style="max-width:100%"><span class="who">summary</span>{{ w.summary }}</div>{% endif %}
+    </div>
+    <form method="post" action="{{ url_for('board.inbox_reply', item_id=w.id) }}" style="margin-top:.8rem">
+      <textarea class="form-control" name="body" rows="4" placeholder="Reply as the board. It goes out under your name{% if not w.counterpart_email %} (no email on file: this will be saved as a note){% endif %}."></textarea>
+      <div class="actions" style="margin-top:.5rem"><button class="btn btn-primary btn-sm">Send</button><label class="small" style="display:flex;align-items:center;gap:.35rem;margin:0"><input type="checkbox" name="resolve" value="1"> mark resolved</label></div>
+    </form>
+  </div>
+  <div>
+    <div class="card"><h4>Where it stands</h4><p class="small">{% if w.state == 'done' and not w.reviewer %}hey answered this on its own with a cited source.{% elif w.state == 'done' %}Resolved by {{ w.reviewer }}.{% elif w.state == 'proposed' %}hey drafted a reply; the hey team is reviewing it before it goes out.{% elif w.state == 'escalated' %}With the hey team: {{ w.review_note or 'needs a person' }}.{% else %}{{ w.state }}.{% endif %}</p>{% if w.outcome %}<p class="small muted">{{ w.outcome }}</p>{% endif %}</div>
+    {% if w.evidence %}<div class="card" style="margin-top:.8rem"><h4>Context</h4><ul class="checks">{% for e in w.evidence %}<li><span><strong>{{ e.label }}</strong><br><span class="small">{{ e.text }}</span></span></li>{% endfor %}</ul></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

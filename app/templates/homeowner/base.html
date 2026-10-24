@@ -9,6 +9,7 @@
   <li><a href="{{ url_for('homeowner.requests_list') }}" {% if p.startswith('/me/requests') %}aria-current="page"{% endif %}>Maintenance requests</a></li>
   <li><a href="{{ url_for('homeowner.arc_list') }}" {% if p.startswith('/me/arc') %}aria-current="page"{% endif %}>ARC requests</a></li>
   <li><a href="{{ url_for('homeowner.documents') }}" {% if p == '/me/documents' %}aria-current="page"{% endif %}>Documents</a></li>
+  <li><a href="{{ url_for('homeowner.spending') }}" {% if p == '/me/spending' %}aria-current="page"{% endif %}>Community spending</a></li>
   <li><a href="{{ url_for('homeowner.directory') }}" {% if p == '/me/directory' %}aria-current="page"{% endif %}>Board &amp; contacts</a></li>
   <li><a href="{{ url_for('homeowner.profile') }}" {% if p == '/me/profile' %}aria-current="page"{% endif %}>My profile</a></li>
   <li><a href="{{ url_for('homeowner.ask') }}" {% if p == '/me/ask' %}aria-current="page"{% endif %}>Ask hey</a></li>

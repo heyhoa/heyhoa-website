@@ -1,13 +1,13 @@
 {% extends "board/base.html" %}
 {% block title %}Board dashboard — {{ brand.name }}{% endblock %}
 {% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
-{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('board.invoices') }}">Approve {{ pending|length }} payments</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.financials') }}">October packet</a>{% endblock %}
+{% block page_actions %}<a class="btn btn-primary btn-sm" href="{{ url_for('board.invoices') }}">Approve {{ pending|length }} payments</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.decisions_page') }}">Decisions</a><a class="btn btn-ghost btn-sm" href="{{ url_for('board.inbox') }}">Owner inbox</a>{% endblock %}
 {% block content %}
 <div class="grid grid-4">
   <div class="card stat"><div class="label">Operating cash</div><div class="value">{{ snap.operating_cash|money0 }}</div><div class="delta">Reconciled through Sept 30</div></div>
   <div class="card stat"><div class="label">Reserves</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">{{ ((snap.reserve_cash / 198000) * 100)|round|int }}% funded vs study</div></div>
-  <div class="card stat"><div class="label">Receivable</div><div class="value">{{ snap.ar_total|money0 }}</div><div class="delta">{{ snap.ar_over_60|money0 }} over 60 days</div></div>
-  <div class="card stat"><div class="label">Awaiting your approval</div><div class="value">{{ snap.ap_pending|money0 }}</div><div class="delta">{{ pending|length }} invoices</div></div>
+  <div class="card stat"><div class="label">Owed by owners (memo)</div><div class="value">{{ snap.ar_total|money0 }}</div><div class="delta">{{ snap.ar_over_60|money0 }} over 60 days</div></div>
+  <div class="card stat"><div class="label">Unpaid bills awaiting you (memo)</div><div class="value">{{ snap.ap_pending|money0 }}</div><div class="delta">{{ pending|length }} invoices</div></div>
 </div>
 <div class="row" style="margin-top:1.25rem">
   <div>

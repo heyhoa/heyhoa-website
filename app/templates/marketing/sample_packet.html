@@ -44,7 +44,7 @@
   <div class="big">
     <p class="eyebrow">Sample · demo data</p>
     <h1>{{ community.name }}<br><span class="muted" style="font-weight:400">September 2026 financials</span></h1>
-    <p class="lede" style="font-size:14px;max-width:60ch">This is the packet your board gets by the 5th business day, every month. Lime boxes are annotations explaining what to look at; they are not in the real thing. Every number in the real packet is a link to the general ledger line and the document behind it.</p>
+    <p class="lede" style="font-size:14px;max-width:60ch">This is the packet your board gets by the 5th business day, every month, on a strict cash basis: income when the money arrives, expense when it leaves. Lime boxes are annotations explaining what to look at; they are not in the real thing. Every number in the real packet is a link to the general ledger line and the document behind it.</p>
     <div class="kpis">
       <div class="kpi"><div class="l">Operating cash</div><div class="v">{{ snap.operating_cash|money0 }}</div></div>
       <div class="kpi"><div class="l">Reserve cash</div><div class="v">{{ snap.reserve_cash|money0 }}</div></div>
@@ -53,7 +53,7 @@
     </div>
     <h3>Contents</h3>
     <ol style="margin:0;padding-left:18px;columns:2">
-      <li>hey's summary for the board</li><li>Balance sheet</li><li>Income and expense vs budget</li><li>Bank reconciliation</li><li>Accounts receivable aging and delinquencies</li><li>Accounts payable and approvals</li><li>General ledger detail (excerpt)</li><li>Reserve funding</li>
+      <li>hey's summary for the board</li><li>Balance sheet (cash basis)</li><li>Income and expense vs budget</li><li>Bank reconciliation</li><li>Delinquent owner accounts (memo)</li><li>Unpaid bills and approvals (memo)</li><li>General ledger detail (excerpt)</li><li>Reserve funding</li>
     </ol>
   </div>
   <p class="foot">Prepared by {{ brand.name }} on a cash basis from the association's bank feed, invoices and owner ledger. Not audited. Questions: {{ brand.email }} · {{ brand.phone }}</p>
@@ -87,7 +87,7 @@
 <!-- 3 balance sheet -->
 <section class="page">
   <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 3</div></div>
-  <h2>Balance sheet <span class="muted" style="font-weight:400">as of Sep 30, 2026</span></h2>
+  <h2>Balance sheet <span class="muted" style="font-weight:400">cash basis · as of Sep 30, 2026</span></h2>
   <div class="two">
     <div class="table-wrap"><table>
       <thead><tr><th>Assets</th><th class="num">Balance</th></tr></thead>
@@ -99,14 +99,12 @@
     <div class="table-wrap"><table>
       <thead><tr><th>Liabilities and equity</th><th class="num">Balance</th></tr></thead>
       <tbody>
-        {% for a in coa if a.type == 'Liability' %}<tr><td>{{ a.number }} {{ a.name }}</td><td class="num">{{ a.balance|money }}</td></tr>{% endfor %}
-        <tr><td>3010 Operating fund balance</td><td class="num">{{ (48210.55 + 3100 - 6877.37 - 1860)|money }}</td></tr>
-        <tr><td>3020 Reserve fund balance</td><td class="num">{{ 162480.00|money }}</td></tr>
+        {% for a in coa if a.type in ('Liability', 'Equity') %}<tr><td>{{ a.number }} {{ a.name }}</td><td class="num">{{ a.balance|money }}</td></tr>{% endfor %}
         <tr class="tot"><td>Total liabilities and equity</td><td class="num">{{ coa|selectattr('type','equalto','Asset')|sum(attribute='balance')|money }}</td></tr>
       </tbody>
     </table></div>
   </div>
-  <div class="note"><strong>Annotation</strong>Operating and reserve funds are shown separately because your governing documents and most state statutes require it. The reserve line ties to the funding page (page 9). Prepaid assessments are a liability: owners who paid ahead are owed the service.</div>
+  <div class="note"><strong>Annotation</strong>Cash basis: assets are the bank balances, nothing else. No receivables, no payables, no prepaid liabilities. What owners owe and what the association owes vendors are memo schedules (pages 6 and 7), not balance-sheet lines. Operating and reserve funds are shown separately because your governing documents and most state statutes require it.</div>
 </section>
 
 <!-- 4 income vs budget -->
@@ -166,7 +164,7 @@
 <!-- 6 AR aging -->
 <section class="page">
   <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 6</div></div>
-  <h2>Accounts receivable aging and delinquencies</h2>
+  <h2>Delinquent owner accounts <span class="muted" style="font-weight:400">memo schedule, not on the balance sheet</span></h2>
   <div class="table-wrap"><table>
     <thead><tr><th>Bucket</th><th class="num">Accounts</th><th class="num">Balance</th><th class="num">% of AR</th></tr></thead>
     <tbody>
@@ -189,7 +187,7 @@
 <!-- 7 AP -->
 <section class="page">
   <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 7</div></div>
-  <h2>Accounts payable and approvals</h2>
+  <h2>Unpaid bills and approvals <span class="muted" style="font-weight:400">memo schedule, not on the balance sheet</span></h2>
   <h3>Paid in September</h3>
   <div class="table-wrap"><table>
     <thead><tr><th>Vendor</th><th>Invoice</th><th>GL account</th><th>Approved by</th><th class="num">Amount</th></tr></thead>
@@ -234,7 +232,7 @@
       <tbody><tr><td>Asphalt seal and stripe</td><td>2027</td><td class="num">$18,500</td></tr><tr><td>Entry monument and lighting</td><td>2028</td><td class="num">$14,000</td></tr><tr><td>Pool resurface</td><td>2030</td><td class="num">$46,000</td></tr></tbody>
     </table></div>
   </div>
-  <p class="src" style="margin-top:14px">Sample packet with demo data. Prepared by hey hoa. Real packets are delivered by the 5th business day or that month's fee is waived.</p>
+  <p class="src" style="margin-top:14px">Sample packet with demo data, strict cash basis. Prepared by hey hoa. Real packets are delivered by the 5th business day or that month's fee is waived.</p>
 </section>
 </body>
 </html>

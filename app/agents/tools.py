@@ -147,11 +147,12 @@ def create_service_request(item, unit_account_id: str, category: str, summary: s
     return {"ok": True, "id": sr.id}
 
 
-def queue_board_decision(item, title: str, body: str, decision_type: str = "other") -> dict:
-    wi = WorkItem(community_id=item.community_id, kind="decision", lane="board", state="proposed", subject=title, summary=body, category=decision_type, needs_review=True, shadow=item.shadow, proposal={"action": "board_vote", "payload": {}, "preview": body, "needs_review": True})
-    db.session.add(wi)
+def queue_board_decision(item, title: str, body: str, decision_type: str = "other", amount: float | None = None) -> dict:
+    from ..services import decisions
+
+    wi = decisions.create(item.community_id or "1001", decision_type, title, body, amount=amount, requested_by=f"hey ({item.lane})", shadow=item.shadow)
     _log(item, "board.decision.queued", title)
-    return {"ok": True}
+    return {"ok": True, "decision": wi.id}
 
 
 def send_board_digest(item, body: str, subject: str = "This week at your community") -> dict:

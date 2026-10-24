@@ -15,7 +15,7 @@ Three tiers, public, flat by door band, then per door. Written agreement, 30 day
 
 | Tier | Base (≤30 doors) | Per door after | What it is |
 |---|---|---|---|
-| Books | $199/mo | $6 | Accounting only |
+| Books | $199/mo | $6 | Accounting only, strict cash basis |
 | Back Office | $349/mo | $9 | Books + owner support, collections, ARC intake, resale docs, meeting admin |
 | Board+ | $549/mo | $12 | Back Office + named coordinator, budget/reserve, vendor sourcing, violations, insurance coordination |
 

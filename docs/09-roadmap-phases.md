@@ -77,6 +77,17 @@ Goal: the first community onboarded end to end (interview, documents, Caliber se
 - [ ] Documents: proxy `client/{id}/documents` with visibility flags
 - [ ] Announcements: email (Postmark) + SMS (Twilio) delivery with opt-in tracking
 - [x] hey ops: work items, six agent lanes with risk-tiered tools, review queue, shadow mode, Postmark inbound, scheduled daily agents (`app/agents/`, `/ops`)
+- [x] Strict cash basis everywhere: COA, packet, balance sheet, docs
+- [x] Board decisions queue with quorums per type (transfers, CDs, bids, work orders, ARC, assessments, budget, policies, collections, waivers, vendors, insurance, meetings); votes logged; approved → execution item
+- [x] Board owner inbox: calls, texts, emails, portal requests with hey's answer; board replies under its own name
+- [x] Board documents as system of record: upload with category, vendor, effective/expiry, owner visibility; 90-day expiry warnings
+- [x] Reserve plan: upload study → extraction item; components, accrued vs balance, percent funded, suggested contribution, ten-year horizon
+- [x] Owner spending page: paid bills minus board-flagged confidential bills; owners never see delinquencies, violations or other balances
+- [x] Phone intake (Twilio TwiML): name, reason, callback → work item in the board inbox
+- [x] Inbound data importer and intake guide (doc 15)
+- [ ] Reserve study extraction in live mode (PDF → components via Claude) replacing the demo seed
+- [ ] Per-community quorum settings and signer list for decisions; signatures on approved transfers
+- [ ] Contract rates from Documents feed the AP lane's invoice matching
 - [ ] Two weeks of shadow mode on the Heywood community; weekly 10% audit of agent-closed items; then `LIVE_COMMUNITIES` for CS/AP/Board lanes
 - [ ] Portal: owners see their work items (status and outcome) under Requests; board sees Board-lane decisions in its decision list
 - [ ] Live agent mode exercised end to end with a key: tool-use loop, token accounting, cost per item on the activity page

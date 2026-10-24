@@ -29,6 +29,13 @@
     <a class="small" href="#">View invoice PDF</a>
   </div>
   {% endif %}
+  <form method="post" action="{{ url_for('board.invoice_action', invoice_id=i.id, action='confidential') }}" class="actions" style="margin-top:.5rem">
+    {% set f = flags.get(i.id) %}
+    <input type="hidden" name="confidential" value="{{ '0' if f and f.confidential else '1' }}">
+    <input class="form-control" name="reason" placeholder="Reason (e.g. legal bill with protected info)" style="width:300px" value="{{ f.reason if f else '' }}">
+    <button class="btn btn-ghost btn-sm">{{ 'Show to owners' if f and f.confidential else 'Hide from owners' }}</button>
+    {% if f and f.confidential %}<span class="pill">hidden from owners</span>{% else %}<span class="small muted">owners see this once paid</span>{% endif %}
+  </form>
 </div>
 {% else %}<p class="muted">Nothing here.</p>{% endfor %}
 {% endblock %}

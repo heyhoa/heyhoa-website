@@ -1,0 +1,19 @@
+{% extends "homeowner/base.html" %}
+{% block title %}Community spending — {{ brand.name }}{% endblock %}
+{% block page_title %}Community spending{% endblock %}
+{% block content %}
+<div class="grid grid-3">
+  <div class="card stat"><div class="label">Operating cash</div><div class="value">{{ snap.operating_cash|money0 }}</div><div class="delta">as of {{ snap.as_of|datefmt }}</div></div>
+  <div class="card stat"><div class="label">Reserves</div><div class="value">{{ snap.reserve_cash|money0 }}</div><div class="delta">for roofs, paving, pool</div></div>
+  <div class="card stat"><div class="label">Spent YTD</div><div class="value">{{ snap.ytd_expense|money0 }}</div><div class="delta">budget {{ snap.ytd_budget_expense|money0 }}</div></div>
+</div>
+<div class="row" style="margin-top:.8rem">
+  <div class="card">
+    <h3>Bills paid</h3>
+    <div class="table-wrap"><table><thead><tr><th>Paid</th><th>Vendor</th><th>What</th><th>Account</th><th class="num">Amount</th></tr></thead>
+      <tbody>{% for i in paid %}<tr><td class="small">{{ i.due_date|datefmt }}</td><td>{{ i.vendor }}</td><td class="small">{{ i.description }}</td><td class="small muted">{{ i.gl_account }}</td><td class="num">{{ i.amount|money }}</td></tr>{% else %}<tr><td colspan="5" class="muted">No paid bills yet this period.</td></tr>{% endfor %}</tbody></table></div>
+    <p class="small muted" style="margin-top:.5rem">Every bill the association pays, once paid, with the invoice on file.{% if n_hidden %} {{ n_hidden }} bill{{ 's' if n_hidden > 1 }} with protected information (for example legal matters) {{ 'are' if n_hidden > 1 else 'is' }} shown only to the board.{% endif %} Owner balances and collection matters are never shown here.</p>
+  </div>
+  <div class="card"><h4>By category</h4><ul class="checks">{% for gl, amt in by_gl %}<li><span>{{ gl }}</span><span class="num">{{ amt|money0 }}</span></li>{% endfor %}</ul></div>
+</div>
+{% endblock %}
