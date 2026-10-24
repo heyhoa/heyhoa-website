@@ -15,6 +15,7 @@ from .lanes import AGENTS
 log = logging.getLogger(__name__)
 
 SLA_HOURS = {"cs": 4, "ar": 24, "ap": 24, "board": 72, "close": 24, "onboarding": 48}
+KIND_SLA_HOURS = {"records_request": 10 * 24, "resale_order": 3 * 24}  # statutory / promised clocks, business days approximated
 
 
 def _shadow(community_id: str | None) -> bool:
@@ -43,7 +44,7 @@ def create_item(*, kind: str, lane: str, subject: str, summary: str, community_i
                 counterpart_email: str | None = None, counterpart_name: str | None = None, priority: str = "normal", remote_ids: dict | None = None, evidence: list | None = None) -> WorkItem:
     item = WorkItem(kind=kind, lane=lane, subject=subject[:300], summary=summary, community_id=community_id, unit_account_id=unit_account_id,
                     counterpart_email=counterpart_email, counterpart_name=counterpart_name, priority=priority, remote_ids=remote_ids or {}, evidence=evidence or [],
-                    shadow=_shadow(community_id), sla_due=dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=SLA_HOURS.get(lane, 24)))
+                    shadow=_shadow(community_id), sla_due=dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=KIND_SLA_HOURS.get(kind, SLA_HOURS.get(lane, 24))))
     db.session.add(item)
     db.session.flush()
     return item

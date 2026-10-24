@@ -64,6 +64,11 @@ Goal: first community live on FrontSteps data; owners and board use the portals 
 - [ ] Two weeks of shadow mode on the Heywood community; weekly 10% audit of agent-closed items; then `LIVE_COMMUNITIES` for CS/AP/Board lanes
 - [ ] Portal: owners see their work items (status and outcome) under Requests; board sees Board-lane decisions in its decision list
 - [ ] Live agent mode exercised end to end with a key: tool-use loop, token accounting, cost per item on the activity page
+- [x] Agent-native surfaces: MCP server scoped by persona (`app/mcp_server.py`), agent discovery file, public community pages with JSON twins, statutory records requests with SLA (doc 14)
+- [ ] MCP tokens issued and revoked from the portals (Settings → Connect your assistant); bearer auth on the HTTP transport; deploy the MCP server at mcp.heyhoa.com
+- [ ] Board setting for what is public per community (documents, financial summary, packet, meetings); `PUBLISH_DEFAULTS` moves to the DB
+- [ ] Vendor tools: W-9/COI upload via MCP and email attachments; vendor tokens issued at onboarding
+- [ ] Board agent approvals: per-board switch allowing a member's assistant to approve contract-matched invoices under a threshold
 - [ ] Community brain as data: profile, policies, decision rights, board notes with sources; `search_rules` reads it instead of the prompt context
 - [ ] AP intake from email attachments: PDF → extraction → `post_invoice` proposal with the PDF attached as evidence
 - [ ] Onboarding interview script + community-brain schema in the DB; first interview run with the Heywood community

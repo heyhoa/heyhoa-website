@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Records request — {{ c.name }}{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1rem"><div class="container narrow"><p class="eyebrow">{{ c.name }}</p><h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Request association records.</h1>{% if c.records_policy %}<p class="lede">{{ c.records_policy.statute }} gives {{ c.records_policy.who }} the right to inspect and copy records. The association responds within {{ c.records_policy.business_days }} business days.</p>{% endif %}</div></section>
+<section class="section tight"><div class="container narrow">
+  <form class="card" method="post" data-remember id="records-form">
+    <div style="position:absolute;left:-9999px" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <div class="form-row"><div class="form-group"><label for="r-name">Your name</label><input class="form-control" id="r-name" name="name" required></div><div class="form-group"><label for="r-email">Email</label><input class="form-control" id="r-email" name="email" type="email" required></div></div>
+    <div class="form-row"><div class="form-group"><label for="r-rel">You are</label><select class="form-control" id="r-rel" name="relationship"><option value="owner">An owner</option><option value="owner_agent">An owner's agent or attorney</option><option value="buyer">A buyer under contract</option><option value="other">Other</option></select></div><div class="form-group"><label for="r-unit">Unit / address</label><input class="form-control" id="r-unit" name="unit"></div></div>
+    <div class="form-group"><label for="r-records">Records requested</label><textarea class="form-control" id="r-records" name="records" rows="4" required placeholder="Board meeting minutes for 2026; the current budget; the reserve study; vendor contracts for landscaping"></textarea></div>
+    <div class="form-row"><div class="form-group"><label for="r-format">Format</label><select class="form-control" id="r-format" name="format"><option>Electronic copies</option><option>Inspection appointment</option><option>Paper copies (per-page fee)</option></select></div><div class="form-group"><label for="r-purpose">Purpose (optional)</label><input class="form-control" id="r-purpose" name="purpose"></div></div>
+    <button class="btn btn-primary">Submit request</button>
+    <span class="form-help-text">We confirm membership first, then produce the records or explain in writing what cannot be produced and why. Personal owner records, privileged communications and pending litigation files are not available under the statute.</span>
+  </form>
+</div></section>
+{% endblock %}

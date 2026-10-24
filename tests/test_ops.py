@@ -103,7 +103,8 @@ def test_daily_agents_create_ar_ap_close_items(client):
     assert WorkItem.query.filter_by(lane="ap", kind="vendor_compliance").first().proposal["action"] == "request_vendor_document"
     close = WorkItem.query.filter_by(lane="close").first()
     assert close.state == "done" and "accounts_snapshotted" in json.dumps(close.outcome) or close.state == "done"
-    assert WorkItem.query.filter_by(kind="invoice").count() == 4
+    from app.integrations.mock import MockProvider
+    assert WorkItem.query.filter_by(kind="invoice").count() == len(MockProvider().list_invoices("1001", status="pending_board"))
     # idempotent: running again adds no duplicate AR items
     client.post("/ops/run-daily")
     assert WorkItem.query.filter_by(lane="ar", kind="delinquency").count() == 4

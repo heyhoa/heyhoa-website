@@ -19,6 +19,10 @@ class CSAgent(Agent):
     auto_execute_risks = {RISK_READ, RISK_SEND, RISK_WRITE}
 
     def plan(self, item):
+        if item.kind == "records_request":
+            docs = get_provider().list_documents(item.community_id or "1001", board=True)
+            inv = ", ".join(d.title for d in docs[:8])
+            return Proposal(action="escalate", payload={"lane": "coordinator", "note": f"Statutory records request. On file: {inv}. Verify membership, produce or lawfully deny within the statutory clock."}, preview=f"Records request. Documents on file: {inv}. Coordinator verifies the requester is a member and produces within the statutory clock (SLA set).", confidence=0.9, sources=["document index", "records policy"], reason="statutory")
         t = assistant.triage_message(f"{item.subject}\n\n{item.summary}", known_owner=bool(item.unit_account_id))
         cat, route = t["category"], t["route"]
         item.category = cat

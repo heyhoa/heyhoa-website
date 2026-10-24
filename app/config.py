@@ -41,6 +41,7 @@ class Config:
     SHADOW_MODE = os.environ.get("SHADOW_MODE", "true").lower() != "false"
     LIVE_COMMUNITIES = [c for c in os.environ.get("LIVE_COMMUNITIES", "").split(",") if c]
     AUTO_CONFIDENCE = float(os.environ.get("AUTO_CONFIDENCE", "0.8"))
+    MCP_PUBLIC_URL = os.environ.get("MCP_PUBLIC_URL", "https://mcp.heyhoa.com/mcp")
     # "alias@heyhoa.com=1001,other@heyhoa.com=1002"
     COMMUNITY_ALIASES = dict(p.split("=", 1) for p in os.environ.get("COMMUNITY_ALIASES", "").split(",") if "=" in p)
 

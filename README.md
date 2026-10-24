@@ -24,6 +24,10 @@ Demo logins (no password): `/login/board?demo=1`, `/login/homeowner?demo=1` and 
 
 Set `ANTHROPIC_API_KEY` to make `hey` answer with Claude instead of the rule-based demo. Set `ACCOUNTING_PROVIDER=frontsteps` plus `FRONTSTEPS_API_KEY` to read real association data.
 
+## Agents on the other side
+
+`python -m app.mcp_server` exposes the same capabilities as the portals over MCP, scoped by token (homeowner, board, vendor, realtor, public). Owners' and boards' own assistants file requests, check balances, approve invoices and order closing documents; every write becomes a reviewed work item in hey ops. Discovery at `/.well-known/hey-agent.json`; each community has a public page at `/c/<slug>` and a JSON twin at `/c/<slug>.json`.
+
 ## The plan
 
 Start at [docs/00-README.md](docs/00-README.md). Business model, marketing, go-to-market, brand, launch plan, outreach campaigns, product spec, architecture, and the phased roadmap with checkboxes are all there. Brand assets are in `brand/`.

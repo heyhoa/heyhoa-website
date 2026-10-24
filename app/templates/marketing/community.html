@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ c.name }} — community page by {{ brand.name }}{% endblock %}
+{% block description %}{{ c.name }}, a {{ c.units }}-unit {{ c.type }} community in {{ c.city }}, {{ c.state }}. Pay dues, file requests, find documents, request records.{% endblock %}
+{% block jsonld %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":{{ c.name|tojson }},"address":{"@type":"PostalAddress","addressLocality":{{ c.city|tojson }},"addressRegion":{{ c.state|tojson }}},"url":"{{ request.url }}","sameAs":"{{ url_for('marketing.community_json', slug=c.slug, _external=True) }}"}</script>{% endblock %}
+{% block content %}
+<section class="hero" style="padding-bottom:1.5rem">
+  <div class="container">
+    <p class="eyebrow">{{ c.type }} · {{ c.units }} {{ 'units' if c.type == 'condo' else 'doors' }} · {{ c.city }}, {{ c.state }}</p>
+    <h1>{{ c.name }}</h1>
+    <p class="lede">Back office by {% include 'partials/hey-mark.html' %}. The board governs; we do the books, the paperwork and the answering. Owners, agents and closing parties can do everything below without a phone call.</p>
+    <div class="actions"><a class="btn btn-primary" href="{{ c.how_to_pay.portal }}">Pay dues / owner portal</a><a class="btn btn-ghost" href="{{ url_for('marketing.records_request', slug=c.slug) }}">Request records</a><a class="btn btn-ghost" href="{{ url_for('marketing.realtors') }}">Closing documents</a></div>
+  </div>
+</section>
+<section class="section tight">
+  <div class="container">
+    <div class="grid grid-3">
+      <div class="card"><p class="eyebrow">Pay</p><h3>Dues, {{ c.dues_frequency }}</h3><ul class="iconlist">{% for m in c.how_to_pay.methods %}<li>{{ m }}</li>{% endfor %}</ul><a href="{{ c.how_to_pay.portal }}">Owner portal →</a></div>
+      <div class="card"><p class="eyebrow">File</p><h3>Requests</h3><ul class="picklist"><a href="{{ c.how_to_file.service_request }}"><li>Maintenance request</li></a><a href="{{ c.how_to_file.arc_request }}"><li>Architectural (ARC) request</li></a><a href="{{ c.how_to_file.records_request }}"><li>Records request</li></a><a href="{{ c.how_to_file.contact_board }}"><li>Message the board</li></a></ul></div>
+      <div class="card"><p class="eyebrow">Ask</p><h3>hey answers</h3><p class="small muted">Text or call <strong class="mono">{{ c.managed_by.phone }}</strong>, email <strong class="mono">{{ c.managed_by.email }}</strong>. Answers cite the document they come from. A person handles the rest.</p><p class="small muted">Have an assistant of your own? <a href="{{ c.agent.discovery }}">Agent discovery</a> · <a href="{{ url_for('marketing.community_json', slug=c.slug) }}">this page as JSON</a></p></div>
+    </div>
+    {% if c.published_financials %}
+    <div class="card" style="margin-top:1.25rem">
+      <p class="eyebrow">Published financials · as of {{ c.published_financials.as_of|datefmt }}</p>
+      <div class="grid grid-4">
+        <div class="stat" style="padding:0"><div class="label">Operating cash</div><div class="value">{{ c.published_financials.operating_cash|money0 }}</div></div>
+        <div class="stat" style="padding:0"><div class="label">Reserves</div><div class="value">{{ c.published_financials.reserve_cash|money0 }}</div><div class="delta">{{ c.published_financials.reserve_funded_pct }}% funded</div></div>
+        <div class="stat" style="padding:0"><div class="label">YTD income / expense</div><div class="value" style="font-size:1.3rem">{{ c.published_financials.ytd_income|money0 }} / {{ c.published_financials.ytd_expense|money0 }}</div></div>
+        <div class="stat" style="padding:0"><div class="label">Last packet</div><div class="value" style="font-size:1.3rem">{{ c.published_financials.last_packet_date|datefmt }}</div><div class="delta">by the 5th, every month</div></div>
+      </div>
+      <p class="small muted" style="margin-top:.75rem">Summary the board chose to publish. Owners see the full packet in the portal.</p>
+    </div>
+    {% endif %}
+    <div class="grid grid-2" style="margin-top:1.25rem">
+      <div class="card"><h3>Documents</h3><ul class="checks">{% for d in c.documents %}<li><span>{{ d.title }} <span class="small muted">{{ d.date|datefmt }}</span></span><a href="#">Open</a></li>{% else %}<li class="muted small">The board has not published documents yet.</li>{% endfor %}</ul></div>
+      <div>
+        <div class="card"><h3>Meetings</h3><ul class="checks">{% for m in c.meetings %}<li><span>{{ m.kind|capitalize }} meeting · {{ m.date|datefmt }} {{ m.time }}<br><span class="small muted">{{ m.where }} · notice sent {{ m.notice_sent|datefmt }}</span></span></li>{% else %}<li class="muted small">No upcoming meetings posted.</li>{% endfor %}</ul></div>
+        {% if c.records_policy %}<div class="card" style="margin-top:1.25rem"><h3>Records requests</h3><p class="small">{{ c.records_policy.who|capitalize }} may inspect and copy association records under {{ c.records_policy.statute }}. The association responds within {{ c.records_policy.business_days }} business days; copies are up to ${{ c.records_policy.copy_fee_per_page }}/page. Not available: {{ c.records_policy.exclusions }}.</p><a class="btn btn-ghost btn-sm" href="{{ url_for('marketing.records_request', slug=c.slug) }}">Make a request</a></div>{% endif %}
+      </div>
+    </div>
+    {% if c.fees %}
+    <div class="grid grid-2" style="margin-top:1.25rem">
+      <div class="card"><h3>Charges to an owner's account</h3><p class="small muted">Per the board-adopted collection policy. Dues stay flat for everyone else.</p><ul class="checks">{% for name, price in c.fees.owner_charged %}<li><span>{{ name }}</span><span class="muted">{{ price }}</span></li>{% endfor %}</ul></div>
+      <div class="card"><h3>Collection ladder</h3><div class="table-wrap"><table><thead><tr><th>Days past due</th><th>Step</th><th class="num">Fee</th></tr></thead><tbody>{% for s in c.collection_policy.stages %}<tr><td>{{ s.days if s.days > 1 else 'past due' }}</td><td>{{ s.label }}</td><td class="num">{{ s.fee|money0 if s.fee else '—' }}</td></tr>{% endfor %}</tbody></table></div><p class="small muted" style="margin-top:.5rem">No lien or attorney until {{ c.collection_policy.lien_threshold.balance|money0 }} or {{ c.collection_policy.lien_threshold.days }} days.</p></div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

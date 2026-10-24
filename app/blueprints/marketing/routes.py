@@ -193,6 +193,56 @@ def sample_packet():
     )
 
 
+@bp.route("/c/<slug>")
+def community_page(slug):
+    from ...services.public_data import community_public
+
+    data = community_public(slug)
+    if not data:
+        abort(404)
+    return render_template("marketing/community.html", c=data)
+
+
+@bp.route("/c/<slug>.json")
+def community_json(slug):
+    from flask import jsonify
+
+    from ...services.public_data import community_public
+
+    data = community_public(slug)
+    if not data:
+        abort(404)
+    return jsonify(data)
+
+
+@bp.route("/c/<slug>/records-request", methods=["GET", "POST"])
+def records_request(slug):
+    from ...agents import runtime
+    from ...services.public_data import community_public
+
+    data = community_public(slug)
+    if not data:
+        abort(404)
+    if request.method == "POST":
+        if _is_bot(request.form) or _rate_limited(request.remote_addr or "?"):
+            return redirect(url_for("marketing.records_request", slug=slug))
+        f = request.form
+        body = f"Records requested: {f.get('records')}\nPurpose: {f.get('purpose') or '—'}\nFormat: {f.get('format')}\nRequester states they are: {f.get('relationship')} of {f.get('unit') or 'unspecified unit'}"
+        item = runtime.inbound_portal(community_id=data["id"], unit_account_id=None, kind="records_request", subject=f"Records request from {f.get('name')}", body=body, email=f.get("email"), name=f.get("name"), lane="cs")
+        flash(f"Request #{item.id} received. Under {data['records_policy']['statute'] if data.get('records_policy') else 'the governing documents'}, the association has {data['records_policy']['business_days'] if data.get('records_policy') else 10} business days. We will confirm your membership and respond by email.")
+        return redirect(url_for("marketing.community_page", slug=slug))
+    return render_template("marketing/records_request.html", c=data)
+
+
+@bp.route("/.well-known/hey-agent.json")
+def agent_discovery():
+    from flask import jsonify
+
+    from ...services.public_data import discovery
+
+    return jsonify(discovery())
+
+
 PUBLIC_ENDPOINTS = [
     ("marketing.index", {}, "weekly", "1.0"), ("marketing.pricing_page", {}, "weekly", "0.9"), ("marketing.services", {}, "monthly", "0.8"),
     ("marketing.service_detail", {"slug": "accounting"}, "monthly", "0.8"), ("marketing.service_detail", {"slug": "back-office"}, "monthly", "0.8"),
@@ -208,6 +258,9 @@ PUBLIC_ENDPOINTS = [
 def sitemap():
     urls = [(url_for(ep, _external=True, **kw), freq, pri) for ep, kw, freq, pri in PUBLIC_ENDPOINTS]
     urls += [(url_for("marketing.post", slug=s, _external=True), "monthly", "0.6") for s in POSTS]
+    from ...services.public_data import SLUGS
+
+    urls += [(url_for("marketing.community_page", slug=s, _external=True), "weekly", "0.7") for s in SLUGS]
     body = "".join(f"<url><loc>{u}</loc><changefreq>{f}</changefreq><priority>{p}</priority></url>" for u, f, p in urls)
     xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>'
     return Response(xml, mimetype="application/xml")

@@ -8,7 +8,7 @@ MARKETING = [
     "/", "/pricing", "/services", "/services/accounting", "/services/back-office", "/services/collections",
     "/how-it-works", "/self-managed", "/compare", "/reviews", "/about", "/faq", "/blog",
     "/blog/myth-of-full-service-management", "/homeowners", "/realtors", "/quote", "/contact", "/privacy", "/terms", "/brand", "/login",
-    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office", "/sample-packet",
+    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office", "/sample-packet", "/c/willow-creek", "/c/willow-creek.json", "/c/willow-creek/records-request", "/.well-known/hey-agent.json",
 ]
 HOMEOWNER = ["/me/dashboard", "/me/pay", "/me/ledger", "/me/requests", "/me/requests/new", "/me/arc", "/me/arc/new", "/me/documents", "/me/directory", "/me/profile", "/me/ask"]
 OPS = ["/ops/dashboard", "/ops/review", "/ops/queue?state=open", "/ops/threads", "/ops/new", "/ops/agents", "/ops/activity", "/ops/settings"]
