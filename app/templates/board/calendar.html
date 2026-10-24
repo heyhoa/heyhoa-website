@@ -1,0 +1,78 @@
+{% extends "board/base.html" %}
+{% block title %}Board calendar — {{ brand.name }}{% endblock %}
+{% block page_title %}Communications{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Announcements', url_for('board.announcements'), false), ('Letters', url_for('board.letters_page'), false), ('Meetings', url_for('board.meetings_page'), false), ('Calendar', url_for('board.calendar_page'), true)]) }}<button class="btn btn-primary btn-sm" data-open="new-item">Add an item</button>{% if not items %}<form method="post"><input type="hidden" name="intent" value="seed"><button class="btn btn-ghost btn-sm">Load the standard calendar</button></form>{% endif %}{% endblock %}
+{% block content %}
+<div class="row" style="grid-template-columns:3fr 2fr">
+  <div>
+    <div class="toolbar"><span>{{ due_count }} due now · the next twelve months. hey emails the owner when an item enters its lead window.</span><span class="small muted">{{ items|length }} recurring items</span></div>
+    {% for month, list in by_month.items() %}
+    <h3 style="margin:.9rem 0 .3rem;font-size:.95rem">{{ month }}</h3>
+    <div class="table-wrap"><table class="data">
+      <tbody>{% for r in list %}{% set it = r.item %}
+        <tr data-drawer="cal-{{ it.id }}" class="{% if r.status == 'done' %}muted{% endif %}">
+          <td style="width:3.6rem" class="{% if r.status == 'overdue' %}due late{% elif r.status == 'due' %}due soon{% endif %}"><strong>{{ r.due|datefmt('%d') }}</strong><span class="sub">{{ r.due|datefmt('%a') }}</span></td>
+          <td><span class="primary" {% if r.status == 'done' %}style="text-decoration:line-through;font-weight:500"{% endif %}>{{ it.title }}</span><span class="sub">{{ dict(kinds)[it.kind] }} · {{ dict(owners)[it.owner] }}{% if it.lead_days %} · start {{ r.starts|datefmt('%b %d') }}{% endif %}{% if it.source %} · {{ it.source }}{% endif %}</span></td>
+          <td style="width:7rem">{% if r.status == 'done' %}<span class="pill green">done {{ r.done.done_at|datefmt('%b %d') }}</span>{% elif r.status == 'overdue' %}<span class="pill red">overdue</span>{% elif r.status == 'due' %}<span class="pill amber">due</span>{% else %}<span class="pill">{{ r.period }}</span>{% endif %}</td>
+          <td style="width:5.5rem;text-align:right"><form method="post">{% if r.status == 'done' %}<input type="hidden" name="intent" value="undo"><button class="btn btn-ghost btn-sm">undo</button>{% else %}<input type="hidden" name="intent" value="done"><button class="btn btn-ghost btn-sm">Done</button>{% endif %}<input type="hidden" name="item_id" value="{{ it.id }}"><input type="hidden" name="period" value="{{ r.period }}"></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="card"><p class="muted" style="margin:0">Nothing on the calendar. Load the standard calendar (annual meeting, election, budget, taxes, 1099s, corporate report, insurance, reserves, year-end close) and edit it, or add your own items.</p></div>{% endfor %}
+  </div>
+  <div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Board &amp; terms</h3><button class="btn btn-ghost btn-sm" data-open="new-member">Add</button></div>
+      {% if ending %}<p class="flash" style="margin:.5rem 0 0">{{ ending|length }} seat{{ 's' if ending|length > 1 }} end{{ '' if ending|length > 1 else 's' }} within six months: {% for m in ending %}{{ m.name }} ({{ m.term_end|datefmt('%b %Y') }}){% if not loop.last %}, {% endif %}{% endfor %}. The election is on the calendar.</p>{% endif %}
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Member</th><th>Seat</th><th>Term ends</th><th></th></tr></thead>
+        <tbody>{% for m in roster %}<tr data-drawer="member-{{ m.id }}">
+          <td><span class="primary">{{ m.name }}</span><span class="sub">{{ m.unit_label or '' }}{% if m.signer %} · signer{% endif %}</span></td>
+          <td class="small">{{ dict(roles)[m.role] }}</td>
+          <td class="small">{% if m.term_end %}{{ m.term_end|datefmt('%b %Y') }}<span class="sub {% if m.days_left < 0 %}due late{% elif m.days_left <= 180 %}due soon{% endif %}">{% if m.days_left < 0 %}expired {{ -m.days_left }}d ago{% elif m.days_left < 60 %}{{ m.days_left }} days left{% else %}{{ (m.days_left / 30.4)|round|int }} months left{% endif %}</span>{% else %}—{% endif %}</td>
+          <td style="text-align:right"><form method="post" onsubmit="return confirm('Remove {{ m.name|e }} from the roster?')"><input type="hidden" name="intent" value="member_remove"><input type="hidden" name="id" value="{{ m.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">×</button></form></td>
+        </tr>{% else %}<tr><td colspan="4" class="muted">No roster yet. Add the board, with seats and term dates; hey tracks the terms and the election.</td></tr>{% endfor %}</tbody>
+      </table></div>
+      <p class="help">Signers can approve money. Term end = start + term length unless you set it. Officers change at the first meeting after the election; update the seats here and the bank signers at {{ config.BANK_NAME }}.</p>
+    </div>
+    <div class="card" style="margin-top:.8rem">
+      <h3>All recurring items</h3>
+      <div class="table-wrap"><table class="data"><tbody>{% for it in items %}<tr data-drawer="cal-{{ it.id }}"><td><span class="primary" style="font-weight:500">{{ it.title }}</span></td><td class="small muted">{{ dict(repeats)[it.repeats] }}{% if it.repeats != 'monthly' %} · {{ months[(it.month or 1) - 1][:3] }} {{ it.day }}{% else %} · the {{ it.day }}{{ 'st' if it.day == 1 else 'th' }}{% endif %}</td><td class="small muted">{{ dict(owners)[it.owner] }}</td></tr>{% endfor %}</tbody></table></div>
+    </div>
+  </div>
+</div>
+
+{% macro item_form(it) %}
+<form method="post" class="drawer-body"><input type="hidden" name="intent" value="item">{% if it %}<input type="hidden" name="id" value="{{ it.id }}">{% endif %}
+  <div class="form-group"><label>What</label><input class="form-control" name="title" required value="{{ it.title if it else '' }}" placeholder="Annual meeting of members"></div>
+  <div class="form-row"><div class="form-group"><label>Kind</label><select class="form-control" name="kind">{% for k, l in kinds %}<option value="{{ k }}" {% if it and it.kind == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div><div class="form-group"><label>Repeats</label><select class="form-control" name="repeats">{% for k, l in repeats %}<option value="{{ k }}" {% if it and it.repeats == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div></div>
+  <div class="form-row"><div class="form-group"><label>Month (annual, or first month of the quarter)</label><select class="form-control" name="month">{% for m in months %}<option value="{{ loop.index }}" {% if it and it.month == loop.index %}selected{% endif %}>{{ m }}</option>{% endfor %}</select></div><div class="form-group"><label>Day</label><input class="form-control" name="day" type="number" min="1" max="31" value="{{ it.day if it else 1 }}"></div></div>
+  <div class="form-row"><div class="form-group"><label>Year (if once)</label><input class="form-control" name="year" type="number" value="{{ it.year or '' if it else '' }}"></div><div class="form-group"><label>Start working, days before</label><input class="form-control" name="lead_days" type="number" min="0" value="{{ it.lead_days if it else 30 }}"></div></div>
+  <div class="form-row"><div class="form-group"><label>Owner</label><select class="form-control" name="owner">{% for k, l in owners %}<option value="{{ k }}" {% if it and it.owner == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div><div class="form-group"><label>Source</label><input class="form-control" name="source" value="{{ it.source or '' if it else '' }}" placeholder="Bylaws 4.2 · A.R.S. 33-1804"></div></div>
+  <div class="form-group"><label>Steps (one per line)</label><textarea class="form-control" name="steps" rows="5">{{ (it.steps or [])|join('\n') if it else '' }}</textarea></div>
+  <div class="form-group"><label>Notes</label><input class="form-control" name="notes" value="{{ it.notes or '' if it else '' }}"></div>
+  <button class="btn btn-primary btn-sm">Save</button>
+</form>
+{% endmacro %}
+
+{% for it in items %}
+<aside class="drawer" id="cal-{{ it.id }}">
+  <div class="drawer-head"><div><h3>{{ it.title }}</h3><div class="small muted">{{ dict(kinds)[it.kind] }} · {{ dict(repeats)[it.repeats]|lower }} · owner: {{ dict(owners)[it.owner] }}{% if it.source %} · {{ it.source }}{% endif %}</div></div>
+    <form method="post" onsubmit="return confirm('Remove this item from the calendar?')"><input type="hidden" name="intent" value="remove"><input type="hidden" name="id" value="{{ it.id }}"><button class="btn btn-ghost btn-sm" style="color:var(--red)">Remove</button></form><button class="drawer-close" aria-label="Close">×</button></div>
+  {% if it.steps %}<div class="drawer-actions" style="display:block"><h4 style="margin:0 0 .3rem;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-2)">Steps</h4><ol class="small" style="margin:0;padding-left:1.1rem">{% for s in it.steps %}<li>{{ s }}</li>{% endfor %}</ol></div>{% endif %}
+  {{ item_form(it) }}
+</aside>{% endfor %}
+<aside class="drawer" id="new-item" data-autofocus="1"><div class="drawer-head"><div><h3>Add a calendar item</h3><div class="small muted">Anything the board must do on a schedule.</div></div><button class="drawer-close" aria-label="Close">×</button></div>{{ item_form(none) }}</aside>
+
+{% macro member_form(m) %}
+<form method="post" class="drawer-body"><input type="hidden" name="intent" value="member">{% if m %}<input type="hidden" name="id" value="{{ m.id }}">{% endif %}
+  <div class="form-row"><div class="form-group"><label>Name</label><input class="form-control" name="name" required value="{{ m.name if m else '' }}"></div><div class="form-group"><label>Seat</label><select class="form-control" name="role">{% for k, l in roles %}<option value="{{ k }}" {% if m and m.role == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div></div>
+  <div class="form-row"><div class="form-group"><label>Email</label><input class="form-control" name="email" type="email" value="{{ m.email or '' if m else '' }}"></div><div class="form-group"><label>Phone</label><input class="form-control" name="phone" value="{{ m.phone or '' if m else '' }}"></div></div>
+  <div class="form-row"><div class="form-group"><label>Unit</label><input class="form-control" name="unit_label" value="{{ m.unit_label or '' if m else '' }}"></div><div class="form-group"><label>Signer at the bank</label><label class="small" style="display:block;margin-top:.5rem"><input type="checkbox" name="signer" {% if m and m.signer %}checked{% endif %}> can approve money</label></div></div>
+  <div class="form-row"><div class="form-group"><label>Term start</label><input class="form-control" name="term_start" type="date" value="{{ m.term_start if m and m.term_start else '' }}"></div><div class="form-group"><label>Term length (years)</label><input class="form-control" name="term_years" type="number" min="1" max="4" value="{{ m.term_years if m else 2 }}"></div></div>
+  <div class="form-group"><label>Term end (leave blank to compute)</label><input class="form-control" name="term_end" type="date" value="{{ m.term_end if m and m.term_end else '' }}"></div>
+  <button class="btn btn-primary btn-sm">Save</button>
+</form>
+{% endmacro %}
+{% for m in roster %}<aside class="drawer" id="member-{{ m.id }}"><div class="drawer-head"><div><h3>{{ m.name }}</h3><div class="small muted">{{ dict(roles)[m.role] }}{% if m.term_end %} · term ends {{ m.term_end|datefmt }}{% endif %}</div></div><button class="drawer-close" aria-label="Close">×</button></div>{{ member_form(m) }}</aside>{% endfor %}
+<aside class="drawer" id="new-member" data-autofocus="1"><div class="drawer-head"><div><h3>Add a board member</h3></div><button class="drawer-close" aria-label="Close">×</button></div>{{ member_form(none) }}</aside>
+{% endblock %}

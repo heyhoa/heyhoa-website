@@ -37,3 +37,6 @@ def seed_demo():
     from . import insurance
 
     insurance.seed_demo("1001")
+    from . import calendar as board_calendar
+
+    board_calendar.seed_demo("1001")

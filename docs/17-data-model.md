@@ -98,6 +98,9 @@ become a `board_approved` item for the close lane: a person executes it at the b
 | **Meeting** | kind (board, annual, budget, special, executive), date, time, where, notice_days, notice_sent_at, notice_channels, agenda[], minutes, status |
 | **Letter** | kind, unit_account_id, to_name, to_address, subject, body, status (queued/sent/simulated/failed), provider (lob/manual), provider_id, cost, certified, meeting_id, announcement_id |
 | **Announcement** | title, body, channel (email, sms, portal, mail, mail_all), author |
+| **BoardMember** | name, role (president, vice_president, treasurer, secretary, director), email, phone, unit, term_start, term_years, term_end, signer, contact_id (Caliber) |
+| **CalendarItem** | title, kind (governance, accounting, meeting, insurance, maintenance, custom), repeats (annual, quarterly, monthly, once), month, day, year, lead_days, owner, source, steps[] |
+| **CalendarDone** | item_id, period ("2026", "2026-Q3", "2026-11"), done_by, done_at |
 | **InsurancePolicy** | kind (property, liability, do, fidelity, umbrella, workers_comp, cyber, flood, other), carrier, policy_number, coverage, deductible, premium, begins, expires, agent, document_id |
 | **PortalRequest**, **ContactMessage** | owner portal forms and the public contact form before they become work |
 

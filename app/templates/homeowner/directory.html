@@ -3,7 +3,7 @@
 {% block page_title %}Board &amp; contacts{% endblock %}
 {% block content %}
 <div class="grid grid-3">
-  <div class="card"><h4>Board of directors</h4><ul class="checks"><li><span>President</span><span class="muted">Luis Castillo</span></li><li><span>Treasurer</span><span class="muted">Dana Whitfield</span></li><li><span>Secretary</span><span class="muted">Grace Thompson</span></li></ul><p class="small muted" style="margin-top:1rem">Message the board through hey; it logs the thread so nothing gets lost in personal inboxes.</p></div>
+  <div class="card"><h4>Board of directors</h4><ul class="checks">{% for m in roster %}<li><span>{{ m.role|replace('_',' ')|title }}</span><span class="muted">{{ m.name }}{% if m.term_end %} <span class="small">· through {{ m.term_end|datefmt('%b %Y') }}</span>{% endif %}</span></li>{% else %}<li><span>President</span><span class="muted">Luis Castillo</span></li><li><span>Treasurer</span><span class="muted">Dana Whitfield</span></li><li><span>Secretary</span><span class="muted">Grace Thompson</span></li>{% endfor %}</ul><p class="small muted" style="margin-top:1rem">Message the board through hey; it logs the thread so nothing gets lost in personal inboxes.</p></div>
   <div class="card"><h4>hey hoa</h4><p class="small">Text or call <strong class="mono">{{ brand.phone }}</strong><br>Email <strong class="mono">{{ brand.email }}</strong></p><p class="small muted">Dues, statements, documents, requests, closings.</p></div>
   <div class="card"><h4>Emergencies</h4><p class="small">Gas, fire, flooding: 911 first.<br>Common-area water main: City of Mesa Utilities (480) 644-2221.<br>Gate stuck: Gate Pros 24h (480) 555-0133.</p></div>
 </div>

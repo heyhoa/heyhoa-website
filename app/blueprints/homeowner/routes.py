@@ -130,7 +130,9 @@ def spending():
 @role_required("homeowner")
 def directory():
     p, me, ua, community = _ctx()
-    return render_template("homeowner/directory.html", ua=ua, community=community)
+    from ...services import calendar as board_calendar
+
+    return render_template("homeowner/directory.html", ua=ua, community=community, roster=board_calendar.roster(community.id))
 
 
 @bp.route("/profile", methods=["GET", "POST"])

@@ -120,6 +120,20 @@ class BoardAgent(Agent):
                     f"• Cash: operating ${snap.operating_cash:,.0f}, reserves ${snap.reserve_cash:,.0f}\n• Delinquent: {len(dq)} accounts, ${sum(d.balance for d in dq):,.2f}; {sum(1 for d in dq if d.days_late >= 60)} past 60 days\n"
                     f"• Packet: {snap.recon_status}\n\nOpen the board portal to approve or ask hey.\n\n— hey")
             return Proposal(action="send_board_digest", payload={"body": body}, preview=body, confidence=0.9, sources=["snapshot", "AP", "AR"], reason="weekly digest")
+        if item.kind == "calendar":
+            from ..services import calendar as board_calendar
+
+            cid = item.community_id or "1001"
+            owner = (item.remote_ids or {}).get("owner", "board")
+            who = board_calendar.member_for(cid, owner)
+            due = next((e["text"] for e in (item.evidence or []) if e.get("label") == "due"), "")
+            if owner == "hey":
+                return Proposal(action="handoff", payload={"lane": "close", "note": f"Calendar: {item.subject}. Steps:\n{item.summary}"}, preview=f"hey's own task: {item.subject}. Handed to the close lane.", confidence=0.95, reason="calendar item owned by hey")
+            body = (f"Hi {(who.name.split(' ')[0] if who else 'board')},\n\n{item.subject.split(' · ')[0]} is coming up ({due}). Steps:\n{item.summary}\n\n"
+                    f"It is on the board calendar in the portal; mark it done there and it clears for everyone. Reply here if you want hey to take any step.\n\n— hey")
+            if who and who.email:
+                return Proposal(action="send_email", payload={"to": who.email, "subject": f"Board calendar: {item.subject}", "body": body}, preview=body, confidence=0.9, sources=["board calendar"], reason=f"owner {owner} is {who.name}")
+            return Proposal(action="send_board_digest", payload={"body": body}, preview=body, confidence=0.85, sources=["board calendar"], reason=f"no {owner} on the roster; whole board")
         return Proposal(action="none", preview="Decision is on the board's list; nothing for hey to do until they vote.", confidence=0.9)
 
 

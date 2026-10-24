@@ -123,6 +123,21 @@ the Caliber client and entering its id; approval rules are rekeyed to it.
 bids 2, ARC 2, special assessments 3, budget 3, liens and attorney 2, fee waivers 2 by default. Set at
 onboarding, changed in board Settings, applied to the next decision. Never below 1.
 
+## Board calendar and roster
+
+`/board/calendar`: everything the board must do on a schedule, computed twelve months out from
+recurring items (annual, quarterly, monthly, once) with a lead time, an owner (president, treasurer,
+secretary, board, hey), a source (bylaws section, statute, policy expiry) and steps. The standard
+Arizona calendar loads with one click: annual meeting, election, budget, reserve review, year-end
+close, 1099s, 1120-H, corporate report, insurance renewal, assessment notice, fidelity/D&O check,
+backflow and permits, quarterly reserve check, the monthly package. Each occurrence is marked done
+per period. When an occurrence enters its lead window the daily run opens a board-lane item and hey
+emails the owner the steps (items owned by hey hand off to the close lane).
+
+The roster on the same page holds seats, contact, signer flag, term start, length and end; time
+left is shown and seats ending within six months are flagged. The roster feeds the invoice approval
+chain, Settings and the owners' directory.
+
 ## Meetings
 
 Board, annual, budget, special and executive templates. "Schedule" builds the agenda from what is

@@ -22,8 +22,8 @@
   </div>
   <div class="card">
     <h3>Board members</h3>
-    <ul class="checks"><li><span>Luis Castillo · President</span><span class="muted small">signer</span></li><li><span>Dana Whitfield · Treasurer</span><span class="muted small">signer</span></li><li><span>Grace Thompson · Secretary</span><span class="muted small">—</span></li></ul>
-    <a class="btn btn-ghost btn-sm" href="#" style="margin-top:1rem">Invite a board member</a>
+    <ul class="checks">{% for m in roster %}<li><span>{{ m.name }} · {{ m.role|replace('_',' ')|title }}{% if m.term_end %} <span class="small muted">until {{ m.term_end|datefmt('%b %Y') }}</span>{% endif %}</span><span class="muted small">{{ 'signer' if m.signer else '—' }}</span></li>{% else %}<li class="muted small">No roster yet.</li>{% endfor %}</ul>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('board.calendar_page') }}" style="margin-top:1rem">Seats, terms and the calendar</a>
   </div>
   <div class="card">
     <h3>Plan</h3>

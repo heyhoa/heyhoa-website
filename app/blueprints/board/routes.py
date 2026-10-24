@@ -8,7 +8,8 @@ from ...ai.assistant import draft_announcement, draft_delinquency_notice
 from ...channels import email as email_channel
 from ...extensions import db
 from ...integrations.registry import get_provider
-from ...models import Announcement, ApprovalRule, AuditLog, InsurancePolicy, InvoiceFlag, Meeting, Message, Project, ReserveComponent, ResponsibilityItem, StoredDocument, WorkItem
+from ...models import Announcement, ApprovalRule, AuditLog, BoardMember, CalendarItem, InsurancePolicy, InvoiceFlag, Meeting, Message, Project, ReserveComponent, ResponsibilityItem, StoredDocument, WorkItem
+from ...services import calendar as board_calendar
 from ...services import decisions, insurance, letters, meetings, plans
 from ...services.auth import role_required
 from . import bp
@@ -99,7 +100,12 @@ def invoices():
     rows.sort(key=lambda i: (i.status != "pending_board", i.due_date))
     snap = p.get_financial_snapshot(community.id)
     evidence = {i.id: _invoice_evidence(p, community.id, i, snap) for i in rows}
-    signers = [m for m in BOARD_MEMBERS if m["signer"]]
+    roster = board_calendar.roster(community.id)
+    signers = [{"id": m.contact_id or f"member-{m.id}", "name": m.name, "title": m.role.replace("_", " ").title(), "signer": True} for m in roster if m.signer] or [m for m in BOARD_MEMBERS if m["signer"]]
+    if not any(s["id"] == me["id"] for s in signers):
+        for s in signers:
+            if s["name"] == me["name"]:
+                s["id"] = me["id"]
     return render_template("board/invoices.html", community=community, invoices=rows, status=status or "all", counts=counts, flags=flags, evidence=evidence, signers=signers, initials=_initials,
                            today=dt.date.today().isoformat(), total=sum(i.amount for i in rows))
 
@@ -570,6 +576,50 @@ def meeting(meeting_id):
                            no_email=len(letters.recipients(p, community.id, "no_email")), all_owners=len(letters.recipients(p, community.id, "all")))
 
 
+@bp.route("/calendar", methods=["GET", "POST"])
+@role_required("board")
+def calendar_page():
+    """The board's year: what recurs, who owns it, how far ahead, done or not. Plus the roster and terms."""
+    p, me, community = _ctx()
+    if request.method == "POST":
+        f = request.form
+        intent = f.get("intent")
+        if intent == "seed":
+            n = board_calendar.seed_standard(community.id, community.fiscal_year_end)
+            flash(f"Standard calendar loaded ({n} items). Edit anything.")
+        elif intent == "done":
+            board_calendar.mark_done(int(f["item_id"]), f["period"], me["name"], f.get("note", ""))
+            _audit(me["name"], "calendar.done", f"cal:{f['item_id']}", f["period"])
+        elif intent == "undo":
+            board_calendar.unmark(int(f["item_id"]), f["period"])
+        elif intent == "item":
+            it = board_calendar.save_item(community.id, f, db.session.get(CalendarItem, int(f["id"])) if f.get("id") else None)
+            _audit(me["name"], "calendar.item", f"cal:{it.id}", it.title)
+            flash("Saved.")
+        elif intent == "remove":
+            it = db.get_or_404(CalendarItem, int(f["id"]))
+            if it.community_id == community.id:
+                it.active = False
+                db.session.commit()
+        elif intent == "member":
+            m = board_calendar.save_member(community.id, f, db.session.get(BoardMember, int(f["id"])) if f.get("id") else None)
+            _audit(me["name"], "board.member", f"member:{m.id}", f"{m.name} {m.role}")
+            flash("Roster saved.")
+        elif intent == "member_remove":
+            m = db.get_or_404(BoardMember, int(f["id"]))
+            if m.community_id == community.id:
+                m.active = False
+                db.session.commit()
+        return redirect(url_for("board.calendar_page"))
+    rows = board_calendar.upcoming(community.id)
+    by_month = {}
+    for r in rows:
+        by_month.setdefault(r["due"].strftime("%B %Y"), []).append(r)
+    return render_template("board/calendar.html", community=community, rows=rows, by_month=by_month, items=board_calendar.items(community.id), roster=board_calendar.roster(community.id), ending=board_calendar.seats_ending(community.id),
+                           kinds=board_calendar.KINDS, repeats=board_calendar.REPEATS, owners=board_calendar.OWNERS, roles=board_calendar.ROLES, today=dt.date.today(), months=[dt.date(2000, m, 1).strftime("%B") for m in range(1, 13)],
+                           due_count=sum(1 for r in rows if r["status"] in ("due", "overdue")))
+
+
 @bp.route("/letters", methods=["GET", "POST"])
 @role_required("board")
 def letters_page():
@@ -637,7 +687,7 @@ def settings():
         flash("Board rules saved. They apply to the next decision.")
         return redirect(url_for("board.settings"))
     rules = {k: decisions.spec(k, community.id)["approvals"] for k, _ in RULE_LABELS}
-    return render_template("board/settings.html", community=community, rules=rules, rule_labels=RULE_LABELS)
+    return render_template("board/settings.html", community=community, rules=rules, rule_labels=RULE_LABELS, roster=board_calendar.roster(community.id))
 
 
 @bp.route("/ask")

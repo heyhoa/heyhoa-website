@@ -176,6 +176,23 @@ def run_due_followups() -> int:
     return len(due)
 
 
+def calendar_reminders(community_id: str) -> int:
+    """Each calendar occurrence entering its lead window becomes one board-lane item with the steps."""
+    from ..services import calendar as board_calendar
+
+    n = 0
+    for r in board_calendar.due_now(community_id):
+        key = f"{r['item'].id}:{r['period']}"
+        if WorkItem.query.filter_by(community_id=community_id, kind="calendar").filter(WorkItem.remote_ids["calendar_key"].as_string() == key).first():
+            continue
+        it = r["item"]
+        run(create_item(kind="calendar", lane="board", subject=f"{it.title} · due {r['due']:%b %d}", summary="\n".join(f"- {s}" for s in (it.steps or [])) or (it.notes or ""), community_id=community_id,
+                        priority="high" if r["status"] == "overdue" else "normal", remote_ids={"calendar_key": key, "calendar_item_id": it.id, "period": r["period"], "owner": it.owner},
+                        evidence=[{"label": "source", "ref": "", "text": it.source or ""}, {"label": "due", "ref": "", "text": f"{r['due']} ({r['status']})"}]))
+        n += 1
+    return n
+
+
 def daily(community_id: str | None = None) -> dict:
     """Scheduled work: AR ladder, vendor compliance, close snapshot, Friday digest."""
     p = get_provider()
@@ -200,5 +217,6 @@ def daily(community_id: str | None = None) -> dict:
         if dt.date.today().weekday() == 4:
             run(create_item(kind="digest", lane="board", subject="Friday board digest", summary="Weekly digest for the board.", community_id=c.id))
             counts["board"] += 1
+        counts["board"] += calendar_reminders(c.id)
     db.session.commit()
     return counts

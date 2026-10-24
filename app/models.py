@@ -434,6 +434,62 @@ class InsurancePolicy(db.Model):
         return (self.expires - dt.date.today()).days if self.expires else None
 
 
+class BoardMember(db.Model):
+    """Who is on the board, in what seat, until when."""
+
+    __tablename__ = "board_members"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    name = db.Column(db.String(200))
+    role = db.Column(db.String(40), default="director")  # president|vice_president|treasurer|secretary|director
+    email = db.Column(db.String(200))
+    phone = db.Column(db.String(40))
+    unit_label = db.Column(db.String(60))
+    term_start = db.Column(db.Date)
+    term_years = db.Column(db.Integer, default=2)
+    term_end = db.Column(db.Date)
+    signer = db.Column(db.Boolean, default=False)
+    contact_id = db.Column(db.String(40))  # Caliber ClientContact id when live
+    active = db.Column(db.Boolean, default=True)
+
+    @property
+    def days_left(self):
+        return (self.term_end - dt.date.today()).days if self.term_end else None
+
+
+class CalendarItem(db.Model):
+    """A recurring thing the board must do: governance, accounting, meetings, insurance, custom."""
+
+    __tablename__ = "calendar_items"
+    id = db.Column(db.Integer, primary_key=True)
+    community_id = db.Column(db.String(40), index=True)
+    title = db.Column(db.String(200))
+    kind = db.Column(db.String(20), default="custom")  # governance|accounting|meeting|insurance|maintenance|custom
+    repeats = db.Column(db.String(12), default="annual")  # annual|quarterly|monthly|once
+    month = db.Column(db.Integer)  # 1-12 for annual; first month of the cycle for quarterly
+    day = db.Column(db.Integer, default=1)
+    year = db.Column(db.Integer)  # for once
+    lead_days = db.Column(db.Integer, default=30)
+    owner = db.Column(db.String(40), default="board")  # president|treasurer|secretary|board|hey
+    source = db.Column(db.String(200))  # "Bylaws 4.2", "A.R.S. 33-1804", "Policy expiry"
+    steps = db.Column(db.JSON)  # ["...", "..."]
+    notes = db.Column(db.Text)
+    active = db.Column(db.Boolean, default=True)
+
+
+class CalendarDone(db.Model):
+    """One occurrence completed: the item and the period (e.g. "2026", "2026-Q3", "2026-11")."""
+
+    __tablename__ = "calendar_done"
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, index=True)
+    period = db.Column(db.String(12))
+    done_at = db.Column(db.DateTime, default=lambda: dt.datetime.now(dt.timezone.utc))
+    done_by = db.Column(db.String(120))
+    note = db.Column(db.String(300))
+    __table_args__ = (db.UniqueConstraint("item_id", "period", name="uq_calendar_done"),)
+
+
 class InvoiceFlag(db.Model):
     """Board-set flags on provider invoices, e.g. hide from owners (legal bills)."""
 

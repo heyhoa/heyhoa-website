@@ -17,7 +17,7 @@
   <li><a href="{{ url_for('board.owners') }}" {% if p == '/board/owners' %}aria-current="page"{% endif %}>Owners &amp; units</a></li>
   <li><a href="{{ url_for('board.inbox') }}" {% if p.startswith('/board/inbox') %}aria-current="page"{% endif %}>Owner inbox</a></li>
   <li><a href="{{ url_for('board.requests_list') }}" {% if p.startswith(('/board/requests', '/board/arc', '/board/violations')) %}aria-current="page"{% endif %}>Requests</a></li>
-  <li><a href="{{ url_for('board.announcements') }}" {% if p.startswith(('/board/announcements', '/board/letters', '/board/meetings')) %}aria-current="page"{% endif %}>Communications</a></li>
+  <li><a href="{{ url_for('board.announcements') }}" {% if p.startswith(('/board/announcements', '/board/letters', '/board/meetings', '/board/calendar')) %}aria-current="page"{% endif %}>Communications</a></li>
 </ul>
 <div class="section-label">hey</div>
 <ul>

@@ -1,7 +1,7 @@
 {% extends "board/base.html" %}
 {% block title %}Announcements — {{ brand.name }}{% endblock %}
 {% block page_title %}Communications{% endblock %}
-{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Announcements', url_for('board.announcements'), request.path == '/board/announcements'), ('Letters', url_for('board.letters_page'), request.path == '/board/letters'), ('Meetings', url_for('board.meetings_page'), request.path.startswith('/board/meetings'))]) }}{% endblock %}
+{% block page_actions %}{% from 'board/_tabs.html' import tabs %}{{ tabs([('Announcements', url_for('board.announcements'), request.path == '/board/announcements'), ('Letters', url_for('board.letters_page'), request.path == '/board/letters'), ('Meetings', url_for('board.meetings_page'), request.path.startswith('/board/meetings')), ('Calendar', url_for('board.calendar_page'), request.path == '/board/calendar')]) }}{% endblock %}
 {% block content %}
 <div class="row">
   <div>
