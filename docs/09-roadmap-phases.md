@@ -5,9 +5,9 @@ How to use this: each phase is a checklist. Work the unchecked boxes top to bott
 Status legend: `[x]` done · `[ ]` open · `[~]` in progress.
 
 ## Now (next three boxes, in order)
-1. Phase 1 · Sample financial packet PDF (annotated) downloadable from `/pricing` and `/how-it-works`
-2. Phase 1 · Lead notification: email + Slack on new `Lead`
-3. Phase 1 · Decide the term question (doc 11 decision 1) and send the PSA to counsel
+1. Phase 1 · Lead notification: email + Slack on new `Lead`
+2. Phase 1 · Form the hey hoa entity, decide the term question (doc 11 decisions 1 and 3), send the adapted PSA to counsel
+3. Phase 1 · Contact form email delivery (Postmark/SES), shares the mailer with lead notifications
 
 Keep this list to three. When one is done, tick its box below and promote the next.
 
@@ -28,7 +28,7 @@ Goal: plan, brand, mock-ups, scaffold. Everything renders with demo data.
 ## Phase 1 — Launch-ready site (week 1–2)
 Goal: public site that converts; first customer signed by hand.
 - [ ] Replace placeholder reviews with real quotes or remove the page until there are three
-- [ ] Sample financial packet PDF (annotated) downloadable from `/pricing` and `/how-it-works`
+- [x] Sample financial packet PDF (annotated) downloadable from `/pricing`, `/how-it-works` and the home page (`/sample-packet` is the HTML source; `node scripts/build_sample_packet.js` regenerates the PDF)
 - [ ] Lead notification: email + Slack on new `Lead`, with score and suggested tier
 - [ ] Quote form: plan preselect from `?plan=`, UTM capture, honeypot, rate limit
 - [ ] Contact form: email delivery (Postmark/SES)
@@ -39,9 +39,9 @@ Goal: public site that converts; first customer signed by hand.
 - [ ] Deploy: Render/Fly with Postgres, custom domain, TLS, GitHub Actions running `pytest`
 - [ ] Portal sidebar collapses to a top bar on phones (currently a full-screen nav list)
 - [x] Services agreement template added to `legal/` and mapped to tiers, fees and collections (doc 11)
-- [ ] Tailor the PSA for hey hoa: entity/brand line, term decision, 5th-or-free clause, hey hoa Exhibit A, AI review clause; then counsel
+- [ ] Tailor the PSA for hey hoa: hey entity as Service Provider, term decision, 5th-or-free clause, hey hoa Exhibit A, AI review clause, state exhibits (AZ, TX); then counsel
 - [ ] Founding-customer one-pager PDF
-- [ ] Outreach: list of 150 East Valley (AZ) treasurers from ACC filings, CRM set up, Sequence A loaded
+- [ ] Outreach: list of 150 Central Texas treasurers from management certificates, CRM set up, Sequence A loaded; Heywood community migration scheduled
 
 ## Phase 2 — Real data, real logins (week 3–6)
 Goal: first community live on FrontSteps data; owners and board use the portals for real.

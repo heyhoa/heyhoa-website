@@ -3,7 +3,8 @@
 Goal: one self-managed community signed, onboarded and paying within 30 days of site launch, using every portal page for real so Phase 2 is built against reality.
 
 ## Who the first customer should be
-- 20–80 doors, Arizona (East Valley), fiscal year Jan 1, currently self-managed with a volunteer or a disengaged bookkeeper. If the existing Heywood client (28-unit condo, Mesa) is willing, it is customer #1: the agreement is already signed and the books already exist.
+- **Customer #0 (proving ground):** a Heywood community in Mesa, e.g. the 28-unit condo already on the agreement. Migrate its books and owners onto the hey portals first. Not a sale; a shakedown.
+- **Customer #1 (hey brand):** 20–80 doors, Texas, fiscal year Jan 1, currently self-managed with a volunteer or a disengaged bookkeeper.
 - Treasurer or president we can talk to weekly and who will give honest feedback.
 - Bank that offers read-only online access and a usable statement export.
 - Ideally a trigger: treasurer leaving, late financials, or an upcoming annual meeting that needs a budget.
@@ -22,7 +23,7 @@ Pick from, in order: (1) a community a founder lives in or has a friend on the b
 |---|---|
 | 0 | Site live. Demo portals live. Sample packet PDF ready. Founding-customer one-pager ready. |
 | 1–3 | Warm list (20+ names) emailed personally with the demo link and the founding offer. 5 partner intros requested (title co, HOA attorney, CPA, reserve firm, bank HOA desk). |
-| 2–10 | Outbound sequence A (doc 06) to 150 treasurers in Mesa, Gilbert, Chandler, Tempe and Scottsdale. |
+| 2–10 | Outbound sequence A (doc 06) to 150 treasurers in Round Rock, Austin and San Antonio. Heywood community migration runs in parallel. |
 | 4–12 | Free books reviews for anyone who sends statements. Deliver a one-page findings memo within 48 hours. This is where the first yes comes from. |
 | 10–14 | First signed agreement. Collect: governing docs, 12 months of statements, vendor list, owner roster, insurance, last packet, QuickBooks file if any. |
 | 14–21 | Onboarding week 1–2 per doc 08: set up community in FrontSteps sandbox/tenant (or mock + sheet if tenant not ready), rebuild books, load owners, welcome email, autopay open. |
@@ -30,7 +31,7 @@ Pick from, in order: (1) a community a founder lives in or has a friend on the b
 | 30 | First invoice sent. Case-study baseline captured: hours/month the treasurer spent, old delivery date, old cost. |
 
 ## Onboarding checklist (first customer, done by hand)
-- [ ] Signed PSA (legal/), W-9 from us to them, ACH authorization for our fee, board liaison named, insurance certificates naming us additional insured (PSA §4.4–4.5)
+- [ ] Signed hey services agreement (adapted from legal/, with the Texas exhibit), W-9 from us to them, ACH authorization for our fee, board liaison named, insurance certificates naming us additional insured (PSA §4.4–4.5)
 - [ ] Operating and reserve accounts opened at the partner bank in the association's name and tax ID (PSA §2.7), board signers added, old accounts scheduled to close after reconciliation
 - [ ] Governing documents uploaded; `hey` indexed; three test questions answered correctly with citations
 - [ ] Chart of accounts mapped (ours ↔ theirs ↔ FrontSteps)

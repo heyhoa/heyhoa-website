@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sample financial packet — {{ brand.name }}</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/hey.css') }}" rel="stylesheet">
+<style>
+  @page { size: Letter; margin: 0.6in 0.6in 0.7in; }
+  body { font-size: 11.5px; line-height: 1.4; color: #121212; background: #fff; }
+  .page { page-break-after: always; padding: 0; }
+  .page:last-child { page-break-after: auto; }
+  .hdr { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #121212; padding-bottom: 8px; margin-bottom: 16px; }
+  .hdr .hey { height: 26px; }
+  .hdr .meta { text-align: right; color: #6B6973; font-size: 10px; }
+  h1 { font-size: 34px; margin: 0 0 6px; }
+  h2 { font-size: 20px; margin: 0 0 10px; }
+  h3 { font-size: 13px; margin: 14px 0 6px; }
+  table { font-size: 10.5px; }
+  th, td { padding: 5px 8px; }
+  th { font-size: 9px; }
+  .table-wrap { border-radius: 8px; }
+  td.tot, tr.tot td { font-weight: 700; border-top: 2px solid #121212; }
+  .note { background: #F3FFB8; border-left: 3px solid #C6FF00; padding: 7px 10px; border-radius: 6px; font-size: 10.5px; margin: 8px 0; }
+  .note strong { font-family: var(--font-mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; display: block; margin-bottom: 2px; color: #4a5200; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cover { display: flex; flex-direction: column; min-height: 8.6in; }
+  .cover .big { margin-top: 1.4in; }
+  .cover .foot { margin-top: auto; color: #6B6973; font-size: 10px; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+  .kpi { background: #F6F5F8; border-radius: 8px; padding: 10px 12px; }
+  .kpi .l { color: #6B6973; font-size: 9.5px; } .kpi .v { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+  .pos { color: #15803d; } .neg { color: #FF0049; }
+  .ok { display:inline-block; width: 14px; height: 14px; border-radius: 50%; background: #C6FF00; color: #0B0D00; font-size: 9px; text-align: center; line-height: 14px; font-weight: 700; }
+  .src { font-family: var(--font-mono); font-size: 9px; color: #6B6973; }
+</style>
+</head>
+<body class="theme-light">
+{% set snap = snap %}
+<!-- 1 cover -->
+<section class="page cover">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">Monthly financial packet<br>Delivered Oct 5, 2026 · 2nd business day</div></div>
+  <div class="big">
+    <p class="eyebrow">Sample · demo data</p>
+    <h1>{{ community.name }}<br><span class="muted" style="font-weight:400">September 2026 financials</span></h1>
+    <p class="lede" style="font-size:14px;max-width:60ch">This is the packet your board gets by the 5th business day, every month. Lime boxes are annotations explaining what to look at; they are not in the real thing. Every number in the real packet is a link to the general ledger line and the document behind it.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Operating cash</div><div class="v">{{ snap.operating_cash|money0 }}</div></div>
+      <div class="kpi"><div class="l">Reserve cash</div><div class="v">{{ snap.reserve_cash|money0 }}</div></div>
+      <div class="kpi"><div class="l">Receivable</div><div class="v">{{ snap.ar_total|money0 }}</div></div>
+      <div class="kpi"><div class="l">YTD net vs budget</div><div class="v pos">+{{ ((snap.ytd_income - snap.ytd_expense) - (snap.ytd_budget_income - snap.ytd_budget_expense))|money0 }}</div></div>
+    </div>
+    <h3>Contents</h3>
+    <ol style="margin:0;padding-left:18px;columns:2">
+      <li>hey's summary for the board</li><li>Balance sheet</li><li>Income and expense vs budget</li><li>Bank reconciliation</li><li>Accounts receivable aging and delinquencies</li><li>Accounts payable and approvals</li><li>General ledger detail (excerpt)</li><li>Reserve funding</li>
+    </ol>
+  </div>
+  <p class="foot">Prepared by {{ brand.name }} on a cash basis from the association's bank feed, invoices and owner ledger. Not audited. Questions: {{ brand.email }} · {{ brand.phone }}</p>
+</section>
+
+<!-- 2 summary -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 2</div></div>
+  <h2>hey's summary for the board</h2>
+  <p>September closed on time. Cash is up {{ (snap.monthly_cash[-2][1] - snap.monthly_cash[-3][1])|money0 }} month over month. Expenses are {{ (snap.ytd_budget_expense - snap.ytd_expense)|money0 }} under budget year to date, mostly repairs and irrigation. Three things need a decision:</p>
+  <ol>
+    <li><strong>Pool service invoice AP-889 ($640)</strong> is 28% above the 12-month average. The difference is a $142 chlorine shock treatment. It sits in the approval queue with the PDF attached.</li>
+    <li><strong>Unit 3 ($1,240, 94 days)</strong> has a lien recorded and crossed 90 days. Attorney referral needs a board vote under the collection policy; it is on the November agenda.</li>
+    <li><strong>Asphalt seal and stripe ($18,500)</strong> is due in 2027 per the reserve study. hey will request three bids in March so the board can vote in April.</li>
+  </ol>
+  <div class="note"><strong>Annotation</strong>The summary is written by hey from the ledger and the month's activity, then reviewed by your coordinator. It is the page most boards read first, and often the only one they need to.</div>
+  <h3>Month at a glance</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Item</th><th class="num">September</th><th class="num">August</th><th class="num">Change</th></tr></thead>
+    <tbody>
+      <tr><td>Assessments billed</td><td class="num">$14,880.00</td><td class="num">$14,880.00</td><td class="num">—</td></tr>
+      <tr><td>Assessments collected</td><td class="num">$14,570.00</td><td class="num">$14,260.00</td><td class="num pos">+$310.00</td></tr>
+      <tr><td>Operating expenses paid</td><td class="num">$9,214.37</td><td class="num">$10,102.80</td><td class="num pos">−$888.43</td></tr>
+      <tr><td>Reserve contribution</td><td class="num">$3,000.00</td><td class="num">$3,000.00</td><td class="num">—</td></tr>
+      <tr><td>Owners on autopay</td><td class="num">31 of 48</td><td class="num">29 of 48</td><td class="num pos">+2</td></tr>
+      <tr><td>Owner questions answered by hey</td><td class="num">41</td><td class="num">37</td><td class="num">+4 (0 escalated)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 3 balance sheet -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 3</div></div>
+  <h2>Balance sheet <span class="muted" style="font-weight:400">as of Sep 30, 2026</span></h2>
+  <div class="two">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Assets</th><th class="num">Balance</th></tr></thead>
+      <tbody>
+        {% for a in coa if a.type == 'Asset' %}<tr><td>{{ a.number }} {{ a.name }}</td><td class="num">{{ a.balance|money }}</td></tr>{% endfor %}
+        <tr class="tot"><td>Total assets</td><td class="num">{{ coa|selectattr('type','equalto','Asset')|sum(attribute='balance')|money }}</td></tr>
+      </tbody>
+    </table></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Liabilities and equity</th><th class="num">Balance</th></tr></thead>
+      <tbody>
+        {% for a in coa if a.type == 'Liability' %}<tr><td>{{ a.number }} {{ a.name }}</td><td class="num">{{ a.balance|money }}</td></tr>{% endfor %}
+        <tr><td>3010 Operating fund balance</td><td class="num">{{ (48210.55 + 3100 - 6877.37 - 1860)|money }}</td></tr>
+        <tr><td>3020 Reserve fund balance</td><td class="num">{{ 162480.00|money }}</td></tr>
+        <tr class="tot"><td>Total liabilities and equity</td><td class="num">{{ coa|selectattr('type','equalto','Asset')|sum(attribute='balance')|money }}</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="note"><strong>Annotation</strong>Operating and reserve funds are shown separately because your governing documents and most state statutes require it. The reserve line ties to the funding page (page 9). Prepaid assessments are a liability: owners who paid ahead are owed the service.</div>
+</section>
+
+<!-- 4 income vs budget -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 4</div></div>
+  <h2>Income and expense vs budget <span class="muted" style="font-weight:400">year to date</span></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Line</th><th class="num">Sept actual</th><th class="num">YTD actual</th><th class="num">YTD budget</th><th class="num">Variance</th><th class="num">Annual budget</th></tr></thead>
+    <tbody>
+      <tr><td colspan="6"><strong>Income</strong></td></tr>
+      {% for n, a, b in snap.income_lines %}<tr><td>{{ n }}</td><td class="num">{{ (a/9)|money }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num {{ 'pos' if a >= b else 'neg' }}">{{ (a - b)|money }}</td><td class="num">{{ (b/9*12)|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td>Total income</td><td class="num">{{ (snap.ytd_income/9)|money }}</td><td class="num">{{ snap.ytd_income|money }}</td><td class="num">{{ snap.ytd_budget_income|money }}</td><td class="num pos">{{ (snap.ytd_income - snap.ytd_budget_income)|money }}</td><td class="num">{{ (snap.ytd_budget_income/9*12)|money }}</td></tr>
+      <tr><td colspan="6"><strong>Expense</strong></td></tr>
+      {% for n, a, b in snap.expense_lines %}<tr><td>{{ n }}</td><td class="num">{{ (a/9)|money }}</td><td class="num">{{ a|money }}</td><td class="num">{{ b|money }}</td><td class="num {{ 'pos' if a <= b else 'neg' }}">{{ (a - b)|money }}</td><td class="num">{{ (b/9*12)|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td>Total expense</td><td class="num">{{ (snap.ytd_expense/9)|money }}</td><td class="num">{{ snap.ytd_expense|money }}</td><td class="num">{{ snap.ytd_budget_expense|money }}</td><td class="num pos">{{ (snap.ytd_expense - snap.ytd_budget_expense)|money }}</td><td class="num">{{ (snap.ytd_budget_expense/9*12)|money }}</td></tr>
+      <tr class="tot"><td>Net</td><td class="num">{{ ((snap.ytd_income - snap.ytd_expense)/9)|money }}</td><td class="num">{{ (snap.ytd_income - snap.ytd_expense)|money }}</td><td class="num">{{ (snap.ytd_budget_income - snap.ytd_budget_expense)|money }}</td><td class="num pos">{{ ((snap.ytd_income - snap.ytd_expense) - (snap.ytd_budget_income - snap.ytd_budget_expense))|money }}</td><td class="num"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>Variance is actual minus budget. Green is good in both directions: income above budget, expense below. Pool is red because of the September shock treatment; hey flagged the invoice before it was paid, not after. The monthly column is shown as an average here; the real packet shows the actual month.</div>
+</section>
+
+<!-- 5 bank rec -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 5</div></div>
+  <h2>Bank reconciliation <span class="muted" style="font-weight:400">operating account, Sep 30, 2026</span></h2>
+  <div class="two">
+    <div class="table-wrap"><table>
+      <tbody>
+        <tr><td>Balance per bank statement</td><td class="num">$49,106.95</td></tr>
+        <tr><td>Add: deposits in transit (lockbox 9/30)</td><td class="num">$620.00</td></tr>
+        <tr><td>Less: outstanding checks (2)</td><td class="num">−$1,516.40</td></tr>
+        <tr class="tot"><td>Adjusted bank balance</td><td class="num">$48,210.55</td></tr>
+        <tr><td>Balance per general ledger (1010)</td><td class="num">$48,210.55</td></tr>
+        <tr class="tot"><td>Difference</td><td class="num">$0.00 <span class="ok">✓</span></td></tr>
+      </tbody>
+    </table></div>
+    <div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Outstanding checks</th><th class="num">Amount</th></tr></thead>
+        <tbody>
+          <tr><td>#2231 Bright Light Electric · 9/26</td><td class="num">$285.00</td></tr>
+          <tr><td>#2232 City of Mesa Utilities · 9/29</td><td class="num">$1,231.40</td></tr>
+        </tbody>
+      </table></div>
+      <p class="src" style="margin-top:8px">Reconciled Oct 3, 2026 by hey · reviewed by D. Alvarez, CPA · 212 of 212 bank lines matched to a document</p>
+    </div>
+  </div>
+  <div class="note"><strong>Annotation</strong>A reconciliation that ends in zero, with the outstanding items listed, is the single best test of whether anyone is actually watching the money. Ask your current provider for last month's. The reserve account reconciliation follows the same format.</div>
+  <h3>Reserve account</h3>
+  <div class="table-wrap"><table><tbody>
+    <tr><td>Balance per bank (money market)</td><td class="num">$162,480.00</td></tr>
+    <tr><td>Balance per general ledger (1020)</td><td class="num">$162,480.00</td></tr>
+    <tr class="tot"><td>Difference</td><td class="num">$0.00 <span class="ok">✓</span></td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- 6 AR aging -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 6</div></div>
+  <h2>Accounts receivable aging and delinquencies</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Bucket</th><th class="num">Accounts</th><th class="num">Balance</th><th class="num">% of AR</th></tr></thead>
+    <tbody>
+      <tr><td>Current (0–15 days)</td><td class="num">1</td><td class="num">$310.00</td><td class="num">10%</td></tr>
+      <tr><td>16–30 days</td><td class="num">0</td><td class="num">$0.00</td><td class="num">0%</td></tr>
+      <tr><td>31–60 days</td><td class="num">1</td><td class="num">$620.00</td><td class="num">20%</td></tr>
+      <tr><td>61–90 days</td><td class="num">1</td><td class="num">$930.00</td><td class="num">30%</td></tr>
+      <tr><td>Over 90 days</td><td class="num">1</td><td class="num">$1,240.00</td><td class="num">40%</td></tr>
+      <tr class="tot"><td>Total receivable</td><td class="num">4</td><td class="num">$3,100.00</td><td class="num">2.1% of annual assessments</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Delinquent accounts and collection stage</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Unit</th><th class="num">Balance</th><th class="num">Days</th><th>Stage (Exhibit B)</th><th>Last action</th><th>Next action</th></tr></thead>
+    <tbody>{% for d in delinquencies %}<tr><td>{{ d.unit_label }}</td><td class="num">{{ d.balance|money }}</td><td class="num">{{ d.days_late }}</td><td>{{ d.stage|replace('_',' ') }}</td><td>{{ d.last_action }}</td><td>{{ d.next_action }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>Owner names are on the board version, not this sample. Every stage follows the collection policy your board adopted; hey drafts the notice, a person reviews and sends it, and the fee posts to the owner's ledger, not the association's expense line.</div>
+</section>
+
+<!-- 7 AP -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 7</div></div>
+  <h2>Accounts payable and approvals</h2>
+  <h3>Paid in September</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Vendor</th><th>Invoice</th><th>GL account</th><th>Approved by</th><th class="num">Amount</th></tr></thead>
+    <tbody>{% for i in invoices if i.status == 'paid' %}<tr><td>{{ i.vendor }}</td><td>{{ i.number }} · {{ i.invoice_date|datefmt }}</td><td>{{ i.gl_account }}</td><td>2 of 2 · portal</td><td class="num">{{ i.amount|money }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <h3>Awaiting board approval (as of Oct 5)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Vendor</th><th>Invoice</th><th>GL account</th><th>hey's note</th><th class="num">Amount</th></tr></thead>
+    <tbody>{% for i in invoices if i.status == 'pending_board' %}<tr><td>{{ i.vendor }}</td><td>{{ i.number }} · due {{ i.due_date|datefmt }}</td><td>{{ i.gl_account }}</td><td style="max-width:260px">{{ i.ai_note }}</td><td class="num">{{ i.amount|money }}</td></tr>{% endfor %}
+      <tr class="tot"><td colspan="4">Total pending</td><td class="num">{{ invoices|selectattr('status','equalto','pending_board')|sum(attribute='amount')|money }}</td></tr></tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>Nothing is paid without two board approvals in the portal. hey reads each invoice, codes it, checks it against the contract and the 12-month trend, and writes the note you see. The board decides in about a minute per invoice.</div>
+</section>
+
+<!-- 8 GL excerpt -->
+<section class="page">
+  <div class="hdr">{% include 'partials/hey-mark.html' %}<div class="meta">{{ community.name }} · September 2026 · page 8</div></div>
+  <h2>General ledger detail <span class="muted" style="font-weight:400">excerpt: 6210 Landscaping</span></h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Ref</th><th>Description</th><th>Source</th><th class="num">Debit</th><th class="num">Balance</th></tr></thead>
+    <tbody>
+      <tr><td>Jan 5</td><td>GS-20102</td><td>GreenScape Lawn Co · January maintenance</td><td class="src">invoice.pdf · chk 2201</td><td class="num">$1,850.00</td><td class="num">$1,850.00</td></tr>
+      <tr><td>Feb 4</td><td>GS-20148</td><td>GreenScape Lawn Co · February maintenance</td><td class="src">invoice.pdf · chk 2206</td><td class="num">$1,850.00</td><td class="num">$3,700.00</td></tr>
+      <tr><td>Mar 5</td><td>GS-20190</td><td>GreenScape Lawn Co · March maintenance (contract +3%)</td><td class="src">invoice.pdf · ach</td><td class="num">$1,850.00</td><td class="num">$5,550.00</td></tr>
+      <tr><td colspan="4" class="muted">… April through August, 5 entries, all matched to contract …</td><td class="num"></td><td class="num">$14,800.00</td></tr>
+      <tr><td>Sep 3</td><td>GS-20387</td><td>GreenScape Lawn Co · September maintenance</td><td class="src">invoice.pdf · ach</td><td class="num">$1,850.00</td><td class="num">$16,650.00</td></tr>
+      <tr><td>Sep 18</td><td>GS-20401</td><td>GreenScape Lawn Co · storm cleanup (board-approved extra)</td><td class="src">invoice.pdf · bid.pdf · ach</td><td class="num">$1,850.00</td><td class="num">$18,500.00</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Annotation</strong>In the real packet the "Source" column is clickable: invoice PDF, bank line, approval record. This is what "every number links to its source" means. The full GL for all accounts is attached as a spreadsheet, every month.</div>
+  <h3>Reserve funding <span class="muted" style="font-weight:400">vs 2026 Level II study</span></h3>
+  <div class="two">
+    <div class="table-wrap"><table><tbody>
+      <tr><td>Reserve balance, Sep 30</td><td class="num">$162,480.00</td></tr>
+      <tr><td>Fully funded balance per study</td><td class="num">$198,000.00</td></tr>
+      <tr class="tot"><td>Percent funded</td><td class="num">82%</td></tr>
+      <tr><td>2026 contribution (YTD / annual)</td><td class="num">$27,000 / $36,000</td></tr>
+      <tr><td>Study's recommended 2027 contribution</td><td class="num">$39,000</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Next expenditures</th><th>Year</th><th class="num">Cost</th></tr></thead>
+      <tbody><tr><td>Asphalt seal and stripe</td><td>2027</td><td class="num">$18,500</td></tr><tr><td>Entry monument and lighting</td><td>2028</td><td class="num">$14,000</td></tr><tr><td>Pool resurface</td><td>2030</td><td class="num">$46,000</td></tr></tbody>
+    </table></div>
+  </div>
+  <p class="src" style="margin-top:14px">Sample packet with demo data. Prepared by hey hoa. Real packets are delivered by the 5th business day or that month's fee is waived.</p>
+</section>
+</body>
+</html>

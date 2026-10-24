@@ -7,7 +7,7 @@ AI-first accounting and back office for self-managed HOAs and condos, sold at a 
 - **Self-governed communities, 15–200 doors.** Townhomes, small condos, single-family HOAs. Big enough that the books matter, small enough that a management company is overkill.
 - **Buyer:** the treasurer (first) and the president (second). Volunteer, usually the most competent person on the board, usually tired.
 - **Trigger events:** treasurer resigns or moves; financials chronically late; a duplicate payment or missed reconciliation surfaces; a closing is delayed for lack of a resale certificate; management contract renewal with a price hike; annual meeting with no budget.
-- **Geography:** US-wide (remote by design). Beachhead is **Arizona** (Phoenix metro), where the operating entity, the services agreement and the first client already are. Second wave: TX, CO, NC, GA, UT, NV, WA; FL after CAM-licensing review.
+- **Geography:** US-wide (remote by design). hey hoa is the national brand; the Arizona sister company, Heywood Realty & Investment, is the proving ground and reference base. hey's first outbound launch market is **Texas**, then CO, NC, GA, UT; FL and NV after CAM-licensing review.
 - **Not a fit (yet):** sub-10-door communities that want only tax filing; 300+ door communities with on-site staff; communities that want someone to walk the property.
 
 ## What we sell

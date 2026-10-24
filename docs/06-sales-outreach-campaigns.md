@@ -3,8 +3,8 @@
 Founder-led, high-touch, low-volume. 300 touches a month is plenty. Every reply gets a human answer within an hour during business hours.
 
 ## Lists: where treasurers come from
-1. **Arizona Corporation Commission.** Every association is a nonprofit corporation; the annual report lists officers, directors and the statutory agent. Filter Maricopa and Pima County entities with "association", "condominium", "homeowners" in the name whose statutory agent is an individual or the association itself rather than a management company: that is the self-managed list.
-2. **Maricopa County Recorder.** Declarations and amendments are recorded; A.R.S. § 33-1807 / § 33-1256 lien recordings also reveal who is collecting (a law firm or manager vs the board). Cross with (1). For Texas (wave two): management certificates under Tex. Prop. Code § 209.004.
+1. **Texas management certificates.** Tex. Prop. Code § 209.004 requires every association to record a management certificate with the county clerk naming its contact and manager. Pull Williamson, Travis, Bexar, Collin and Denton counties; filter where the contact is a person or the association itself rather than a management company: that is the self-managed list. Also filed with TREC's online database since 2022.
+2. **State nonprofit registries.** Associations are nonprofits; the Texas SOS / Comptroller records list officers. Cross with (1). For Arizona (handled by the sister company): the Corporation Commission annual report and Maricopa County Recorder.
 3. **LinkedIn.** Search "HOA treasurer", "board treasurer homeowners association", "HOA president" by metro. Low volume, high quality.
 4. **Board forums.** Reddit r/HOA, Facebook HOA board groups, Nextdoor. Do not scrape; participate.
 5. **Partner referrals.** Title companies and HOA attorneys know which boards are struggling.
@@ -56,7 +56,7 @@ Trigger: public complaints, contract renewal season (Sept–Nov), or a referral.
 | What if you miss the 5th | That month is free. It is in the contract. |
 | What happens to our data if you fail | Exports in standard formats any time; FrontSteps or our ledger, your name on the account. |
 | We are mid-year | We rebuild in parallel and go live at month end. Most boards switch in three weeks. |
-| Is this legal in our state | Arizona does not license community managers, and our agreement is expressly administrative, not property management. Other states on request; FL/NV pending counsel. |
+| Is this legal in our state | Texas and Arizona do not license community managers, and our agreement is expressly administrative, not property management. Other states on request; FL/NV pending counsel. |
 
 ## Cadence and hygiene
 - Send Tue–Thu, 8–10am local. Plain text, no images, one link.
@@ -66,4 +66,4 @@ Trigger: public complaints, contract renewal season (Sept–Nov), or a referral.
 - Weekly review: reply rate, meeting rate, which subject lines and pains got traction. Rewrite the weakest touch each week.
 
 ## Targets, month one
-300 touches (East Valley first) → 25 replies (8%) → 10 calls → 4 free reviews → 2 proposals → 1 signed.
+300 touches (Central Texas first) → 25 replies (8%) → 10 calls → 4 free reviews → 2 proposals → 1 signed.

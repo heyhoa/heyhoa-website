@@ -4,8 +4,9 @@ BRAND = {
     "name": "hey hoa",
     "short": "hey",
     "domain": "heyhoa.com",
-    "legal_entity": "Heywood Realty & Investment, Inc.",
-    "legal_state": "Arizona",
+    "legal_entity": "hey hoa",  # national brand; its own entity to be formed (doc 11, decision 3)
+    "sister_company": "Heywood Realty & Investment, Inc.",  # Arizona affiliate that runs this locally today
+    "sister_state": "Arizona",
     "email": "hello@heyhoa.com",
     "phone": "(800) 555-0199",
     "tagline": "You run the community. hey runs the books.",

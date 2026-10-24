@@ -8,7 +8,7 @@ MARKETING = [
     "/", "/pricing", "/services", "/services/accounting", "/services/back-office", "/services/collections",
     "/how-it-works", "/self-managed", "/compare", "/reviews", "/about", "/faq", "/blog",
     "/blog/myth-of-full-service-management", "/homeowners", "/realtors", "/quote", "/contact", "/privacy", "/terms", "/brand", "/login",
-    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office",
+    "/login/homeowner", "/login/board", "/api/health", "/api/provider/ping", "/sitemap.xml", "/robots.txt", "/quote?plan=back-office", "/sample-packet",
 ]
 HOMEOWNER = ["/me/dashboard", "/me/pay", "/me/ledger", "/me/requests", "/me/requests/new", "/me/arc", "/me/arc/new", "/me/documents", "/me/directory", "/me/profile", "/me/ask"]
 BOARD = ["/board/dashboard", "/board/financials", "/board/invoices", "/board/invoices?status=pending_board", "/board/delinquencies", "/board/delinquencies?draft=ua-1003",

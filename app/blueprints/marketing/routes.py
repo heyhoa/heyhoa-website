@@ -174,6 +174,18 @@ def brand_page():
     return render_template("marketing/brand.html")
 
 
+@bp.route("/sample-packet")
+def sample_packet():
+    """HTML source of the sample financial packet; scripts/build_sample_packet.js prints it to PDF."""
+    from ...integrations.mock import MockProvider
+
+    p = MockProvider()
+    return render_template(
+        "marketing/sample_packet.html", community=p.get_community("1001"), snap=p.get_financial_snapshot("1001"),
+        coa=p.get_chart_of_accounts("1001"), invoices=p.list_invoices("1001"), delinquencies=p.list_delinquencies("1001"),
+    )
+
+
 PUBLIC_ENDPOINTS = [
     ("marketing.index", {}, "weekly", "1.0"), ("marketing.pricing_page", {}, "weekly", "0.9"), ("marketing.services", {}, "monthly", "0.8"),
     ("marketing.service_detail", {"slug": "accounting"}, "monthly", "0.8"), ("marketing.service_detail", {"slug": "back-office"}, "monthly", "0.8"),
@@ -196,5 +208,5 @@ def sitemap():
 
 @bp.route("/robots.txt")
 def robots():
-    txt = f"User-agent: *\nAllow: /\nDisallow: /me/\nDisallow: /board/\nDisallow: /api/\nDisallow: /login\nDisallow: /brand\nSitemap: {url_for('marketing.sitemap', _external=True)}\n"
+    txt = f"User-agent: *\nAllow: /\nDisallow: /me/\nDisallow: /board/\nDisallow: /api/\nDisallow: /login\nDisallow: /brand\nDisallow: /sample-packet\nSitemap: {url_for('marketing.sitemap', _external=True)}\n"
     return Response(txt, mimetype="text/plain")
