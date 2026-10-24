@@ -1,6 +1,6 @@
 // hey portal: list + drawer, keyboard, bulk select. No framework.
 (function () {
-  const rows = () => Array.from(document.querySelectorAll('table.data tbody tr[data-drawer]'));
+  const rows = () => Array.from(document.querySelectorAll('table.data tbody tr[data-drawer], .inbox-row[data-drawer]'));
   const drawers = () => Array.from(document.querySelectorAll('.drawer'));
   let current = null;
 
@@ -34,7 +34,9 @@
     const t = e.target;
     if (t.closest('[data-open]')) { e.preventDefault(); open(t.closest('[data-open]').dataset.open); return; }
     if (t.closest('.drawer-close') || t.classList.contains('drawer-backdrop')) { closeAll(); return; }
-    const row = t.closest('table.data tbody tr[data-drawer]');
+    const go = t.closest('.inbox-row[data-href]');
+    if (go && !t.closest('a, button, input, select, label, form')) { location.href = go.dataset.href; return; }
+    const row = t.closest('table.data tbody tr[data-drawer], .inbox-row[data-drawer]');
     if (row && !t.closest('a, button, input, select, label, form')) open(row.dataset.drawer);
   });
 

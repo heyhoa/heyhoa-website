@@ -5,43 +5,46 @@
 {% block page_title %}Hey, {{ me.name.split(' ')[0] }}.{% endblock %}
 {% block page_actions %}<span class="small muted">{{ today|datefmt('%A, %B %d') }}</span>{% endblock %}
 {% block content %}
-{% if show_firsts %}<div class="card" style="border-color:var(--lime);margin-bottom:.8rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
-  <strong style="white-space:nowrap">Your first month</strong>
-  {% for label, ok, url in firsts %}<a href="{{ url }}" class="small" style="text-decoration:none;color:{{ 'var(--fg-2)' if ok else 'var(--fg)' }}"><span class="pill {{ 'green' if ok }}">{{ '✓' if ok else loop.index }}</span> {{ label }}</a>{% endfor %}
-  <form method="post" action="{{ url_for('board.hide_firsts') }}" style="margin-left:auto"><button class="btn btn-ghost btn-sm">Hide</button></form>
+{% if show_firsts %}<div class="firstmonth">
+  <strong>Your first month</strong>
+  <ol>{% for label, ok, url in firsts %}<li class="{{ 'done' if ok }}"><a href="{{ url }}"><span class="n">{{ '✓' if ok else loop.index }}</span>{{ label }}</a></li>{% endfor %}</ol>
+  <form method="post" action="{{ url_for('board.hide_firsts') }}"><button class="btn btn-ghost btn-sm">Hide</button></form>
 </div>{% endif %}
 
-<div class="toolbar" style="margin-bottom:.4rem"><h3 style="margin:0">Needs you <span class="pill {{ 'lime' if n_needs else '' }}">{{ n_needs }}</span></h3><span class="small muted">Click a row. <kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve</span></div>
+<div class="toolbar"><h3 style="margin:0">Needs you <span class="pill {{ 'lime' if n_needs else '' }}">{{ n_needs }}</span></h3><span class="small muted hide-phone"><kbd>j</kbd> <kbd>k</kbd> move · <kbd>a</kbd> approve</span></div>
 {% if n_needs %}
-<div class="table-wrap"><table class="data stack">
-  <tbody>
-  {% for i in pending %}{% set ev = evidence[i.id] %}<tr data-drawer="inv-{{ i.id }}">
-    <td class="tag" style="width:6rem"><span class="pill amber">bill</span></td>
-    <td class="lead"><span class="primary">{{ i.vendor }} · {{ i.amount|money }}</span><span class="sub">{{ i.description[:60] }} · {{ (i.ai_note or ev.checks[0][1]).split(' ·')[0][:80] }}</span></td>
-    <td class="small muted" style="width:9rem">{{ i.approvals }}/{{ i.approvals_required }} approvals · due {{ i.due_date|datefmt('%b %d') }}</td>
-  </tr>{% endfor %}
-  {% for d in votes %}{% set s = spec(d.category) %}{% set yes = (d.remote_ids or {}).get('votes', [])|selectattr('vote','equalto','approve')|list|length %}<tr data-drawer="dec-{{ d.id }}">
-    <td class="tag"><span class="pill blue">vote</span></td>
-    <td class="lead"><span class="primary">{{ d.subject }}</span><span class="sub">{{ s.label.split(' (')[0] }} · {{ d.summary.split('\n')[0][:80] }}</span></td>
-    <td class="small muted">{{ yes }}/{{ s.approvals }} votes · asked {{ d.created_at|datefmt('%b %d') }}</td>
-  </tr>{% endfor %}
-  {% for a in arcs %}<tr onclick="location.href='{{ url_for('board.arc') }}'" style="cursor:pointer">
-    <td class="tag"><span class="pill blue">review</span></td>
-    <td class="lead"><span class="primary">{{ a.unit_label }} · {{ a.request_type }}</span><span class="sub">{{ a.notes[:80] }}</span></td>
-    <td class="small muted">{{ a.approvals }}/{{ a.approvals_required }} reviews</td>
-  </tr>{% endfor %}
-  {% for r in cal_rows %}<tr onclick="location.href='{{ url_for('board.calendar_page') }}#cal-{{ r.item.id }}'" style="cursor:pointer">
-    <td class="tag"><span class="pill {{ 'red' if r.status == 'overdue' else '' }}">{{ 'overdue' if r.status == 'overdue' else 'to do' }}</span></td>
-    <td class="lead"><span class="primary">{{ r.item.title }}</span><span class="sub">{{ (r.item.steps or ['Open the calendar for the steps'])[0] }}{% if r.item.source %} · {{ r.item.source }}{% endif %}</span></td>
-    <td class="small muted">due {{ r.due|datefmt('%b %d') }}</td>
-  </tr>{% endfor %}
-  {% for w in messages %}<tr onclick="location.href='{{ url_for('board.inbox_item', item_id=w.id) }}'" style="cursor:pointer">
-    <td class="tag"><span class="pill">message</span></td>
-    <td class="lead"><span class="primary">{{ w.subject }}</span><span class="sub">{{ w.counterpart_name or w.counterpart_email or 'owner' }} · {{ (w.summary or '')[:100] }}</span></td>
-    <td class="small muted">{{ w.updated_at|datefmt('%b %d') }}</td>
-  </tr>{% endfor %}
-  </tbody>
-</table></div>
+<ul class="inbox">
+  {% for i in pending %}{% set ev = evidence[i.id] %}
+  <li class="inbox-row" data-drawer="inv-{{ i.id }}">
+    <span class="ir-tag"><span class="pill amber">bill</span></span>
+    <span class="ir-main"><span class="ir-title">{{ i.vendor }} · {{ i.amount|money }}</span><span class="ir-sub">{{ i.description[:60] }} · {{ (i.ai_note or ev.checks[0][1]).split(' ·')[0][:80] }}</span></span>
+    <span class="ir-meta">{{ i.approvals }}/{{ i.approvals_required }} approvals · due {{ i.due_date|datefmt('%b %d') }}</span>
+  </li>{% endfor %}
+  {% for d in votes %}{% set s = spec(d.category) %}{% set yes = (d.remote_ids or {}).get('votes', [])|selectattr('vote','equalto','approve')|list|length %}
+  <li class="inbox-row" data-drawer="dec-{{ d.id }}">
+    <span class="ir-tag"><span class="pill blue">vote</span></span>
+    <span class="ir-main"><span class="ir-title">{{ d.subject }}</span><span class="ir-sub">{{ s.label.split(' (')[0] }} · {{ d.summary.split('\n')[0][:80] }}</span></span>
+    <span class="ir-meta">{{ yes }}/{{ s.approvals }} votes · asked {{ d.created_at|datefmt('%b %d') }}</span>
+  </li>{% endfor %}
+  {% for a in arcs %}
+  <li class="inbox-row" data-href="{{ url_for('board.arc') }}">
+    <span class="ir-tag"><span class="pill blue">review</span></span>
+    <span class="ir-main"><span class="ir-title">{{ a.unit_label }} · {{ a.request_type }}</span><span class="ir-sub">{{ a.notes[:80] }}</span></span>
+    <span class="ir-meta">{{ a.approvals }}/{{ a.approvals_required }} reviews</span>
+  </li>{% endfor %}
+  {% for r in cal_rows %}
+  <li class="inbox-row" data-href="{{ url_for('board.calendar_page') }}#cal-{{ r.item.id }}">
+    <span class="ir-tag"><span class="pill {{ 'red' if r.status == 'overdue' else '' }}">{{ 'overdue' if r.status == 'overdue' else 'to do' }}</span></span>
+    <span class="ir-main"><span class="ir-title">{{ r.item.title }}</span><span class="ir-sub">{{ (r.item.steps or ['Open the calendar for the steps'])[0] }}{% if r.item.source %} · {{ r.item.source }}{% endif %}</span></span>
+    <span class="ir-meta">due {{ r.due|datefmt('%b %d') }}</span>
+  </li>{% endfor %}
+  {% for w in messages %}
+  <li class="inbox-row" data-href="{{ url_for('board.inbox_item', item_id=w.id) }}">
+    <span class="ir-tag"><span class="pill">message</span></span>
+    <span class="ir-main"><span class="ir-title">{{ w.subject }}</span><span class="ir-sub">{{ w.counterpart_name or w.counterpart_email or 'owner' }} · {{ (w.summary or '')[:80] }}</span></span>
+    <span class="ir-meta">{{ w.updated_at|datefmt('%b %d') }}</span>
+  </li>{% endfor %}
+</ul>
 {% else %}
 <div class="card" style="text-align:center;padding:1.6rem"><h3 style="margin:0 0 .3rem">Nothing needs you.</h3><p class="muted" style="margin:0">Bills, votes and calendar items land here, and in your email with one-click links. The numbers below are current as of last night.</p></div>
 {% endif %}
