@@ -1,7 +1,7 @@
 {% extends "ops/base.html" %}
 {% block title %}Leads — hey ops{% endblock %}
 {% block page_title %}Leads &amp; proposals{% endblock %}
-{% block page_actions %}{% for s in ['', 'new', 'contacted', 'proposal', 'accepted', 'won', 'lost'] %}<a class="btn btn-sm {% if s == status %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('ops.leads', status=s or None) }}">{{ s or 'all' }}</a>{% endfor %}{% endblock %}
+{% block page_actions %}{% for s in ['', 'new', 'contacted', 'replied', 'later', 'proposal', 'accepted', 'won', 'lost'] %}<a class="btn btn-sm {% if s == status %}btn-dark{% else %}btn-ghost{% endif %}" href="{{ url_for('ops.leads', status=s or None) }}">{{ s or 'all' }}</a>{% endfor %}{% endblock %}
 {% block content %}
 <div class="table-wrap"><table>
   <thead><tr><th>Score</th><th>Community</th><th>Contact</th><th>Setup / pains</th><th class="num">Quote</th><th>Source</th><th>Status</th><th>Proposal</th><th>Created</th></tr></thead>
@@ -12,10 +12,10 @@
     <td class="small">{{ l.current_setup }}<br><span class="muted">{{ l.pain_points or '—' }}</span></td>
     <td class="num"><strong>${{ "{:,}".format(q.monthly) }}</strong><br><span class="small muted">{{ q.tier.name }}</span></td>
     <td class="small">{{ l.source or 'direct' }}{% if l.utm_campaign %}<br><span class="muted">{{ l.utm_campaign }}</span>{% endif %}</td>
-    <td><form method="post" action="{{ url_for('ops.lead_status', lead_id=l.id) }}"><select class="form-control" name="status" onchange="this.form.submit()" style="width:auto;padding:.25rem .4rem;font-size:.78rem">{% for s in ['new','contacted','proposal','accepted','won','lost'] %}<option value="{{ s }}" {% if l.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></form></td>
-    <td class="small"><a href="{{ proposal_url(l) }}" target="_blank">Open</a></td>
+    <td><form method="post" action="{{ url_for('ops.lead_status', lead_id=l.id) }}"><select class="form-control" name="status" onchange="this.form.submit()" style="width:auto;padding:.25rem .4rem;font-size:.78rem">{% for s in ['new','contacted','replied','later','proposal','accepted','won','lost'] %}<option value="{{ s }}" {% if l.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></form></td>
+    <td class="small"><a href="{{ proposal_url(l) }}" target="_blank">Open</a> · <a href="{{ url_for('ops.lead_review', lead_id=l.id) }}">memo{% if l.review and l.review.delivered_at %} ✓{% endif %}</a>{% if l.replied_at %}<br><span class="muted">replied {{ l.replied_at|datefmt('%b %d') }}</span>{% endif %}</td>
     <td class="small muted">{{ l.created_at|datefmt('%b %d') }}</td>
   </tr>{% else %}<tr><td colspan="9" class="muted">No leads yet. Quote requests, books reviews and outreach imports land here.</td></tr>{% endfor %}</tbody>
 </table></div>
-<p class="small muted" style="margin-top:.75rem">Each lead gets a proposal email drafted in the sales lane and four follow-ups scheduled on sequence A; approve them in the review queue. Mark a lead <em>contacted</em> or <em>lost</em> to stop the sequence.</p>
+<p class="small muted" style="margin-top:.75rem">Each lead gets a proposal email drafted in the sales lane and four follow-ups scheduled on sequence A; approve them in the review queue. A reply to the founder's address stops the sequence on its own and lands in the sales lane with a drafted answer; <em>later</em> means check in before budget season. Mark a lead <em>lost</em> by hand to stop it otherwise.</p>
 {% endblock %}

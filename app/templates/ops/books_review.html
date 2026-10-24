@@ -1,0 +1,33 @@
+{% extends "ops/base.html" %}
+{% block title %}Books review · {{ lead.community_name }} — hey ops{% endblock %}
+{% block page_title %}Books review · {{ lead.community_name }}{% endblock %}
+{% block page_actions %}<a class="btn btn-sm btn-ghost" href="{{ url_for('ops.leads') }}">← Leads</a> <a class="btn btn-sm btn-dark" href="{{ url_for('ops.lead_review', lead_id=lead.id, print=1) }}" target="_blank">Print memo</a>{% endblock %}
+{% block content %}
+<div class="grid-2" style="display:grid;grid-template-columns:1.4fr 1fr;gap:1rem;align-items:start">
+<form method="post" class="card">
+  <p class="small muted">{{ lead.contact_name }} ({{ lead.contact_role }}) · {{ lead.email }} · {{ lead.units }} doors · quote ${{ "{:,}".format(q.monthly) }}/mo on {{ q.tier.name }}{% if review.delivered_at %} · <span class="pill green">delivered {{ review.delivered_at[:10] }}</span>{% endif %}</p>
+  <label class="small">Statements reviewed <input class="form-control" name="months" value="{{ review.months }}" placeholder="Jul–Sep 2026, operating and reserve"></label>
+  <h4 style="margin-top:.75rem">Findings <span class="small muted">(lead with the one that costs them the most)</span></h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Area</th><th>Finding</th><th>Impact</th><th>$</th><th>What we would do</th></tr></thead>
+    <tbody>{% for i in range(6) %}{% set f = review.findings[i] if i < review.findings|length else {} %}<tr>
+      <td><select class="form-control" name="f{{ i }}_area" style="padding:.25rem">{% for k, label in [('cash','Cash'),('income','Assessments'),('vendors','Vendors'),('controls','Controls')] %}<option value="{{ k }}" {% if f.get('area') == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></td>
+      <td><input class="form-control" name="f{{ i }}_finding" value="{{ f.get('finding','') }}" placeholder="Duplicate landscaping payment, Aug 12 and Aug 27, $1,850 each"></td>
+      <td><select class="form-control" name="f{{ i }}_impact" style="padding:.25rem">{% for v in ['high','medium','low','note'] %}<option {% if f.get('impact', 'medium') == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></td>
+      <td><input class="form-control" name="f{{ i }}_amount" value="{{ f.get('amount','') }}" style="width:5.5rem" placeholder="1,850"></td>
+      <td><input class="form-control" name="f{{ i }}_fix" value="{{ f.get('fix','') }}" placeholder="Recover from vendor; AP matching stops the next one"></td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  <h4 style="margin-top:.75rem">Clean areas</h4>
+  <p class="small">{% for k, label, _ in checklist %}<label style="margin-right:1rem"><input type="checkbox" name="clean_{{ k }}" {% if k in review.clean %}checked{% endif %}> {{ label }}</label>{% endfor %}</p>
+  <label class="small">Summary for the memo (three sentences: what we found, what it costs, what changes with hey)<textarea class="form-control" name="summary" rows="4">{{ review.summary }}</textarea></label>
+  <div style="display:flex;gap:.5rem;margin-top:.75rem"><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-ghost" type="submit" name="deliver" value="1">Save and mark delivered</button></div>
+  <p class="small muted" style="margin-top:.5rem">Delivery: print the memo to PDF, email it from the founder's address with the proposal link, log the send on the lead's thread. Two business days from receipt.</p>
+</form>
+<div class="card">
+  <h4>What we look for</h4>
+  {% for k, label, items in checklist %}<p class="small"><strong>{{ label }}</strong></p><ul class="small" style="margin:0 0 .5rem 1rem;padding:0">{% for it in items %}<li>{{ it }}</li>{% endfor %}</ul>{% endfor %}
+  <p class="small muted">Rules: say what we saw, not what we suspect. Every finding has a number or a date. Never name a vendor as dishonest; name the control that was missing. One page. If the books are clean, the memo says so and the proposal still goes.</p>
+</div>
+</div>
+{% endblock %}

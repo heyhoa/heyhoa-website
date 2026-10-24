@@ -99,3 +99,60 @@ def test_ops_leads_pipeline(client):
 def test_home_has_no_fabricated_quotes(client):
     r = client.get("/")
     assert b"Why boards trust this" in r.data and b"Dana W., Treasurer" not in r.data
+
+
+def _reply_payload(email, text):
+    return {"FromFull": {"Email": email, "Name": "Dana Whitfield"}, "ToFull": [{"Email": "austin@heyhoa.com"}], "Subject": "re: your financial packet date", "StrippedTextReply": text, "MessageID": "pm-reply-1"}
+
+
+def test_reply_from_lead_stops_sequence_and_drafts_answer(client):
+    client.post("/quote", data=LEAD)
+    lead = Lead.query.first()
+    assert WorkItem.query.filter_by(kind="followup", state="new").count() == 4
+    from app.agents import runtime
+    item = runtime.inbound_email(_reply_payload(lead.email, "Sure, do you have time for a call next Tuesday afternoon?"))
+    assert item.lane == "sales" and item.kind == "reply" and item.remote_ids["reply_kind"] == "call"
+    assert WorkItem.query.filter_by(kind="followup", state="new").count() == 0
+    lead = db.session.get(Lead, lead.id)
+    assert lead.status == "replied" and lead.replied_at is not None
+    assert item.proposal["action"] == "send_email" and "cal.com" in item.proposal["payload"]["body"]
+    assert item.state == "proposed"  # shadow mode: the founder edits and sends
+
+
+def test_reply_later_and_stop(client):
+    client.post("/quote", data=LEAD)
+    lead = Lead.query.first()
+    from app.agents import runtime
+    item = runtime.inbound_email(_reply_payload(lead.email, "Later please, our budget season is in March."))
+    assert db.session.get(Lead, lead.id).status == "later" and item.remote_ids["reply_kind"] == "later"
+    item2 = runtime.inbound_email(_reply_payload(lead.email, "Please remove me from this list, not interested."))
+    assert item2.proposal["action"] == "none" and db.session.get(Lead, lead.id).status == "lost"
+
+
+def test_unknown_sender_still_goes_to_cs(client):
+    from app.agents import runtime
+    with client.application.app_context():
+        item = runtime.inbound_email(_reply_payload("stranger@example.com", "Hello, who is this?"))
+        assert item.lane == "cs"
+
+
+def test_sequence_touch_carries_booking_link_and_founder(client):
+    client.post("/quote", data=LEAD)
+    lead = Lead.query.first()
+    with client.application.test_request_context():
+        subject, body = sales.render_touch(0, lead)
+    assert "cal.com" in body and "founder, hey hoa" in body and "austin@heyhoa.com" in body
+
+
+def test_books_review_memo_saves_and_prints(client):
+    client.post("/quote", data=LEAD)
+    lead = Lead.query.first()
+    client.post("/login/ops")
+    r = client.get(f"/ops/leads/{lead.id}/review")
+    assert r.status_code == 200 and b"What we look for" in r.data
+    r = client.post(f"/ops/leads/{lead.id}/review", data={"months": "Jul-Sep 2026", "f0_area": "vendors", "f0_finding": "Duplicate landscaping payment Aug 12 and Aug 27", "f0_impact": "high", "f0_amount": "1,850", "f0_fix": "Recover from vendor", "clean_cash": "on", "summary": "One duplicate payment; cash reconciles.", "deliver": "1"}, follow_redirects=True)
+    assert r.status_code == 200
+    lead = db.session.get(Lead, lead.id)
+    assert lead.review["findings"][0]["amount"] == "1,850" and lead.review["delivered_at"] and lead.status == "proposal"
+    r = client.get(f"/ops/leads/{lead.id}/review?print=1")
+    assert b"Duplicate landscaping payment" in r.data and b"$1,850" in r.data and b"not an audit" in r.data

@@ -44,9 +44,10 @@ Goal: a signed community. Site live, proposals out, sequence running, books revi
 - [x] Free books review page (`/books-review`) with uploads → sales work item for the accountant (2-business-day memo)
 - [x] Pricing calculator on `/pricing`
 - [x] Outreach import script + CSV template (`outreach/`)
-- [ ] Books review: the memo template and the accountant's checklist (what we look for, how we present findings)
-- [ ] Call booking link (Cal.com/Calendly) on proposal, quote-thanks and sequence emails
-- [ ] Founder email identity for sequence A (name, signature, reply-to) and a reply handler that marks the lead contacted and stops the sequence
+- [x] Books review: the memo template and the accountant's checklist (`/ops/leads/<id>/review`, `docs/16-books-review.md`)
+- [x] Call booking link (`BOOKING_URL`) on proposal, quote-thanks, proposal email and sequence touches 1 and 4
+- [x] Founder email identity for sequence A (`FOUNDER_*`) and a reply handler: a reply to the founder marks the lead replied/later/accepted/lost, stops the sequence, drafts the answer in the sales lane
+- [ ] Postmark: inbound stream for the founder's address (replies must hit `/api/webhooks/postmark`), DKIM for `FOUNDER_EMAIL`; Cal.com page at `BOOKING_URL`
 - [x] Contact form: becomes a work item in the CS lane plus an ops email and a Slack ping for sales topics
 - [ ] Blog: move posts to markdown files, add RSS, add 9 more posts from the content calendar
 - [ ] SEO: sitemap.xml, robots.txt, OG image per page, schema.org Organization + FAQ

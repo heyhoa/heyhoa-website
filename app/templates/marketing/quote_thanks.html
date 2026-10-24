@@ -14,6 +14,7 @@
     {% endif %}
     <div class="actions">
       <a class="btn btn-primary" href="{{ url_for('auth.login_role', role='board', demo=1) }}">Explore the board portal meanwhile</a>
+      <a class="btn btn-ghost" href="{{ config.BOOKING_URL }}" target="_blank" rel="noopener">Book 15 minutes with the founder</a>
       <a class="btn btn-ghost" href="{{ url_for('marketing.how_it_works') }}">How onboarding works</a>
     </div>
   </div>

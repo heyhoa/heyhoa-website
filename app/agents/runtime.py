@@ -112,10 +112,29 @@ def inbound_email(payload: dict) -> WorkItem:
     m = email_channel.parse_inbound(payload)
     cid = community_from_addresses(m["to"])
     ua = owner_from_email(cid, m["from_email"])
+    if not ua:
+        reply = lead_reply(m)
+        if reply is not None:
+            return reply
     item = create_item(kind="email", lane="cs", subject=m["subject"], summary=m["text"], community_id=cid, unit_account_id=ua.id if ua else None,
                        counterpart_email=m["from_email"], counterpart_name=m["from_name"] or (ua.owner_name if ua else ""), remote_ids={"postmark_message_id": m["message_id"]},
                        evidence=([{"label": "owner", "ref": ua.id, "text": f"{ua.owner_name} · {ua.unit_label} · balance ${ua.balance:,.2f}"}] if ua else []) + [{"label": "attachments", "ref": "", "text": ", ".join(a["name"] or "" for a in m["attachments"]) or "none"}])
     db.session.add(Message(work_item_id=item.id, direction="in", channel="email", sender=m["from_email"], recipient=", ".join(m["to"]), subject=m["subject"], body=m["text"], author="owner" if ua else "unknown", delivered=True, meta={"message_id": m["message_id"]}))
+    return run(item)
+
+
+def lead_reply(m: dict) -> WorkItem | None:
+    """A reply from someone we are selling to: mark the lead, stop sequence A, hand the thread to the sales lane."""
+    from ..services import sales
+
+    lead = sales.lead_for_email(m["from_email"])
+    if not lead or lead.status in ("won",):
+        return None
+    kind = sales.mark_replied(lead, m["text"])
+    item = create_item(kind="reply", lane="sales", subject=f"Reply ({kind}): {lead.community_name}", summary=m["text"][:4000], counterpart_email=m["from_email"], counterpart_name=m["from_name"] or lead.contact_name,
+                       priority="high", remote_ids={"lead_id": lead.id, "reply_kind": kind, "postmark_message_id": m["message_id"]},
+                       evidence=[{"label": "lead", "ref": str(lead.id), "text": f"{lead.community_name} · {lead.units} doors · status {lead.status}"}])
+    db.session.add(Message(work_item_id=item.id, direction="in", channel="email", sender=m["from_email"], recipient=", ".join(m["to"]), subject=m["subject"], body=m["text"], author="lead", delivered=True, meta={"message_id": m["message_id"]}))
     return run(item)
 
 

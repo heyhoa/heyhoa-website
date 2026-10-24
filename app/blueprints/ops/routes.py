@@ -182,6 +182,30 @@ def lead_status(lead_id):
     return redirect(url_for("ops.leads"))
 
 
+@bp.route("/leads/<int:lead_id>/review", methods=["GET", "POST"])
+@role_required("ops")
+def lead_review(lead_id):
+    """Free books review: the accountant's findings memo. GET edits, ?print=1 renders the one-pager, POST saves."""
+    from ...models import Lead
+    from ...services import sales
+    from ...services.books_review import CHECKLIST, blank_review, review_from_form
+
+    lead = db.get_or_404(Lead, lead_id)
+    if request.method == "POST":
+        lead.review = review_from_form(request.form, lead.review)
+        if request.form.get("deliver"):
+            lead.review["delivered_at"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
+            if lead.status in ("new", "contacted", "replied"):
+                lead.status = "proposal"
+        db.session.commit()
+        flash("Books review saved." + (" Marked delivered." if request.form.get("deliver") else ""))
+        return redirect(url_for("ops.lead_review", lead_id=lead.id))
+    review = lead.review or blank_review()
+    if request.args.get("print"):
+        return render_template("ops/books_review_memo.html", lead=lead, review=review, q=sales.quote(lead), proposal_url=sales.proposal_url(lead), booking_url=sales.booking_url())
+    return render_template("ops/books_review.html", lead=lead, review=review, checklist=CHECKLIST, q=sales.quote(lead))
+
+
 @bp.route("/settings")
 @role_required("ops")
 def settings():

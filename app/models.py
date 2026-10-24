@@ -30,7 +30,9 @@ class Lead(db.Model):
     utm_campaign = db.Column(db.String(120))
     referrer = db.Column(db.String(300))
     score = db.Column(db.Integer, default=0)
-    status = db.Column(db.String(30), default="new")  # new|contacted|proposal|won|lost
+    status = db.Column(db.String(30), default="new")  # new|contacted|replied|later|proposal|accepted|won|lost
+    replied_at = db.Column(db.DateTime)  # first inbound reply; the sequence stops here
+    review = db.Column(db.JSON)  # free books review: {"months","findings":[{"area","finding","impact","fix"}],"summary","delivered_at"}
 
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

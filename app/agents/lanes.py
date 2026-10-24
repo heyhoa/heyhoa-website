@@ -171,7 +171,7 @@ class SalesAgent(Agent):
                     f"Onboarding is free and takes three weeks. Financials land by the 5th business day every month or that month's fee is waived.\n\n"
                     f"The written proposal, with what is included, the onboarding calendar and the agreement in plain words: {sales.proposal_url(lead)}\n\n"
                     f"Two ways to go from here:\n1. Send three recent bank statements for a free books review and we tell you what we find within two business days: {url_for('marketing.books_review', _external=True)}\n"
-                    f"2. Reply with a time for a 15-minute call and I will walk your board through the portal.\n\nAustin\nhey hoa · {brand.BRAND['phone']}")
+                    f"2. Book 15 minutes and I will walk your board through the portal: {sales.booking_url()}\n\n{sales.founder_signature()}")
             return Proposal(action="send_email", payload={"to": lead.email, "subject": subject, "body": body}, preview=body, confidence=0.9, sources=["pricing", "lead"], reason=f"score {lead.score}, {q['tier']['name']} recommended")
         if item.kind == "followup":
             step = int((item.remote_ids or {}).get("step", 1))
@@ -179,6 +179,14 @@ class SalesAgent(Agent):
                 return Proposal(action="none", preview=f"Lead is {lead.status}; sequence stopped.", confidence=0.95)
             subject, body = sales.render_touch(step, lead)
             return Proposal(action="send_email", payload={"to": lead.email, "subject": subject, "body": body}, preview=body, confidence=0.85, sources=["sequence A"], reason=f"touch {step + 1} of {len(sales.SEQUENCE_A)}")
+        if item.kind == "reply":
+            kind = (item.remote_ids or {}).get("reply_kind") or sales.classify_reply(item.summary or "")
+            subject, body = sales.draft_reply(lead, kind, item.summary or "")
+            if kind == "stop":
+                return Proposal(action="none", preview=f"{lead.contact_name or lead.email} asked to stop. Lead marked lost, sequence stopped, nothing sent.", confidence=0.95, reason="opt-out")
+            if kind == "later":
+                return Proposal(action="send_email", payload={"to": lead.email, "subject": subject, "body": body}, preview=body, confidence=0.7, sources=["reply"], reason="asked for later; sequence stopped, status later. Founder confirms the note before it goes.")
+            return Proposal(action="send_email", payload={"to": lead.email, "subject": subject, "body": body}, preview=body, confidence=0.6 if kind == "question" else 0.75, sources=["reply", "proposal"], reason=f"{kind} reply; founder edits and sends. Sequence stopped.")
         if item.kind == "books_review":
             return Proposal(action="escalate", payload={"lane": "accountant", "note": "Free books review: statements attached. Deliver the one-page findings memo within 2 business days."}, preview="Statements received for a free books review. Accountant delivers the findings memo in 2 business days; sales follows up with the proposal.", confidence=0.9, reason="offer")
         return Proposal(action="escalate", payload={"lane": "coordinator", "note": item.summary or ""}, preview="Sales item needs a person.", confidence=0.5)

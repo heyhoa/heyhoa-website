@@ -30,6 +30,12 @@ class Config:
     HEY_AI_MODEL = os.environ.get("HEY_AI_MODEL", "claude-opus-5-5")
 
     LEAD_NOTIFY_EMAIL = os.environ.get("LEAD_NOTIFY_EMAIL", "hello@heyhoa.com")
+    # Sales identity: sequence A and proposals go out as the founder, replies come back to the founder.
+    FOUNDER_NAME = os.environ.get("FOUNDER_NAME", "Austin Heywood")
+    FOUNDER_FIRST = os.environ.get("FOUNDER_FIRST", "Austin")
+    FOUNDER_TITLE = os.environ.get("FOUNDER_TITLE", "founder, hey hoa")
+    FOUNDER_EMAIL = os.environ.get("FOUNDER_EMAIL", "austin@heyhoa.com")
+    BOOKING_URL = os.environ.get("BOOKING_URL", "https://cal.com/heyhoa/15min")  # 15-minute board walkthrough
 
     # Transports: Postmark (email), Twilio (SMS), Slack (internal pings)
     POSTMARK_SERVER_TOKEN = os.environ.get("POSTMARK_SERVER_TOKEN", "")
