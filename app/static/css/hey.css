@@ -374,3 +374,82 @@ footer .logo svg { height: 40px; width: auto; fill: var(--fg); }
 .decision > .body { flex: 1 1 auto; min-width: 0; }
 .decision > .amount { flex: none; text-align: right; }
 @media (max-width: 640px) { .decision { flex-direction: column; } .decision > .amount { text-align: left; } }
+
+/* ==========================================================================
+   Portal density. Scoped to .shell so the marketing site keeps its scale.
+   ========================================================================== */
+.shell { grid-template-columns: 216px 1fr; font-size: 14px; line-height: 1.45; }
+.shell .sidebar { padding: 0.9rem 0.7rem; gap: 0.9rem; }
+.shell .sidebar .logo { padding: 0.15rem 0.4rem; gap: 0.45rem; }
+.shell .sidebar .logo svg { height: 24px; }
+.shell .sidebar .logo span { font-size: 0.7rem; }
+.shell .sidebar .community { padding: 0.55rem 0.65rem; font-size: 0.75rem; }
+.shell .sidebar .community strong { font-size: 0.85rem; }
+.shell .sidebar nav a { padding: 0.38rem 0.55rem; font-size: 0.86rem; border-radius: 6px; }
+.shell .sidebar .section-label { font-size: 0.6rem; padding: 0.5rem 0.55rem 0.15rem; }
+.shell .sidebar .me { font-size: 0.75rem; padding: 0.4rem 0.55rem; }
+.shell .main { padding: 1.1rem clamp(1rem, 2.4vw, 1.75rem) 2.5rem; }
+.shell .main > .inner { max-width: 1320px; }
+.shell .topbar { margin-bottom: 1rem; align-items: center; }
+.shell .topbar h1 { font-size: 1.35rem; letter-spacing: -0.02em; }
+.shell .topbar .crumbs { font-size: 0.72rem; margin-bottom: 0.15rem; }
+.shell .flash { padding: 0.55rem 0.8rem; font-size: 0.85rem; margin-bottom: 0.75rem; }
+.shell h2 { font-size: 1.2rem; }
+.shell h3 { font-size: 1rem; margin-bottom: 0.45rem; }
+.shell h4 { font-size: 0.9rem; margin-bottom: 0.35rem; }
+.shell p { margin-bottom: 0.6em; }
+.shell .small { font-size: 0.78rem; }
+.shell .eyebrow { font-size: 0.64rem; margin-bottom: 0.4rem; }
+.shell .grid, .shell .row { gap: 0.8rem; }
+.shell .grid-4 { grid-template-columns: repeat(4, 1fr); }
+.shell .grid-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1100px) { .shell .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+.shell .row { grid-template-columns: 3fr 2fr; }
+.shell .card { padding: 0.9rem 1rem; border-radius: 10px; }
+.shell .card + .card, .shell .card[style*="margin-top:1.25rem"] { margin-top: 0.8rem !important; }
+.shell .stat { padding: 0.7rem 0.9rem; }
+.shell .stat .label { font-size: 0.72rem; margin-bottom: 0.15rem; }
+.shell .stat .value { font-size: 1.45rem; }
+.shell .stat .delta { font-size: 0.74rem; margin-top: 0.15rem; }
+.shell table { font-size: 0.82rem; }
+.shell th, .shell td { padding: 0.42rem 0.65rem; }
+.shell th { font-size: 0.64rem; letter-spacing: 0.05em; }
+.shell .table-wrap { border-radius: 8px; }
+.shell .pill { font-size: 0.68rem; padding: 0.12rem 0.5rem; }
+.shell .btn { padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+.shell .btn-sm { padding: 0.36rem 0.7rem; font-size: 0.76rem; }
+.shell .checks li { padding: 0.33rem 0; font-size: 0.86rem; }
+.shell .timeline li { padding: 0.33rem 0; font-size: 0.82rem; grid-template-columns: 84px 1fr; gap: 0.6rem; }
+.shell .picklist a { padding: 0.55rem 0.8rem; margin-bottom: 0.4rem; font-size: 0.88rem; }
+.shell .iconlist li { padding: 0.22rem 0; font-size: 0.88rem; gap: 0.5rem; }
+.shell .iconlist li::before { width: 16px; height: 16px; font-size: 0.6rem; }
+.shell label { font-size: 0.78rem; margin-bottom: 0.2rem; }
+.shell .form-group { margin-bottom: 0.65rem; }
+.shell .form-row { gap: 0.65rem; }
+.shell .form-control { padding: 0.45rem 0.65rem; font-size: 0.86rem; border-radius: 6px; }
+.shell .form-help-text { font-size: 0.74rem; margin-top: 0.15rem; }
+.shell .form-checkbox-group { margin: 0.25rem 0; font-size: 0.86rem; }
+.shell textarea.form-control { line-height: 1.4; }
+.shell .chat { gap: 0.45rem; }
+.shell .bubble { padding: 0.55rem 0.8rem; font-size: 0.86rem; border-radius: 12px; }
+.shell .bubble .who { font-size: 0.62rem; margin-bottom: 0.1rem; }
+.shell .price { font-size: 1.35rem; }
+.shell .decision { gap: 1rem; }
+.shell .decision .body h4 { font-size: 0.95rem; }
+.shell pre { font-size: 0.82rem; }
+.shell details summary { font-size: 0.86rem; }
+.shell .bars { height: 90px; }
+.shell .bars-labels { font-size: 0.62rem; }
+.shell .muted.small, .shell .small.muted { font-size: 0.76rem; }
+.shell .actions { gap: 0.45rem; }
+.shell .actions form { display: inline; }
+.shell .main > .inner > .card > .table-wrap, .shell .card > .table-wrap { margin-top: 0.4rem; }
+.shell ol.small { margin: 0.25rem 0 0.75rem; }
+.shell .kbd { font-size: 0.72rem; }
+.demo-banner { font-size: 0.74rem; padding: 0.3rem 1rem; position: sticky; top: 0; z-index: 30; }
+.demo-banner + .shell .sidebar { top: 26px; height: calc(100vh - 26px); }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .shell .sidebar nav ul { grid-template-columns: 1fr 1fr 1fr; }
+  .shell .row { grid-template-columns: 1fr; }
+}

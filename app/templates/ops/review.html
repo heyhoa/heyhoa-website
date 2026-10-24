@@ -10,13 +10,14 @@
       <h4 style="margin:0"><a class="nostyle" href="{{ url_for('ops.item', item_id=w.id) }}">#{{ w.id }} · {{ w.subject }}</a></h4>
       <p class="small muted" style="margin:.25rem 0">{{ w.lane }} · {{ w.kind }} · {{ communities[w.community_id].name if w.community_id in communities else 'unknown community' }}{% if w.counterpart_email %} · {{ w.counterpart_name or '' }} &lt;{{ w.counterpart_email }}&gt;{% endif %} · priority {{ w.priority }} · due {{ w.sla_due|datefmt('%b %d %H:%M') if w.sla_due else '—' }}</p>
       {% set pr = w.proposal or {} %}
-      <p class="small" style="margin:.5rem 0 0;padding:.6rem .8rem;background:var(--bg-2);border-radius:8px;border-left:3px solid var(--lime)"><strong>hey proposes · {{ pr.get('action') }}</strong> <span class="muted">({{ (pr.get('confidence', 0) * 100)|round|int }}% · {{ pr.get('reason','') }}{% if pr.get('sources') %} · sources: {{ pr.get('sources')|join(', ') }}{% endif %})</span><br><span style="white-space:pre-wrap">{{ pr.get('preview','')[:900] }}</span></p>
+      {% set editable = pr.get('payload', {}).get('body') %}
+      <p class="small" style="margin:.5rem 0 0;padding:.5rem .8rem;background:var(--bg-2);border-radius:8px;border-left:3px solid var(--lime)"><strong>hey proposes · {{ pr.get('action') }}</strong> <span class="muted">({{ (pr.get('confidence', 0) * 100)|round|int }}% · {{ pr.get('reason','') }}{% if pr.get('sources') %} · sources: {{ pr.get('sources')|join(', ') }}{% endif %})</span>{% if editable %}<br><span>{{ pr.get('preview','').split('\n')[0][:200] }}</span>{% else %}<br><span style="white-space:pre-wrap">{{ pr.get('preview','')[:900] }}</span>{% endif %}</p>
     </div>
     <div class="amount">{{ state_pill(w.state) }}</div>
   </div>
   {% if w.state in ('proposed','escalated') %}
   <form method="post" action="{{ url_for('ops.approve', item_id=w.id) }}" style="margin-top:1rem">
-    {% if (w.proposal or {}).get('payload', {}).get('body') %}<textarea class="form-control" name="body" rows="5">{{ (w.proposal or {}).get('payload', {}).get('body') }}</textarea><span class="form-help-text">Edit before approving if needed. What you approve is what goes out.</span>{% endif %}
+    {% if (w.proposal or {}).get('payload', {}).get('body') %}<textarea class="form-control" name="body" rows="7">{{ (w.proposal or {}).get('payload', {}).get('body') }}</textarea><span class="form-help-text">To {{ (w.proposal or {}).get('payload', {}).get('to') or w.counterpart_email or 'owner on file' }}{% if (w.proposal or {}).get('payload', {}).get('fee') %} · fee ${{ (w.proposal or {}).get('payload', {}).get('fee') }} posts to the ledger{% endif %}. Edit before approving if needed; what you approve is what goes out.</span>{% endif %}
     <div class="actions" style="margin-top:.75rem">
       {% if w.state == 'proposed' %}<button class="btn btn-primary btn-sm">Approve &amp; execute</button>{% endif %}
       <input class="form-control" name="note" placeholder="Note (optional)" style="width:260px;padding:.45rem .7rem">
